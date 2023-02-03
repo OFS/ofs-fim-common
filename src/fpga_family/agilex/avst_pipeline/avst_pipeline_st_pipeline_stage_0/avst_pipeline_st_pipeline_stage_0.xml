@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy
+ date="2022.07.06.22:51:26"
+ outputDirectory="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0/">
+ <perimeter>
+  <parameter
+     name="AUTO_GENERATION_ID"
+     type="Integer"
+     defaultValue="0"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_UNIQUE_ID"
+     type="String"
+     defaultValue=""
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_FAMILY"
+     type="String"
+     defaultValue="Agilex"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE"
+     type="String"
+     defaultValue="AGFB014R24A2I2V"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_SPEEDGRADE"
+     type="String"
+     defaultValue="2"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_CR0_CLOCK_RATE"
+     type="Long"
+     defaultValue="-1"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_CR0_CLOCK_DOMAIN"
+     type="Integer"
+     defaultValue="-1"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_CR0_RESET_DOMAIN"
+     type="Integer"
+     defaultValue="-1"
+     onHdl="0"
+     affectsHdl="1" />
+  <interface name="cr0" kind="clock" start="0">
+   <property name="clockRate" value="0" />
+   <property name="externallyDriven" value="false" />
+   <property name="ptfSchematicName" value="" />
+   <port name="clk" direction="input" role="clk" width="1" />
+  </interface>
+  <interface name="cr0_reset" kind="reset" start="0">
+   <property name="associatedClock" value="cr0" />
+   <property name="synchronousEdges" value="DEASSERT" />
+   <port name="reset" direction="input" role="reset" width="1" />
+  </interface>
+  <interface name="sink0" kind="avalon_streaming" start="0">
+   <property name="associatedClock" value="cr0" />
+   <property name="associatedReset" value="cr0_reset" />
+   <property name="beatsPerCycle" value="1" />
+   <property name="dataBitsPerSymbol" value="8" />
+   <property name="emptyWithinPacket" value="false" />
+   <property name="errorDescriptor" value="" />
+   <property name="firstSymbolInHighOrderBits" value="true" />
+   <property name="highOrderSymbolAtMSB" value="false" />
+   <property name="maxChannel" value="0" />
+   <property name="packetDescription" value="" />
+   <property name="prSafe" value="false" />
+   <property name="readyAllowance" value="0" />
+   <property name="readyLatency" value="0" />
+   <property name="symbolsPerBeat" value="64" />
+   <port name="in_ready" direction="output" role="ready" width="1" />
+   <port name="in_valid" direction="input" role="valid" width="1" />
+   <port
+       name="in_startofpacket"
+       direction="input"
+       role="startofpacket"
+       width="1" />
+   <port name="in_endofpacket" direction="input" role="endofpacket" width="1" />
+   <port name="in_empty" direction="input" role="empty" width="6" />
+   <port name="in_error" direction="input" role="error" width="1" />
+   <port name="in_data" direction="input" role="data" width="512" />
+  </interface>
+  <interface name="source0" kind="avalon_streaming" start="1">
+   <property name="associatedClock" value="cr0" />
+   <property name="associatedReset" value="cr0_reset" />
+   <property name="beatsPerCycle" value="1" />
+   <property name="dataBitsPerSymbol" value="8" />
+   <property name="emptyWithinPacket" value="false" />
+   <property name="errorDescriptor" value="" />
+   <property name="firstSymbolInHighOrderBits" value="true" />
+   <property name="highOrderSymbolAtMSB" value="false" />
+   <property name="maxChannel" value="0" />
+   <property name="packetDescription" value="" />
+   <property name="prSafe" value="false" />
+   <property name="readyAllowance" value="0" />
+   <property name="readyLatency" value="0" />
+   <property name="symbolsPerBeat" value="64" />
+   <port name="out_ready" direction="input" role="ready" width="1" />
+   <port name="out_valid" direction="output" role="valid" width="1" />
+   <port
+       name="out_startofpacket"
+       direction="output"
+       role="startofpacket"
+       width="1" />
+   <port
+       name="out_endofpacket"
+       direction="output"
+       role="endofpacket"
+       width="1" />
+   <port name="out_empty" direction="output" role="empty" width="6" />
+   <port name="out_error" direction="output" role="error" width="1" />
+   <port name="out_data" direction="output" role="data" width="512" />
+  </interface>
+ </perimeter>
+ <entity
+   kind="avst_pipeline_st_pipeline_stage_0"
+   version="1.0"
+   name="avst_pipeline_st_pipeline_stage_0">
+  <parameter name="AUTO_GENERATION_ID" value="0" />
+  <parameter name="AUTO_DEVICE" value="AGFC023R25A2E2VR0" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Agilex" />
+  <parameter name="AUTO_CR0_CLOCK_RATE" value="-1" />
+  <parameter name="AUTO_UNIQUE_ID" value="" />
+  <parameter name="AUTO_CR0_CLOCK_DOMAIN" value="-1" />
+  <parameter name="AUTO_CR0_RESET_DOMAIN" value="-1" />
+  <parameter name="AUTO_DEVICE_SPEEDGRADE" value="2" />
+  <generatedFiles>
+   <file
+       path="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0/synth/avst_pipeline_st_pipeline_stage_0.v"
+       attributes="CONTAINS_INLINE_CONFIGURATION" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0/synth/avst_pipeline_st_pipeline_stage_0.v"
+       attributes="CONTAINS_INLINE_CONFIGURATION" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file
+       path="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0.ip" />
+  </sourceFiles>
+  <childSourceFiles>
+   <file
+       path="/nfs/site/disks/pac_release_1/acds_ac/quartus_22.1_b174_pcie_ss_osc_bnic_1.0/acds/ip/altera/avalon_st/altera_avalon_st_pipeline_stage/altera_avalon_st_pipeline_stage_hw.tcl" />
+  </childSourceFiles>
+  <messages>
+   <message level="Info" culprit="avst_pipeline_st_pipeline_stage_0">"Generating: avst_pipeline_st_pipeline_stage_0"</message>
+   <message level="Info" culprit="avst_pipeline_st_pipeline_stage_0">"Generating: avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq"</message>
+  </messages>
+ </entity>
+ <entity
+   kind="altera_avalon_st_pipeline_stage"
+   version="19.2.0"
+   name="avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq">
+  <generatedFiles>
+   <file
+       path="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0/altera_avalon_st_pipeline_stage_1920/synth/avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq.sv"
+       attributes="" />
+   <file
+       path="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0/altera_avalon_st_pipeline_stage_1920/synth/altera_avalon_st_pipeline_base.v"
+       attributes="" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0/altera_avalon_st_pipeline_stage_1920/synth/avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq.sv"
+       attributes="" />
+   <file
+       path="/nfs/site/disks/swuser_work_suddanda/osc_int/ofs-rtl.pcie_1.01/src/ip/avst_pipeline/agilex/avst_pipeline_st_pipeline_stage_0/altera_avalon_st_pipeline_stage_1920/synth/altera_avalon_st_pipeline_base.v"
+       attributes="" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file
+       path="/nfs/site/disks/pac_release_1/acds_ac/quartus_22.1_b174_pcie_ss_osc_bnic_1.0/acds/ip/altera/avalon_st/altera_avalon_st_pipeline_stage/altera_avalon_st_pipeline_stage_hw.tcl" />
+  </sourceFiles>
+  <childSourceFiles/>
+  <instantiator
+     instantiator="avst_pipeline_st_pipeline_stage_0"
+     as="st_pipeline_stage_0" />
+  <messages>
+   <message level="Info" culprit="avst_pipeline_st_pipeline_stage_0">"Generating: avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq"</message>
+  </messages>
+ </entity>
+</deploy>

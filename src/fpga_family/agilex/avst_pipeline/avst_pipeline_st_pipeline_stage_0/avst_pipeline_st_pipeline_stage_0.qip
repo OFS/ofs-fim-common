@@ -1,0 +1,59 @@
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_TOOL_NAME "QsysPrimePro"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_TOOL_VERSION "22.1"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_TOOL_ENV "QsysPrimePro"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_TOOL_VENDOR_NAME "Intel Corporation"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_TOP_LEVEL_COMPONENT_NAME "altera_avalon_st_pipeline_stage"
+set_global_assignment -library "avst_pipeline_st_pipeline_stage_0" -name SOPCINFO_FILE [file join $::quartus(qip_path) "avst_pipeline_st_pipeline_stage_0.sopcinfo"]
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name SLD_INFO "QSYS_NAME avst_pipeline_st_pipeline_stage_0 HAS_SOPCINFO 1 GENERATION_ID 0"
+set_global_assignment -library "avst_pipeline_st_pipeline_stage_0" -name MISC_FILE [file join $::quartus(qip_path) "avst_pipeline_st_pipeline_stage_0.cmp"]
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_TARGETED_DEVICE_FAMILY "Agilex"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_GENERATED_DEVICE_FAMILY "Agilex"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_QSYS_MODE "STANDALONE"
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "avst_pipeline_st_pipeline_stage_0" -name MISC_FILE [file join $::quartus(qip_path) "../avst_pipeline_st_pipeline_stage_0.ip"]
+
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_NAME "YXZzdF9waXBlbGluZV9zdF9waXBlbGluZV9zdGFnZV8wX2FsdGVyYV9hdmFsb25fc3RfcGlwZWxpbmVfc3RhZ2VfMTkyMF96dGVyaXNx"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uIFN0cmVhbWluZyBQaXBlbGluZSBTdGFnZSBJbnRlbCBGUEdBIElQ"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_AUTHOR "SW50ZWwgQ29ycG9yYXRpb24="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_VERSION "MTkuMi4w"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_DESCRIPTION "SW5zZXJ0cyBhIHNpbmdsZSBwaXBlbGluZSAocmVnaXN0ZXIpIHN0YWdlIGluIHRoZSBBdmFsb24gU3RyZWFtaW5nIGNvbW1hbmQgYW5kIHJlc3BvbnNlIGRhdGFwYXRocy4gUmVjZWl2ZXMgZGF0YSBvbiBpdHMgQXZhbG9uIFN0cmVhbWluZyBzaW5rIGludGVyZmFjZXMgYW5kIGRyaXZlcyBpdCB1bmNoYW5nZWQgb24gaXRzIEF2YWxvbiBTdHJlYW1pbmcgc291cmNlIGludGVyZmFjZS4="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "U1lNQk9MU19QRVJfQkVBVA==::NjQ=::U3ltYm9scyBwZXIgYmVhdA=="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "QklUU19QRVJfU1lNQk9M::OA==::Qml0cyBwZXIgc3ltYm9s"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "VVNFX1BBQ0tFVFM=::MQ==::VXNlIHBhY2tldHM="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "VVNFX0VNUFRZ::MQ==::VXNlIGVtcHR5"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "RU1QVFlfV0lEVEg=::Ng==::RW1wdHkgd2lkdGg="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "Q0hBTk5FTF9XSURUSA==::MA==::Q2hhbm5lbCB3aWR0aA=="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "TUFYX0NIQU5ORUw=::MA==::TWF4aW11bSBjaGFubmVsIHZhbHVl"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "UEFDS0VUX1dJRFRI::Mg==::UGFja2V0IHdpZHRo"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "RVJST1JfV0lEVEg=::MQ==::RXJyb3Igd2lkdGg="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "UElQRUxJTkVfUkVBRFk=::MQ==::UGlwZWxpbmUgcmVhZHkgc2lnbmFs"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_PARAMETER "U1lOQ19SRVNFVA==::MQ==::VXNlIHN5bmNocm9ub3VzIHJlc2V0cw=="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_GROUP "QmFzaWMgRnVuY3Rpb25zL0JyaWRnZXMgYW5kIEFkYXB0b3JzL1N0cmVhbWluZw=="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly9kb2N1bWVudGF0aW9uLmFsdGVyYS5jb20vIy9saW5rL213aDE0MDk5NjAxODE2NDEvbXdoMTQwOTk1OTQ0MDg2Nw=="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_COMPONENT_DOCUMENTATION_LINK "aHR0cHM6Ly9kb2N1bWVudGF0aW9uLmFsdGVyYS5jb20vIy9saW5rL2hjbzE0MTY4MzYxNDU1NTUvaGNvMTQxNjgzNjY1MzIyMQ=="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_NAME "YXZzdF9waXBlbGluZV9zdF9waXBlbGluZV9zdGFnZV8w"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_DISPLAY_NAME "c3lzdGVt"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_REPORT_HIERARCHY "On"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_AUTHOR "SW50ZWwgQ29ycG9yYXRpb24="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_VERSION "MS4w"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MA==::QXV0byBHRU5FUkFUSU9OX0lE"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::QWdpbGV4::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::QUdGQzAyM1IyNUEyRTJWUjA=::QXV0byBERVZJQ0U="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfU1BFRURHUkFERQ==::Mg==::QXV0byBERVZJQ0VfU1BFRURHUkFERQ=="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_PARAMETER "QVVUT19DUjBfQ0xPQ0tfUkFURQ==::LTE=::QXV0byBDTE9DS19SQVRF"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_PARAMETER "QVVUT19DUjBfQ0xPQ0tfRE9NQUlO::LTE=::QXV0byBDTE9DS19ET01BSU4="
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0" -library "avst_pipeline_st_pipeline_stage_0" -name IP_COMPONENT_PARAMETER "QVVUT19DUjBfUkVTRVRfRE9NQUlO::LTE=::QXV0byBSRVNFVF9ET01BSU4="
+
+
+set_global_assignment -library "altera_avalon_st_pipeline_stage_1920" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "altera_avalon_st_pipeline_stage_1920/synth/avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq.sv"]
+set_global_assignment -library "altera_avalon_st_pipeline_stage_1920" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "altera_avalon_st_pipeline_stage_1920/synth/altera_avalon_st_pipeline_base.v"]
+set_global_assignment -library "avst_pipeline_st_pipeline_stage_0" -name VERILOG_FILE [file join $::quartus(qip_path) "synth/avst_pipeline_st_pipeline_stage_0.v"]
+
+
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_TOOL_NAME "altera_avalon_st_pipeline_stage"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_TOOL_VERSION "19.2.0"
+set_global_assignment -entity "avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq" -library "altera_avalon_st_pipeline_stage_1920" -name IP_TOOL_ENV "QsysPrimePro"
+

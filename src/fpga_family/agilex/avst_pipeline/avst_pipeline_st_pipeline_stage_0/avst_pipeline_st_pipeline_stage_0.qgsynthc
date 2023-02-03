@@ -1,0 +1,76 @@
+<?xml version="1.0" ?>
+<node xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:altera="http://www.altera.com/XMLSchema/Qsys/SystemTree">
+  <instanceKey xsi:type="xs:string">avst_pipeline_st_pipeline_stage_0</instanceKey>
+  <instanceData xsi:type="data">
+    <parameters></parameters>
+    <interconnectAssignments></interconnectAssignments>
+    <className>avst_pipeline_st_pipeline_stage_0</className>
+    <version>1.0</version>
+    <name>avst_pipeline_st_pipeline_stage_0</name>
+    <uniqueName>avst_pipeline_st_pipeline_stage_0</uniqueName>
+    <nonce>0</nonce>
+    <incidentConnections></incidentConnections>
+  </instanceData>
+  <children>
+    <node>
+      <instanceKey xsi:type="xs:string">st_pipeline_stage_0</instanceKey>
+      <instanceData xsi:type="data">
+        <parameters>
+          <parameter>
+            <name>BITS_PER_SYMBOL</name>
+            <value>8</value>
+          </parameter>
+          <parameter>
+            <name>CHANNEL_WIDTH</name>
+            <value>0</value>
+          </parameter>
+          <parameter>
+            <name>EMPTY_WIDTH</name>
+            <value>6</value>
+          </parameter>
+          <parameter>
+            <name>ERROR_WIDTH</name>
+            <value>1</value>
+          </parameter>
+          <parameter>
+            <name>MAX_CHANNEL</name>
+            <value>0</value>
+          </parameter>
+          <parameter>
+            <name>PACKET_WIDTH</name>
+            <value>2</value>
+          </parameter>
+          <parameter>
+            <name>PIPELINE_READY</name>
+            <value>1</value>
+          </parameter>
+          <parameter>
+            <name>SYMBOLS_PER_BEAT</name>
+            <value>64</value>
+          </parameter>
+          <parameter>
+            <name>SYNC_RESET</name>
+            <value>1</value>
+          </parameter>
+          <parameter>
+            <name>USE_EMPTY</name>
+            <value>1</value>
+          </parameter>
+          <parameter>
+            <name>USE_PACKETS</name>
+            <value>1</value>
+          </parameter>
+        </parameters>
+        <interconnectAssignments></interconnectAssignments>
+        <className>altera_avalon_st_pipeline_stage</className>
+        <version>19.2.0</version>
+        <name>st_pipeline_stage_0</name>
+        <uniqueName>avst_pipeline_st_pipeline_stage_0_altera_avalon_st_pipeline_stage_1920_zterisq</uniqueName>
+        <nonce>0</nonce>
+        <incidentConnections></incidentConnections>
+        <path>avst_pipeline_st_pipeline_stage_0.st_pipeline_stage_0</path>
+      </instanceData>
+      <children></children>
+    </node>
+  </children>
+</node>
