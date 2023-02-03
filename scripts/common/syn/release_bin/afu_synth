@@ -1,0 +1,143 @@
+#!/bin/bash
+
+##
+## Build an AFU in the PR region that has been configured from a template tree.
+## This script is copied from the source repository into a generated release
+## tree and should be invoked as:
+##
+##    $OPAE_PLATFORM_ROOT/bin/afu_synth
+##
+## inside a build tree configured with afu_synth_setup.
+##
+
+SCRIPTNAME="$(basename -- "$0")"
+SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && pwd -P)"
+
+# Import environment configuration
+source "${SCRIPT_DIR}"/build_env_config
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -l|--bbs-lib)
+            BBS_LIB_PATH="$2"
+            shift 2
+            ;;
+        -p|--packager)
+            PACKAGER="$2"
+            shift 2
+            ;;
+        -o|--gbs)
+            GBS_FILE="$2"
+            shift 2
+            ;;
+        --) shift; break;;
+        -*) echo "usage: $SCRIPTNAME [-l/--bbs-lib <bbs_lib_dir>] [-l/--packager <packager>] [--] [afu_metadata.json]" 1>&2
+            exit 1
+            ;;
+        *) break;;
+    esac
+done
+
+if [ $# -eq 0 ]; then
+    set -- hw/*.json *.json hw/rtl/*.json
+    while [ $# -gt 0 ] && [ ! -e "$1" ]; do shift; done
+
+    if [ -z "$1" ]; then
+        echo "ERROR: JSON metadata definition not found." 1>&2
+        exit 1
+    fi
+fi
+AFU_JSON="$1"
+
+# Ensure that OPAE_PLATFORM_ROOT is defined as an environment variable.
+# It may be required by tools such as afu_platform_config below.
+export OPAE_PLATFORM_ROOT=${OPAE_PLATFORM_ROOT:-"$(dirname -- "${SCRIPT_DIR}")"}
+
+BBS_LIB_PATH=${BBS_LIB_PATH:-"${OPAE_PLATFORM_ROOT}/hw/lib"}
+PACKAGER=${PACKAGER:-packager}
+GBS_FILE=${GBS_FILE:-$(basename "${AFU_JSON}" .json).gbs}
+
+if [ ! -f "${BBS_LIB_PATH}/fme-ifc-id.txt" ]; then
+    echo "ERROR: Release hw/lib directory not found!" 1>&2
+    echo "  Please set OPAE_PLATFORM_ROOT, BBS_LIB_PATH or --bbs-lib" 1>&2
+    exit 1
+fi
+
+INTERFACE_UUID="$(cat "${BBS_LIB_PATH}/fme-ifc-id.txt")"
+PLATFORM_CLASS="$(cat "${BBS_LIB_PATH}/fme-platform-class.txt")"
+
+if ! "${PACKAGER}" >/dev/null; then
+    echo "ERROR: Packager tool '${PACKAGER}' failed to run. Please check \$PATH and installation." 1>&2
+    exit 1
+fi
+
+if [ "${QUARTUS_BUILD_DIR}X" == "X" ]; then
+    echo "ERROR: QUARTUS_BUILD_DIR not configured in ${SCRIPT_DIR}/build_env_config" 1>&2
+    exit 1
+fi
+if [ ! -d "${QUARTUS_BUILD_DIR}" ]; then
+    echo "Build directory \"${QUARTUS_BUILD_DIR}\" not found" 1>&2
+    exit 1
+fi
+
+echo "Restoring blue bitstream lib files"
+echo "=================================="
+
+# Restore the base revision files needed for PR compilation
+rm -rf  "${QUARTUS_BUILD_DIR}"/output_files
+cp -rLf "${BBS_LIB_PATH}/${QUARTUS_BUILD_DIR}"/*.qdb \
+        "${BBS_LIB_PATH}/${QUARTUS_BUILD_DIR}"/output_files \
+        "${QUARTUS_BUILD_DIR}"/
+
+if [ -f hw/rtl/components.ipx ] && [ ! -e "${QUARTUS_BUILD_DIR}"/components.ipx ]; then
+    ln -s "${REL_ROOT_DIR}"/hw/rtl/components.ipx "${QUARTUS_BUILD_DIR}"/
+fi
+
+# Run the actual build process:
+(cd "${QUARTUS_BUILD_DIR}" \
+  && quartus_sh -t ./ofs_partial_reconfig/flow.tcl -setup_script ./ofs_partial_reconfig/setup.tcl -impl ${Q_PR_REVISION} \
+  && quartus_sh -t ./ofs_partial_reconfig/user_clock_freqs_compute.tcl --project=${Q_PROJECT} --revision=${Q_PR_REVISION} \
+  && quartus_sta -t ./ofs_partial_reconfig/report_timing.tcl --project=${Q_PROJECT} --revision=${Q_PR_REVISION})
+
+QUARTUS_RETCODE=$?
+
+if [ $QUARTUS_RETCODE -ne 0 ]; then
+    echo "Quartus build failed"
+    exit $QUARTUS_RETCODE
+fi
+
+# Load any user clock frequency updates
+UCLK_CFG=""
+if [ -f "${QUARTUS_BUILD_DIR}"/output_files/user_clock_freq.txt ]; then
+    UCLK_CFG=$(grep -v '^#' "${QUARTUS_BUILD_DIR}"/output_files/user_clock_freq.txt)
+fi
+
+"${PACKAGER}" create-gbs \
+              --gbs="${GBS_FILE}" \
+              --afu-json="${AFU_JSON}" \
+              --rbf="${QUARTUS_BUILD_DIR}"/output_files/${Q_PR_REVISION}.${Q_PR_PARTITION_NAME}.rbf \
+              --set-value interface-uuid:"${INTERFACE_UUID}" ${UCLK_CFG}
+PACKAGER_RETCODE=$?
+
+if [ $PACKAGER_RETCODE -ne 0 ]; then
+    echo "Package build failed"
+    exit $PACKAGER_RETCODE
+fi
+
+echo ""
+echo "==========================================================================="
+echo " PR AFU compilation complete"
+echo " AFU gbs file is '${GBS_FILE}'"
+
+TIMING_SUMMARY_FILE="${QUARTUS_BUILD_DIR}"/output_files/timing_report/clocks.sta.fail.summary
+if [ -s "${TIMING_SUMMARY_FILE}" ]; then
+    echo
+    echo "  *** Design does not meet timing"
+    echo "  *** See ${QUARTUS_BUILD_DIR}/output_files/timing_report"
+    echo
+elif [ -f "${TIMING_SUMMARY_FILE}" ]; then
+    echo " Design meets timing"
+fi
+
+echo "==========================================================================="
+echo ""

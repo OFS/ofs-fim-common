@@ -1,0 +1,33 @@
+##
+## Sources used by all flavors of the Ethernet traffic AFU. This file is used in
+## PIM-based flows, both for synthesis and simulation.
+##
+
+eth_afu.json
+
+C:filelist_mac_afu.txt
+
+eth_traffic_csr_pkg.sv
+eth_traffic_csr.sv
+multi_port_traffic_ctrl.sv
+multi_port_axi_traffic_ctrl.sv
+traffic_controller_wrapper.sv
+
+../address_decoder/ip/address_decode_eth_afu/address_decode_eth_afu_clk_csr.ip
+../address_decoder/ip/address_decode_eth_afu/address_decode_eth_afu_eth_gen_mon.ip
+../address_decoder/ip/address_decode_eth_afu/address_decode_eth_afu_merlin_master_translator_0.ip
+../address_decoder/ip/address_decode_eth_afu/address_decode_eth_afu_rx_sc_fifo.ip
+../address_decoder/ip/address_decode_eth_afu/address_decode_eth_afu_tx_sc_fifo.ip
+../address_decoder/ip/address_decode_eth_afu/address_decode_eth_afu_tx_xcvr_half_clk.ip
+../address_decoder/address_decode_eth_afu.qsys
+
+# Quartus script to import the traffic controller
+../eth_traffic_controller/eth_std_traffic_controller_top.qip
+# Equivalent simulator script to import the same traffic controller sources
+SI:../sim/eth_traffic_controller.txt
+
+../fifo_scfifo/ip/sc_fifo/sc_fifo_rx_sc_fifo.ip
+../fifo_scfifo/ip/sc_fifo/sc_fifo_tx_sc_fifo.ip
+../fifo_scfifo/sc_fifo.qsys
+
+../par/eth_afu.sdc

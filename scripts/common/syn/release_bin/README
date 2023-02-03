@@ -1,0 +1,20 @@
+These scripts are copied to the bin directory of a release tree that is generated
+by generate_pr_release.sh. generate_pr_release.sh is in the parent directory.
+The scripts are not meant to be run here in release_bin.
+
+Everything below the marker below will become the README at the top of the generated
+tree.
+
+=====================================
+This template tree may be used to build any AFU partial reconfiguration area
+for the FIM build from which it is derived. The tree is relocatable and may be
+copied to a new location. It does not depend on files in the original FIM build.
+
+If the OPAE_PLATFORM_ROOT environment variable is set to this tree, the template
+can be used with the standard OPAE SDK tools, such as afu_synth_setup for
+synthesis and afu_sim_setup for simulation with ASE. Examples of builds using
+this method can be found in https://github.com/OPAE/intel-fpga-bbb/tree/master/samples.
+
+The Platform Interface Manager (PIM) is included in the template. The samples
+above demonstrate methods of building platform-independent AFUs using the PIM.
+PIM sources are in https://github.com/OPAE/ofs-platform-afu-bbb.

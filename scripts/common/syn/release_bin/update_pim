@@ -1,0 +1,52 @@
+#!/bin/bash
+
+##
+## Upgrade an existing Platform Interface Manager in the release tree.
+## This script is copied from the source repository into a generated release
+## tree and should be invoked as:
+##
+##    $OPAE_PLATFORM_ROOT/bin/update_pim
+##
+
+SCRIPTNAME="$(basename -- "$0")"
+SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && pwd -P)"
+RELEASE_DIR="$(dirname "${SCRIPT_DIR}")"
+
+# Import environment configuration
+source "${SCRIPT_DIR}"/build_env_config
+
+PLATFORM_INI="${RELEASE_DIR}"/hw/lib/platform/platform_db/"${PIM_INI_NAME}"
+if [ ! -f "${PLATFORM_INI}" ]; then
+    echo "ERROR: .ini file (${PLATFORM_INI}) not found!" 1>&2
+    exit 1
+fi
+
+if [ "${OFS_PLATFORM_AFU_BBB}" == "" ]; then
+    echo "\$OFS_PLATFORM_AFU_BBB must point to a clone of https://github.com/OPAE/ofs-platform-afu-bbb"
+    exit 1
+fi
+
+if [ ! -x "${OFS_PLATFORM_AFU_BBB}"/plat_if_develop/ofs_plat_if/scripts/gen_ofs_plat_if ]; then
+    echo ${OFS_PLATFORM_AFU_BBB}/plat_if_develop/ofs_plat_if/scripts/gen_ofs_plat_if not found!
+    exit 1
+fi
+
+TGT_BUILD="${RELEASE_DIR}"/hw/lib/build
+
+# Generate the PIM sources
+rm -rf "${RELEASE_DIR}"/hw/lib/build/platform/ofs_plat_if
+${OFS_PLATFORM_AFU_BBB}/plat_if_develop/ofs_plat_if/scripts/gen_ofs_plat_if -v -c "${PLATFORM_INI}" -t "${TGT_BUILD}"/platform/ofs_plat_if --gen-prefix ofs_plat_if
+
+# Recreate the simulation import scripts
+cat >> "${TGT_BUILD}"/platform/ofs_plat_if/sim/platform_if_includes.txt <<EOF
+-F ../../sim/fim_project_macros.txt
+-F ../../sim/fim_afu_if_includes.txt
+-F ofs_plat_if_includes.txt
+EOF
+
+cat >> "${TGT_BUILD}"/platform/ofs_plat_if/sim/platform_if_addenda.txt <<EOF
+-F ../../sim/fim_project_macros.txt
+-F ../../sim/fim_afu_if_addenda.txt
+-F ofs_plat_if_addenda.txt
+-F ../../sim/fim_afu_if_modules.txt
+EOF
