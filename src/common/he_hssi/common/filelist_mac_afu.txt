@@ -1,0 +1,7 @@
+##
+## Include MAC sources also used by the AFU.
+##
+
+../../../../../eth/stratix10/pac_d5005/mm_ctrl_xcvr.sv
+../../../../../eth/stratix10/pac_d5005/resync.v
+../../../../../eth/stratix10/pac_d5005/ip/mac/altera_eth_10g_mac.ip

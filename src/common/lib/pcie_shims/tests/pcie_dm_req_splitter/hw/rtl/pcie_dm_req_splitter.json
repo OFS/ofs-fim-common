@@ -1,0 +1,20 @@
+{
+   "version": 1,
+   "afu-image": {
+      "power": 0,
+      "clock-frequency-high": "auto",
+      "clock-frequency-low": "auto",
+      "afu-top-interface":
+         {
+            "class": "afu_main"
+         },
+      "accelerator-clusters":
+         [
+            {
+               "name": "pcie_dm_req_splitter",
+               "total-contexts": 1,
+               "accelerator-type-uuid": "1acc0321-2286-47fa-a4f5-3b52b635d97b"
+            }
+         ]
+   }
+}

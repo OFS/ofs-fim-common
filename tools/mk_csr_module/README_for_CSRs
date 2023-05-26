@@ -1,0 +1,136 @@
+#To Create the CSR RTL and .html specification simply cd here and type:
+make
+-or- cd here and:
+./mk_cfg_module_64.pl example
+
+There is an example of a functional .ini file at:
+ofs-dev/tools/mk_csr_module/ (Here)
+
+Run the example and look at the two files it creates: example_csr.sv and example_csr_spec.html, To run the example, cd here and:
+./mk_cfg_module_64.pl example
+
+The .ini file:
+
+You may have difficulty getting the registers to cut-n-paste over. If that is the case here are the instructions to get an HTML document to display nicely into a word document:
+This is in the README file for “mk_cfg_module_64.pl”
+The mk_cfg_module_64.pl creates an HTML file (In this case, I have enclosed it)
+To include into a Microsoft word document
+ - open word.
+ - click on the  Insert tab
+ - In the “text” grouping, select from the “Object” pull down menu and select "text from file"
+ - browse to the HTML file and double click on it.
+ - Note that sometimes the “Object” pull down can’t be found unless you enlarge the Microsoft word window. It is found in the “text”
+ 
+
+;THE FORMAT OF THE .INI FILE:
+; ##########################################################
+; ### First define the address space. Exactly like this: ###
+; ##########################################################
+[addr_size]
+space=11:0 ; Describes the address space that the registers in this module will occupy. This (11:0) is describing a 12 bits of address, or 4K.
+
+[<register_name>] ; next place the name of the 64 bit register and give it it's offset.
+offset=0x128 ; the offset. accepts decimal if you don't include the "0x".
+
+[<register_name>.<field_name>]; Next, name a field name within the 64 bit register. You can take up all 64 bits or just one.
+#######################################################
+### This field can have any of the attributes below ###
+#######################################################
+range=<dd:dd> ; Here you describe the bits this field will occupy within this 64 bit register..
+Example: range=31:15
+Example: range=14 (if the field is only one bit, only use one number)
+
+###############################################################################################
+### The rest of the attributes below are optional and do not need to appear in the ini file ###
+###############################################################################################
+
+access    - Default RW
+         RO    - Read-Only  COLD # - reset_temp - NA
+         RW    - Read-Write WARM
+         RWS   - Read-Write Sticky Across Soft Reset COLD
+         RW1C  - Read-Write 1 to Clear WARM
+         RW1CS - Read-Write 1 to Clear Sticky Across Soft Reset COLD
+         RW1S  - Read-Write 1 to Set WARM
+         RW1SS - Read-Write 1 to Set Sticky Across Soft Reset COLD
+         Rsvd  - Reserved - Don't Care ### Not not supporting
+         RsvdP - Reserved and Protected (SW read-modify-write) ### Not not supporting
+         RsvdZ - Reserved and Zero ## This the default for fields that are not described WARM
+
+reset_value               - Default 0. Set this to to 0x<hex_number> for the default reset value.
+                            You can use decimal numbers by leaving off the "0x".
+
+reset_temp                - The above access types can override theses.
+                            Default warm. values can be:
+                            WARM - Set to the reset value on power-up reset and on a chip reset.
+                            COLD - Set to the reset value on power-up reset only.
+                            NONE - Typiclly used on read only registers that read hardware state.
+                            STICKY - (same as COLD)
+                            NORMAL - (same as WARM)
+                            
+output_port_name          - Defining this to a net name will cause the csr module to have an output from this
+                            module with this CSR field same width as the CSR fields. If set to <YES>
+                            the default net is <field_name>_reg"
+
+pipeline_stages           - Optional default 0,. Set this to the number of times you want this field to be clocked
+                            befoar leaving the module. This can help Synthesis timing.
+                            
+synchronize_with_clk_name - Optional. Set to the name of the clock you want to synchronize this field with before
+                            clocking this fields out of the module. pipeline_stages above still define the number of
+                            times you want the field clocked.
+
+load_term_net             - Set to the name of the single bit net that when high will load the data on
+                            <load_data_net> (below) to the CSR. load_data_net will be the same width as the
+                            field. If set to <YES> the net name will be "load_<field_name>".  If set
+                            to <TRUE> the data on <load_data_net> is clocked to the CSR on every
+                            clock cycle. This would be how you would allow some hardware state to be visible in a CSR.
+                            
+load_term_declare     - Describes how to declare <load_term_net>. Default <PORT>
+                  <NO>    - Declare nothing. (useful if this net is used twice)
+                  <PORT>  - Declare load_term_net as an input port.
+                  <LOGIC> - Declare load_term_net as a logic.
+
+load_data_net - Set this to the name of a data bus that will be loaded into the CSR when
+                            load_term_net (above)is true. The <load_data_net> is set to the the same
+                            width as the field, If this is set to <YES> then the net name will be
+                            load_data_<field_name>.
+
+load_data_net_declare - Describes how to declare <load_data_net_declare>. Default <PORT>
+                  <NO>    - Declare nothing. (useful if this net is used twice)
+                  <PORT>  - Declare load_term_net as an input port.
+                  <LOGIC> - Declare load_term_net as a logic.
+
+set_term_net_name         - The name of a single bit net that when high (usually pulsed high) will set this
+                            single bit wide CSR. The CSR bit will remain set until cleared by SW
+                            (usually by a write-one-to-clear). If this is set to yes, the net name
+                            will be "set_<field_name>"
+
+set_term_net_declare      - Describes how to declare <set_term_net_name>. Default <PORT>
+                  <NO>    - Declare nothing. (useful if this net is used twice)
+                  <PORT>  - Declare load_term_net as an input port.
+                  <LOGIC> - Declare load_term_net as a logic.
+
+set_pulse_port_name - Creates an output pulse when this bit is set to a 1. <access> must be RW.
+                      This bit always reads back a zero.
+
+freeze_csr_net_name - The name of a single bit net that when high will not allow the single bit CSR
+                      to be set by the hardware <set_term_net_name>. This is tycally ised in a
+                      "first_error" type of CSR.
+
+start_bit           - Default 0. You may NOT want a field to start with bit 0.
+                      Perhaps you want a bus like this: addr[11:3]. You would set start bit to 3.
+                      example1: (assume the field name is addr)
+                      range=16:8  ; 9 bits.
+                      start_bit=3 ; starting with bit 3
+                      woule produce a regsiter like this:
+                      "logic [11:3] addr;" ; 9 bits starting with bit 3
+
+                      example: (assume the field name is fooie)
+                      range=13:4  ; 13 bits
+                      start_bit=2 ; starting with bit 2
+                      woule produce a regsiter like this:
+                      "logic [13:2] fooie;" ; 13 bits starting with bit 2
+
+
+description_of_field - The description of the net to be printed in the Description column of the
+                       .html specification file.
+

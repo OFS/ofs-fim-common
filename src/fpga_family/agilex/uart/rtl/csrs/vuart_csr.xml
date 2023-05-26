@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+<name>prreg</name>
+<vendor>fpga</vendor>
+<version>1.0</version>
+<library>fpga_lib</library>
+        <memoryMaps>
+                <memoryMap>
+                        <name>vuart</name>
+                        <addressBlock>
+                                <register>
+                                        <name>vuart_dfh</name>
+                                        <addressOffset>0x0</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_dfh</description>
+                                        <reset>
+                                                <value>0x3010000010000024</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>feature_type</name>
+                                                <bitOffset>60</bitOffset>
+                                                <reset>0x3</reset>
+                                                <bitWidth>4</bitWidth>
+                                                <access>RO</access>
+                                                <description>Feature Type = Private Feature</description>
+                                        </field> 
+                                        <field>
+                                                <name>dfh_version</name>
+                                                <bitOffset>52</bitOffset>
+                                                <reset>0x1</reset>
+                                                <bitWidth>8</bitWidth>
+                                                <access>RO</access>
+                                                <description>DFH version 0x1 header</description>
+                                        </field> 
+                                        <field>
+                                                <name>feature_minor_rev</name>
+                                                <bitOffset>48</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>4</bitWidth>
+                                                <access>RO</access>
+                                                <description>Feature Minor Revision</description>
+                                        </field> 
+                                        <field>
+                                                <name>Reserved41</name>
+                                                <bitOffset>41</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>7</bitWidth>
+                                                <access>RsvdZ</access>
+                                                <description>Reserved</description>
+                                        </field> 
+                                        <field>
+                                                <name>eol</name>
+                                                <bitOffset>40</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>1</bitWidth>
+                                                <access>RO</access>
+                                                <description>End of List</description>
+                                        </field> 
+                                        <field>
+                                                <name>next_dfh_byte_offset</name>
+                                                <bitOffset>16</bitOffset>
+                                                <reset>0x1000</reset>
+                                                <bitWidth>24</bitWidth>
+                                                <access>RO</access>
+                                                <description>Next DFH Byte offset</description>
+                                        </field> 
+                                        <field>
+                                                <name>feature_rev</name>
+                                                <bitOffset>12</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>4</bitWidth>
+                                                <access>RO</access>
+                                                <description>feature revision</description>
+                                        </field> 
+                                        <field>
+                                                <name>feature_id</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x24</reset>
+                                                <bitWidth>12</bitWidth>
+                                                <access>RO</access>
+                                                <description>feature ID</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_feature_guid_l</name>
+                                        <addressOffset>0x8</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_feature_guid_l</description>
+                                        <reset>
+                                                <value>0xE1DF0D4ACE8E486C</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>feature_guid_low</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0xE1DF0D4ACE8E486C</reset>
+                                                <bitWidth>64</bitWidth>
+                                                <access>RO</access>
+                                                <description>Virtual UART Feature guid low</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_feature_guid_h</name>
+                                        <addressOffset>0x10</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_feature_guid_h</description>
+                                        <reset>
+                                                <value>0x9E6641A6CA26CC04</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>feature_guid_high</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x9E6641A6CA26CC04</reset>
+                                                <bitWidth>64</bitWidth>
+                                                <access>RO</access>
+                                                <description>Virtual UART Feature guid high</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_feature_csr_addr</name>
+                                        <addressOffset>0x18</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_feature_csr_addr</description>
+                                        <reset>
+                                                <value>0x0000000000000400</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>csr_addr</name>
+                                                <bitOffset>1</bitOffset>
+                                                <reset>0x200</reset>
+                                                <bitWidth>63</bitWidth>
+                                                <access>RO</access>
+                                                <description>Virtual UART CSR address Offset</description>
+                                        </field> 
+                                        <field>
+                                                <name>csr_rel</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>1</bitWidth>
+                                                <access>RO</access>
+                                                <description>0  Relative   1 absolute</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_feature_csr_size_group</name>
+                                        <addressOffset>0x20</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_feature_csr_size_group</description>
+                                        <reset>
+                                                <value>0x0000001080000000</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>csr_size</name>
+                                                <bitOffset>32</bitOffset>
+                                                <reset>0x10</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>Virtual UART  Size of CSR block </description>
+                                        </field> 
+                                        <field>
+                                                <name>has_params</name>
+                                                <bitOffset>31</bitOffset>
+                                                <reset>0x1</reset>
+                                                <bitWidth>1</bitWidth>
+                                                <access>RO</access>
+                                                <description>Parameters exist or not </description>
+                                        </field> 
+                                        <field>
+                                                <name>grouping_id</name>
+                                                <bitOffset>16</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>15</bitWidth>
+                                                <access>RO</access>
+                                                <description>Used to group features / interfaces</description>
+                                        </field> 
+                                        <field>
+                                                <name>instance_id</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>Enumeration of instantiated IP</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_param_header_msix</name>
+                                        <addressOffset>0x28</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_param_header_msix</description>
+                                        <reset>
+                                                <value>0x0000001000000001</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>header_next</name>
+                                                <bitOffset>32</bitOffset>
+                                                <reset>0x10</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>offset of next parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>header_version</name>
+                                                <bitOffset>16</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>Version of  parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>header_param_id</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x1</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>ID for this parameter (Msix)</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_param_data_msix</name>
+                                        <addressOffset>0x30</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_param_data_msix</description>
+                                        <reset>
+                                                <value>0x0000000100000005</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>num_interrupts</name>
+                                                <bitOffset>32</bitOffset>
+                                                <reset>0x1</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>Number of VUART interrupt vectors</description>
+                                        </field> 
+                                        <field>
+                                                <name>start_vector</name>
+                                                <bitOffset>00</bitOffset>
+                                                <reset>0x5</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>Starting Interrupt Vector </description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_param_header_clock</name>
+                                        <addressOffset>0x38</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_param_header_clock</description>
+                                        <reset>
+                                                <value>0x0000001000000002</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>clock_next</name>
+                                                <bitOffset>32</bitOffset>
+                                                <reset>0x10</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>offset of next parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>clock_version</name>
+                                                <bitOffset>16</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>Version of  parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>clock_param_id</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x2</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>ID for this parameter  Input Clock</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_param_data_clock</name>
+                                        <addressOffset>0x40</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_param_data_clock</description>
+                                        <reset>
+                                                <value>0x0000000002FAF080</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>input_clock</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x2FAF080</reset>
+                                                <bitWidth>64</bitWidth>
+                                                <access>RO</access>
+                                                <description>Input clock HZ (100 MHz)</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>uart_param_header_fifo</name>
+                                        <addressOffset>0x48</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>uart_param_header_fifo</description>
+                                        <reset>
+                                                <value>0x0000001000000003</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>header_fifo_next</name>
+                                                <bitOffset>32</bitOffset>
+                                                <reset>0x10</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>offset of next parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>header_fifo_version</name>
+                                                <bitOffset>16</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>Version of  parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>header_fifo_param_id</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x3</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>ID for this parameter FIFO</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_param_data_fifo</name>
+                                        <addressOffset>0x50</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_param_data_fifo</description>
+                                        <reset>
+                                                <value>0x0000000000000080</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>fifo_len</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x80</reset>
+                                                <bitWidth>64</bitWidth>
+                                                <access>RO</access>
+                                                <description>FIFO len</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>param_header_layout</name>
+                                        <addressOffset>0x58</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>param_header_layout</description>
+                                        <reset>
+                                                <value>0x0000001100000004</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>header_layout_next</name>
+                                                <bitOffset>32</bitOffset>
+                                                <reset>0x11</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>offset of next parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>header_layout_version</name>
+                                                <bitOffset>16</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>Version of  parameters</description>
+                                        </field> 
+                                        <field>
+                                                <name>header_layout_param_id</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x4</reset>
+                                                <bitWidth>16</bitWidth>
+                                                <access>RO</access>
+                                                <description>ID for this parameter REG LAYOUT</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>param_data_fifo</name>
+                                        <addressOffset>0x60</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>param_data_fifo</description>
+                                        <reset>
+                                                <value>0x0000000400000002</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>reg_io_width</name>
+                                                <bitOffset>32</bitOffset>
+                                                <reset>0x4</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>reg io width</description>
+                                        </field> 
+                                        <field>
+                                                <name>reg_shift</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x2</reset>
+                                                <bitWidth>32</bitWidth>
+                                                <access>RO</access>
+                                                <description>reg io shift</description>
+                                        </field> 
+                                </register>
+                                <register>
+                                        <name>vuart_scratchpad</name>
+                                        <addressOffset>0xF0</addressOffset>
+                                        <size>64</size>
+                                        <lock></lock>
+                                        <description>vuart_scratchpad</description>
+                                        <reset>
+                                                <value>0x0000000000000000</value>
+                                        </reset>
+
+                                        <field>
+                                                <name>scratchpad</name>
+                                                <bitOffset>0</bitOffset>
+                                                <reset>0x0</reset>
+                                                <bitWidth>64</bitWidth>
+                                                <access>RW</access>
+                                                <description>Scratchpad.</description>
+                                        </field> 
+                                </register>
+                        </addressBlock>
+                </memoryMap>
+        </memoryMaps>
+</component>

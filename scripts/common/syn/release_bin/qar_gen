@@ -1,0 +1,36 @@
+#!/bin/bash
+
+##
+## Generate a Quartus archive of a PR build environment constructed with
+## afu_synth_setup. The script may be run from the top-level directory
+## written by afu_synth_setup or from the Quartus build directory.
+##
+
+SCRIPTNAME="$(basename -- "$0")"
+SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && pwd -P)"
+
+# Import environment configuration
+source "${SCRIPT_DIR}"/build_env_config
+
+QAR_FILE="$1"
+if [ "${QAR_FILE}" == "" ]; then
+    echo "Usage: qar_gen <.qar file>"
+    exit 1
+fi
+
+# Convert to absolute path before moving to the Quartus build directory
+QAR_FILE=$(realpath "$QAR_FILE")
+
+if [ -d "${QUARTUS_BUILD_DIR}" ]; then
+    echo Quartus build dir: "${QUARTUS_BUILD_DIR}"
+    cd "${QUARTUS_BUILD_DIR}"
+fi
+
+if [ ! -f "${Q_PR_REVISION}".qsf ]; then
+    echo "Failed to find ${Q_PR_REVISION}.qsf"
+    exit 1
+fi
+
+echo "Archiving project ${Q_PR_REVISION} to ${QAR_FILE}"
+
+quartus_sh --archive ${Q_PR_REVISION} -use_file_set full_db -output ${QAR_FILE}
