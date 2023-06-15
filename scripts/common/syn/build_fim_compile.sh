@@ -55,7 +55,7 @@ function chk_exit_code() {
 
 cd "${2}"
 # Read the symbolic quartus_proj_dir link and follow the physical dirs
-cd -eP quartus_proj_dir
+cd -P quartus_proj_dir
 
 ############################################
 ######## Quartus Compilation 
