@@ -1,0 +1,170 @@
+<html>
+<head>
+<style>
+<!--
+ /* Style Definitions */
+p.Body, li.Body, div.Body
+        {mso-style-name:Body;
+         margin-right:0in;
+         mso-margin-top-alt:auto;
+         mso-margin-bottom-alt:auto;
+         margin-left:0in;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         mso-bidi-font-size:12.0pt;
+         font-family:Arial;
+         mso-fareast-font-family:"Times New Roman";
+         mso-bidi-font-family:"Times New Roman";}
+p.bitdef, li.bitdef, div.bitdef
+         {mso-style-name:bitdef;
+         margin-top:5.0pt;
+         margin-right:0in;
+         margin-bottom:5.0pt;
+         margin-left:0.6in;
+         text-indent:-.5in;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         font-family:"Arial";
+         mso-fareast-font-family:"Arial";}
+p.bitdes, li.bitdes, div.bitdes
+         {mso-style-name:bitdes;
+         margin-top:5.0pt;
+         margin-right:0in;
+         margin-bottom:5.0pt;
+         margin-left:0.8in;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         font-family:"Arial";
+         mso-fareast-font-family:"Arial";}
+p.left, li.left, div.left
+        {mso-style-name:left;
+         margin:0in;
+         margin-bottom:.0001pt;
+         text-align:right;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         mso-bidi-font-size:12.0pt;
+         font-family:Arial;
+         mso-fareast-font-family:"Times New Roman";
+         mso-bidi-font-family:"Times New Roman";}
+-->
+</style>
+<style type="text/css">
+table tr#BLUE  {background-color:blue; color:white;}
+</style>
+</head>
+<body>
+
+<h1>Intel Confidential</h1>
+<h2>vuart Configuration Registers</h2>
+<table BORDER>
+<tr> <td><b>Register</b></td> <td><b>Offset</b></td></tr>
+<tr> <td>vuart_dfh</td> <td><a href="#r0x000">0x000</a></td> </tr>
+<tr> <td>vuart_feature_guid_l</td> <td><a href="#r0x008">0x008</a></td> </tr>
+<tr> <td>vuart_feature_guid_h</td> <td><a href="#r0x010">0x010</a></td> </tr>
+<tr> <td>vuart_feature_csr_addr</td> <td><a href="#r0x018">0x018</a></td> </tr>
+<tr> <td>vuart_feature_csr_size_group</td> <td><a href="#r0x020">0x020</a></td> </tr>
+<tr> <td>vuart_param_header_msix</td> <td><a href="#r0x028">0x028</a></td> </tr>
+<tr> <td>vuart_param_data_msix</td> <td><a href="#r0x030">0x030</a></td> </tr>
+<tr> <td>vuart_param_header_clock</td> <td><a href="#r0x038">0x038</a></td> </tr>
+<tr> <td>vuart_param_data_clock</td> <td><a href="#r0x040">0x040</a></td> </tr>
+<tr> <td>uart_param_header_fifo</td> <td><a href="#r0x048">0x048</a></td> </tr>
+<tr> <td>vuart_param_data_fifo</td> <td><a href="#r0x050">0x050</a></td> </tr>
+<tr> <td>param_header_layout</td> <td><a href="#r0x058">0x058</a></td> </tr>
+<tr> <td>param_data_fifo</td> <td><a href="#r0x060">0x060</a></td> </tr>
+<tr> <td>vuart_scratchpad</td> <td><a href="#r0x0F0">0x0F0</a></td> </tr>
+</table>
+<p><b>Table of all registers:</b></p><table BORDER>
+
+<tr id="BLUE"><td><a NAME="r0x000"</a><b>vuart_dfh</b></td><td><b>0x000</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>feature_type</b>[03:00]</td> <td><b>63:60</b></td> <td>RO</td><td>0x3</td><td>Feature Type = Private Feature</td> </tr>
+<td><b>dfh_version</b>[07:00]</td> <td><b>59:52</b></td> <td>RO</td><td>0x1</td><td>DFH version 0x1 header</td> </tr>
+<td><b>feature_minor_rev</b>[03:00]</td> <td><b>51:48</b></td> <td>RO</td><td>0x0</td><td>Feature Minor Revision</td> </tr>
+<tr> <td>reserved</td> <td>47:41</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>eol</b></td> <td><b>40</b></td> <td>RO</td><td>0x0</td><td>End of List</td> </tr>
+<td><b>next_dfh_byte_offset</b>[23:00]</td> <td><b>39:16</b></td> <td>RO</td><td>0x1000</td><td>Next DFH Byte offset</td> </tr>
+<td><b>feature_rev</b>[03:00]</td> <td><b>15:12</b></td> <td>RO</td><td>0x0</td><td>feature revision</td> </tr>
+<td><b>feature_id</b>[11:00]</td> <td><b>11:00</b></td> <td>RO</td><td>0x24</td><td>feature ID</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x008"</a><b>vuart_feature_guid_l</b></td><td><b>0x008</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>feature_guid_low</b>[63:00]</td> <td><b>63:00</b></td> <td>RO</td><td>0xE1DF0D4ACE8E486C</td><td>Virtual UART Feature guid low</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x010"</a><b>vuart_feature_guid_h</b></td><td><b>0x010</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>feature_guid_high</b>[63:00]</td> <td><b>63:00</b></td> <td>RO</td><td>0x9E6641A6CA26CC04</td><td>Virtual UART Feature guid high</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x018"</a><b>vuart_feature_csr_addr</b></td><td><b>0x018</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>csr_addr</b>[62:00]</td> <td><b>63:01</b></td> <td>RO</td><td>0x200</td><td>Virtual UART CSR address Offset</td> </tr>
+<td><b>csr_rel</b></td> <td><b>0</b></td> <td>RO</td><td>0x0</td><td>0  Relative   1 absolute</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x020"</a><b>vuart_feature_csr_size_group</b></td><td><b>0x020</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>csr_size</b>[31:00]</td> <td><b>63:32</b></td> <td>RO</td><td>0x10</td><td>Virtual UART  Size of CSR block </td> </tr>
+<td><b>has_params</b></td> <td><b>31</b></td> <td>RO</td><td>0x1</td><td>Parameters exist or not </td> </tr>
+<td><b>grouping_id</b>[14:00]</td> <td><b>30:16</b></td> <td>RO</td><td>0x0</td><td>Used to group features / interfaces</td> </tr>
+<td><b>instance_id</b>[15:00]</td> <td><b>15:00</b></td> <td>RO</td><td>0x0</td><td>Enumeration of instantiated IP</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x028"</a><b>vuart_param_header_msix</b></td><td><b>0x028</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>header_next</b>[31:00]</td> <td><b>63:32</b></td> <td>RO</td><td>0x10</td><td>offset of next parameters</td> </tr>
+<td><b>header_version</b>[15:00]</td> <td><b>31:16</b></td> <td>RO</td><td>0x0</td><td>Version of  parameters</td> </tr>
+<td><b>header_param_id</b>[15:00]</td> <td><b>15:00</b></td> <td>RO</td><td>0x1</td><td>ID for this parameter (Msix)</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x030"</a><b>vuart_param_data_msix</b></td><td><b>0x030</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>num_interrupts</b>[31:00]</td> <td><b>63:32</b></td> <td>RO</td><td>0x1</td><td>Number of VUART interrupt vectors</td> </tr>
+<td><b>start_vector</b>[31:00]</td> <td><b>31:00</b></td> <td>RO</td><td>0x5</td><td>Starting Interrupt Vector </td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x038"</a><b>vuart_param_header_clock</b></td><td><b>0x038</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>clock_next</b>[31:00]</td> <td><b>63:32</b></td> <td>RO</td><td>0x10</td><td>offset of next parameters</td> </tr>
+<td><b>clock_version</b>[15:00]</td> <td><b>31:16</b></td> <td>RO</td><td>0x0</td><td>Version of  parameters</td> </tr>
+<td><b>clock_param_id</b>[15:00]</td> <td><b>15:00</b></td> <td>RO</td><td>0x2</td><td>ID for this parameter  Input Clock</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x040"</a><b>vuart_param_data_clock</b></td><td><b>0x040</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>input_clock</b>[63:00]</td> <td><b>63:00</b></td> <td>RO</td><td>0x2FAF080</td><td>Input clock HZ (100 MHz)</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x048"</a><b>uart_param_header_fifo</b></td><td><b>0x048</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>header_fifo_next</b>[31:00]</td> <td><b>63:32</b></td> <td>RO</td><td>0x10</td><td>offset of next parameters</td> </tr>
+<td><b>header_fifo_version</b>[15:00]</td> <td><b>31:16</b></td> <td>RO</td><td>0x0</td><td>Version of  parameters</td> </tr>
+<td><b>header_fifo_param_id</b>[15:00]</td> <td><b>15:00</b></td> <td>RO</td><td>0x3</td><td>ID for this parameter FIFO</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x050"</a><b>vuart_param_data_fifo</b></td><td><b>0x050</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>fifo_len</b>[63:00]</td> <td><b>63:00</b></td> <td>RO</td><td>0x80</td><td>FIFO len</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x058"</a><b>param_header_layout</b></td><td><b>0x058</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>header_layout_next</b>[31:00]</td> <td><b>63:32</b></td> <td>RO</td><td>0x11</td><td>offset of next parameters</td> </tr>
+<td><b>header_layout_version</b>[15:00]</td> <td><b>31:16</b></td> <td>RO</td><td>0x0</td><td>Version of  parameters</td> </tr>
+<td><b>header_layout_param_id</b>[15:00]</td> <td><b>15:00</b></td> <td>RO</td><td>0x4</td><td>ID for this parameter REG LAYOUT</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x060"</a><b>param_data_fifo</b></td><td><b>0x060</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>reg_io_width</b>[31:00]</td> <td><b>63:32</b></td> <td>RO</td><td>0x4</td><td>reg io width</td> </tr>
+<td><b>reg_shift</b>[31:00]</td> <td><b>31:00</b></td> <td>RO</td><td>0x2</td><td>reg io shift</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x0F0"</a><b>vuart_scratchpad</b></td><td><b>0x0F0</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>scratchpad</b>[63:00]</td> <td><b>63:00</b></td> <td>RW</td><td>warm or cold 0x0</td><td>Scratchpad.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+</table>
+</body>
+</html>

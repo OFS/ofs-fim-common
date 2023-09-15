@@ -1,0 +1,9 @@
+##
+## Configure a build of eth_traffic_afu that connects directly to green_bs.
+##
+
++define+BASE_AFU=eth_traffic_afu
++define+INCLUDE_HSSI=<None>
++define+INCLUDE_HSSI_GBS=<None>
+
+QI:../par/afu_source.qsf

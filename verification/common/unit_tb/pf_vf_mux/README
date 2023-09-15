@@ -1,0 +1,51 @@
+##==========================
+## Commands
+##==========================
+
+1. Build AXI-VIP
+   gmake -f Makefile_VCS.mk build_vip
+
+2. Compile RTL,VIP and Verif files
+   gmake -f Makefile_VCS.mk vcs TESTNAME=<testcase name>
+
+3. Run simulation 
+   gmake -f Makefile_VCS.mk run_test TESTNAME=<testcase name>           
+   gmake -f Makefile_VCS.mk run_test TESTNAME=<testcase name> DUMP=1  (with VPD) 
+  
+   Run simulation with coverage COV=1
+   gmake -f Makefile_VCS.mk run_test TESTNAME=<testcase name> COV=1        
+   gmake -f Makefile_VCS.mk run_test TESTNAME=<testcase name> DUMP=1  (with VPD) COV=1
+
+4. Compilation and Simulation
+   gmake -f Makefile_VCS.mk run TESTNAME=<testcase name>           
+   gmake -f Makefile_VCS.mk run TESTNAME=<testcase name> DUMP=1  (with VPD)  
+  
+   Compilation and Simulation with coverage 
+   gmake -f Makefile_VCS.mk run TESTNAME=<testcase name> COV=1        
+   gmake -f Makefile_VCS.mk run TESTNAME=<testcase name> DUMP=1  (with VPD) COV=1
+
+How to Merge and generate the coverage report?
+1. cd results/
+
+
+2.1)   urg -dir <test>/simv.vdb <test>/regression.vdb -report <dir> -format both -dbname <dirname>
+       This will generate both mergereport directory  and <regression_database_name>.vdb file
+
+e.g 
+urg -dir pf_vf_mux_master_axi_write_read_combo_test_CONFIG_2/simv.vdb pf_vf_mux_master_axi_write_read_combo_test_CONFIG_2/regression.vdb -report merge_report -format both -dbname merge_db_MACOMBO2.vdb
+
+2.2)   urg -dir <path1_till_simv.vdb> <path1_till_regression.vdb> <path2_till_regression.vdb> -report <dir> -format both -dbname <dirname>  
+       Multiple regression.vdb from different regressions can be merged with the same command.
+
+e.g
+urg -dir pf_vf_mux_master_axi_write_read_combo_test/simv.vdb pf_vf_mux_master_axi_write_read_combo_test/regression.vdb pf_vf_mux_slave_axi_write_read_combo_test/simv.vdb pf_vf_mux_slave_axi_write_read_combo_test/regression.vdb pf_vf_mux_master_axi_read_test/simv.vdb  pf_vf_mux_master_axi_read_test/regression.vdb pf_vf_mux_master_axi_write_test/simv.vdb pf_vf_mux_master_axi_write_test/regression.vdb pf_vf_mux_slave_axi_write_test/simv.vdb pf_vf_mux_slave_axi_write_test/regression.vdb pf_vf_mux_slave_axi_read_test/simv.vdb  pf_vf_mux_slave_axi_read_test/regression.vdb -report merge_report -format both -dbname merge_db_complete.vdb
+
+
+3. Command to open coverage report in html after above gerneration
+
+firefox merge_report/dashboard.html
+
+
+4. Command to see coverage in merge_db_complete.vdb/
+dve -full64 -cov -covdir merge_db_complete.vdb &
+

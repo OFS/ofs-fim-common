@@ -1,0 +1,25 @@
+{
+   "version": 1,
+   "afu-image": {
+      "power": 0,
+      "clock-frequency-high": "auto",
+      "clock-frequency-low": "auto",
+      "afu-top-interface":
+         {
+            "class": "ofs_plat_afu"
+         },
+      "accelerator-clusters":
+         [
+            {
+               "name": "he_lb",
+               "total-contexts": 1,
+               "accelerator-type-uuid": "56e203e9-864f-49a7-b94b-12284c31e02b"
+            },
+            {
+               "name": "he_mem",
+               "total-contexts": 1,
+               "accelerator-type-uuid": "8568ab4e-6ba5-4616-bb65-2a578330a8eb"
+            }
+         ]
+   }
+}

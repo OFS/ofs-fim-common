@@ -1,0 +1,23 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: MIT
+
+`include "pf_vf_mux_base_test.sv"
+`include "pf_vf_mux_master_axi_write_test.sv"
+`include "pf_vf_mux_master_axi_read_test.sv"
+`include "pf_vf_mux_master_axi_write_read_combo_test.sv"
+`include "pf_vf_mux_master_axi_write_invalid_test.sv"
+`include "pf_vf_mux_master_bp_test.sv"
+`include "pf_vf_mux_master_fifo_error_test.sv"
+`include "pf_vf_mux_master_axi_reset_in_middle_test.sv"
+`include "pf_vf_mux_slave_axi_write_test.sv"
+`include "pf_vf_mux_slave_axi_read_test.sv"
+`include "pf_vf_mux_slave_axi_write_read_combo_test.sv"
+`include "pf_vf_mux_slave_simultaneous_axi_write_test.sv"
+`include "pf_vf_mux_slave_simultaneous_axi_read_test.sv"
+`include "pf_vf_mux_slave_simultaneous_axi_write_read_combo_test.sv"
+`include "pf_vf_mux_slave_sequential_backpressure_test.sv"
+`include "pf_vf_mux_slave_simultaneous_backpressure_test.sv"
+`include "pf_vf_mux_slave_axi_reset_in_middle_test.sv"
+`include "pf_vf_mux_slave_fifo_error_test.sv"
+`include "pf_vf_mux_stress_test.sv"
+`include "pf_vf_mux_tuser_vendor_toggle_test.sv"

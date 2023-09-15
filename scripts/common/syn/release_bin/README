@@ -1,0 +1,52 @@
+These scripts are copied to the bin directory of a release tree that is generated
+by generate_pr_release.sh. generate_pr_release.sh is in the parent directory.
+The scripts are not meant to be run here in release_bin.
+
+Everything below the marker below will become the README at the top of the generated
+tree.
+
+=====================================
+This template tree may be used to build any AFU partial reconfiguration area
+for the FIM build from which it is derived. The tree is relocatable and may be
+copied to a new location. It does not depend on files in the original FIM build.
+
+If the OPAE_PLATFORM_ROOT environment variable is set to this tree, the template
+can be used with the standard OPAE SDK tools, such as afu_synth_setup for
+synthesis and afu_sim_setup for simulation with ASE. Examples of builds using
+this method can be found in https://github.com/OFS/examples-afu.
+
+The Platform Interface Manager (PIM) is included in the template. The samples
+above demonstrate methods of building platform-independent AFUs using the PIM.
+PIM sources are in https://github.com/OFS/ofs-platform-afu-bbb.
+
+Scripts:
+
+afu_synth
+
+  The primary build script for a configured PR instance. It is a wrapper around
+  the standard Quartus flow and is equivalent to compilation within the Quartus
+  GUI.
+
+
+build_env_config
+
+  Contains environment variables with parameters unique to the release, such
+  as the path from a configured AFU tree to the root of the Quartus project.
+  build_env_config is sourced by other scripts in this directory.
+
+
+qar_gen
+
+  Generate a Quartus archive of a configured PR instance. The script may be run
+  from the root of a tree configured by afu_synth_setup or from a Quartus project
+  directory. It sets switches to Quartus archive that write the full compilation
+  database to a qar file, allowing for Quartus builds of the restored project.
+
+
+update_pim
+
+  Performs an in-place update of the Platform Interface Manager (PIM) in the
+  release tree. This script is rarely used, except by developers of the PIM.
+  It updates the PIM instance from PIM sources within the tree (using
+  $OFS_PLATFORM_AFU_BBB) without having to rebuild the FIM or generate a new
+  PR release.

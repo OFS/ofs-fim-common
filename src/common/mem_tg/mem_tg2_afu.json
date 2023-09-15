@@ -1,0 +1,18 @@
+{
+   "version": 1,
+   "afu-image": {
+      "power": 0,
+      "afu-top-interface":
+         {
+            "class": "ofs_plat_afu"
+         },
+      "accelerator-clusters":
+         [
+            {
+               "name": "he_mem_tg2",
+               "total-contexts": 1,
+               "accelerator-type-uuid": "5972a84c-1b13-11ec-9621-0242ac130002"
+            }
+         ]
+   }
+}
