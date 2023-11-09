@@ -1,0 +1,24 @@
+gmake -f Makefile_VCS.mk build_vip
+
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_axi_read_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_axi_write_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_axi_write_read_combo_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_simultaneous_axi_read_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_simultaneous_axi_write_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_simultaneous_axi_write_read_combo_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_axi_read_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_axi_write_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_axi_write_read_combo_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_axi_write_invalid_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_bp_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_simultaneous_backpressure_test DUMP=1 TB_CONFIG_1=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_sequential_backpressure_test DUMP=1 TB_CONFIG_1=1
+
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_axi_read_test DUMP=1 TB_CONFIG_2=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_axi_write_test DUMP=1 TB_CONFIG_2=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_slave_axi_write_read_combo_test DUMP=1 TB_CONFIG_2=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_axi_read_test DUMP=1 TB_CONFIG_2=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_axi_write_test DUMP=1 TB_CONFIG_2=1
+gmake -f Makefile_VCS.mk run TESTNAME=pf_vf_mux_master_axi_write_read_combo_test DUMP=1 TB_CONFIG_2=1
+
+grep -ir "Test Status" results/pf_vf_mux*/runsim.log --color

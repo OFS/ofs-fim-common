@@ -1,0 +1,18 @@
+##
+## A sample PR AFU that instantiates HE LB. The AFU can be configured for ASE simulation
+## with afu_sim_setup or synthesis using afu_synth_setup.
+##
+
+# Pick the index in afu_main for HE MEM. All others are HE LB.
++define+HE_MEM_IDX=0
+
++incdir+../../../includes
+# A few FIM modules required by HE LB
+../../../lib/fifo/fim_rdack_scfifo.sv
+../../../lib/fifo/fim_scfifo.sv
+
+SI:../../files_sim.f
+QI:../../files_quartus.tcl
+
+he_lb.json
+ofs_plat_afu.sv
