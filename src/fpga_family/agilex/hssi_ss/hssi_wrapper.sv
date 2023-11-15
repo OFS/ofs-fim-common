@@ -464,13 +464,17 @@ hssi_ss #(
    
    `INST_ALL_PORTS 
   
-`ifdef MAC_SEGMENTED 
-  `ifndef ETH_400G
+`ifdef MAC_SEGMENTED
+//Connecting the last_segment signals for the hssi_ss ip for ETH_200G (Ports 8,12) and ETH_400G (Port 8) configurations. 
+//The macros used below are defined in the ofs_ip_cfg_db.vh
+  `ifdef INCLUDE_HSSI_PORT_12
    .p12_app_ss_st_tx_tuser_last_segment (hssi_ss_st_tx[PORT_12].tx.tuser.last_segment),
    .p12_ss_app_st_rx_tuser_last_segment (hssi_ss_st_rx[PORT_12].rx.tuser.last_segment),
    `endif
+   `ifdef INCLUDE_HSSI_PORT_8
    .p8_app_ss_st_tx_tuser_last_segment (hssi_ss_st_tx[PORT_8].tx.tuser.last_segment),
    .p8_ss_app_st_rx_tuser_last_segment (hssi_ss_st_rx[PORT_8].rx.tuser.last_segment), 
+   `endif
 `endif
    .subsystem_cold_rst_n               (~handshaked_cold_rst),
    .subsystem_cold_rst_ack_n           (cold_rst_ack_n),
