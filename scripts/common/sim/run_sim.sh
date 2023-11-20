@@ -177,6 +177,19 @@ if [ -e "$TEST_SRC_DIR/set_params.sh" ] ; then
    source $TEST_SRC_DIR/set_params.sh 
 fi
 
+if [ ! -z "$AFU_WITH_PIM" ]; then
+  # Construct the simulation build environment for the target AFU. A common
+  # script can be used for UVM and unit tests on all targets. The script
+  # will generate a simulator include file afu_with_pim/afu_sim_files.list.
+  $OFS_ROOTDIR/ofs-common/scripts/common/sim/ofs_pim_sim_setup.sh \
+      -t ${PWD}/afu_with_pim \
+      -r $OFS_ROOTDIR/sim/scripts/qip_gen/quartus_proj_dir/afu_with_pim/pim_template \
+      "${AFU_WITH_PIM}"
+
+  # Load AFU and PIM sources into simulation
+  BASE_AFU_SRC="-F afu_with_pim/afu_sim_files.list"
+fi
+
 # Info dump for debugging
 echo "run_sim.sh: TEST_DIR=$TEST_DIR"
 echo

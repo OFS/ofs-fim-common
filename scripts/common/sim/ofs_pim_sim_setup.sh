@@ -5,7 +5,7 @@
 set -e
 
 usage() {
-  echo "Usage: $0 -t <tgt dir> -b <board name> [-r <platform template root>] [-f <FIM variant>] <filelist.txt>" 1>&2
+  echo "Usage: $0 -t <tgt dir> [-b <board name>] [-r <platform template root>] [-f <FIM variant>] <filelist.txt>" 1>&2
   echo "" 1>&2
   echo "  This script will configure a simulation environment by constructing a PIM" 1>&2
   echo "  instance. It maps board name and FIM variant to a PIM configuration file" 1>&2
@@ -13,7 +13,7 @@ usage() {
   echo "" 1>&2
   echo "  If -r is specified, it should point to an existing PIM template tree." 1>&2
   echo "  If -r is not specified, a new PIM template tree will be constructed" 1>&2
-  echo "  in <tgt dir>/hw." 1>&2
+  echo "  in <tgt dir>/hw. The board name is not required when -r is set." 1>&2
   echo "" 1>&2
   echo "  The AFU specified in filelist.txt is also instantiated." 1>&2
   echo "" 1>&2
@@ -59,7 +59,7 @@ if [ "${PIM_ROOT_DIR}" == "" ]; then
   echo "" 1>&2
   usage
 fi
-if [ "${BOARD_NAME}" == "" ]; then
+if [[ -z "${BOARD_NAME}" && -z "${PLATFORM_TEMPLATE}" ]]; then
   echo "Board name not specified!" 1>&2
   echo "" 1>&2
   usage
@@ -86,6 +86,11 @@ case "${BOARD_NAME}" in
     PIM_PLATFORM_NAME=ofs_d5005
     PIM_INI_FILE="${OFS_ROOTDIR}"/src/top/ofs_d5005.ini
     PIM_AFU_MAIN="${OFS_ROOTDIR}"/ofs-common/src/fpga_family/stratix10/port_gasket/afu_main_pim/afu_main.sv
+    ;;
+  "")
+    PIM_PLATFORM_NAME=
+    PIM_INI_FILE=
+    PIM_AFU_MAIN=
     ;;
   *)
     echo "Unknown board name: ${BOARD_NAME}" 1>&2
@@ -126,7 +131,11 @@ if [ ! -z "${AFU_FILELIST}" ]; then
   echo "Configuring AFU ${AFU_FILELIST}"
 
   # Construct the AFU simulation environment
-  $OFS_ROOTDIR/ofs-common/scripts/common/sim/afu_ofs_plat_filelist.sh -t "${PIM_ROOT_DIR}" -n "${PIM_PLATFORM_NAME}" -r "${PLATFORM_TEMPLATE}" "${AFU_FILELIST}"
+  if [ -z "${PIM_PLATFORM_NAME}" ]; then
+    $OFS_ROOTDIR/ofs-common/scripts/common/sim/afu_ofs_plat_filelist.sh -t "${PIM_ROOT_DIR}" -r "${PLATFORM_TEMPLATE}" "${AFU_FILELIST}"
+  else
+    $OFS_ROOTDIR/ofs-common/scripts/common/sim/afu_ofs_plat_filelist.sh -t "${PIM_ROOT_DIR}" -n "${PIM_PLATFORM_NAME}" -r "${PLATFORM_TEMPLATE}" "${AFU_FILELIST}"
+  fi
 
   # Use the PIM version of afu_main.sv
   if [ -f "${PIM_ROOT_DIR}"/afu_sim_files.list ]; then

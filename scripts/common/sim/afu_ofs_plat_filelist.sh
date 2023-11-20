@@ -51,11 +51,6 @@ if [ "${TGT}" == "" ]; then
   echo "" 1>&2
   usage
 fi
-if [ "${PLATFORM_NAME}" == "" ]; then
-  echo "Platform name not specified!" 1>&2
-  echo "" 1>&2
-  usage
-fi
 if [ "${PLATFORM_TEMPLATE}" == "" ]; then
   echo "Platform template root directory not specified!" 1>&2
   echo "" 1>&2
@@ -77,6 +72,7 @@ echo $AFU_FILELIST
 # If AFU sources are specified, provide a wrapper for loading them.
 if [ -f "${TGT}"/afu/vlog_files.list ]; then
   cat > ${TGT}/afu_sim_files.list <<EOF
++define+FPGA_PLATFORM_DISCRETE
 +incdir+afu/rtl
 -F afu/vlog_files.list
 EOF
