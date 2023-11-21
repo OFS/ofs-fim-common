@@ -137,7 +137,7 @@ proc emit_ip_cfg {ofile_name ip_name} {
     # for UVM. 
     puts $of ""
     puts $of ""
-    for { set i 0 } { $i < $max_port_num } { incr i } {
+    for { set i 0 } { $i <= $max_port_num } { incr i } {
        if { $port_enabled_arr($i) == 1 } {
           puts $of "`define INCLUDE_HSSI_PORT_$i "
        }
