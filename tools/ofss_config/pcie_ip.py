@@ -29,6 +29,10 @@ class PCIe(OFS):
         self.num_vfs = 0
         self.all_pfs = None
 
+        self.pcie_gen, self.pcie_instances = None, None
+        self.pcie_lane_width = None
+        self.PCIE_AVAILABLE_LANES = 16
+
         pcie_default_path = os.path.join(
             os.path.dirname(__file__), "ip_params/pcie_ss_component_parameters.py"
         )
@@ -71,6 +75,17 @@ class PCIe(OFS):
                     f"!!PCIe Config Error!! Need to have minimum 1 VF on PF0 on {self.ip_output_name}"
                 )
 
+        if self.pcie_gen is not None:
+            if self.pcie_gen not in ["4", "5"]:
+                self._errorExit(
+                    f"!!PCIe Config Error!! Currently only supporting PCIe Gen 4 or 5"
+                )
+            if self.pcie_instances is None:
+                self._errorExit(
+                    f"!!PCIe Config Error!! Must provide number of PCIe instances"
+                )
+             
+
     def get_ip_settings(self):
         """
         Get IP settings from configuration dictionary
@@ -80,6 +95,13 @@ class PCIe(OFS):
         self.ip_file = f"{self.ip_output_base}.ip"
         self.artifacts_to_clean.append(self.ip_file)
         self.artifacts_to_clean.append(self.ip_output_base)
+
+        if "pcie_gen" in self.pcie_config["settings"]:
+            self.pcie_gen  = self.pcie_config["settings"]["pcie_gen"]
+
+        if "pcie_instances" in self.pcie_config["settings"]:
+            self.pcie_instances = self.pcie_config["settings"]["pcie_instances"]
+            self.pcie_lane_width = int(self.PCIE_AVAILABLE_LANES / int(self.pcie_instances))
  
         if "preset" in self.pcie_config["settings"]:
             self.ip_preset = self.pcie_config["settings"]["preset"]
@@ -128,6 +150,9 @@ class PCIe(OFS):
             # Update PCIe's IP file's `axi_st_clk_freq_user_hwtcl` parameter
             if self.p_clk:
                 self.ip_component_params["axi_st_clk_freq_user_hwtcl"] = f"{self.p_clk}MHz"
+
+            if self.pcie_gen is not None and self.pcie_instances is not None:
+                self.ip_component_params["top_topology_hwtcl"] = f"Gen{self.pcie_gen} {self.pcie_instances}x{self.pcie_lane_width}"
 
             for pf in self.all_pfs:
                 self.process_pfs(pf)
