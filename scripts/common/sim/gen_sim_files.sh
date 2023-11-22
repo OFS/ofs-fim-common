@@ -73,6 +73,7 @@ OFS_TARGET="${1%%:*}"
 # Full string to pass options to build_top.sh
 OFS_TARGET_FULL=${1}
 echo "OFS_TARGET=$OFS_TARGET"
+echo "OFS_TARGET_FULL=$OFS_TARGET_FULL"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 OFS_IP_SEARCH_PATH="$OFS_ROOTDIR/ofs-common/src/common/lib/**/*,$OFS_ROOTDIR/ipss/pmci/**/*,$OFS_ROOTDIR/src/pd_qsys/common/**/*,$OFS_ROOTDIR/src/afu_top/**/*,$"
