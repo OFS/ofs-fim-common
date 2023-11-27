@@ -229,7 +229,7 @@ logic [MAX_NUM_ETH_CHANNELS-1:0] cpr_eth_rx_st_frame_buff_tvalid;
              .axi_rx_st  (cpr_eth_rx_st[ch])
           );
     
-          sc_fifo_tx_sc_fifo #(
+          sc_fifo_tx_sc_fifo_altera_avalon_sc_fifo_1931_45k5dnq #(
              .SYMBOLS_PER_BEAT    (AVST_DATA_WIDTH/8),
              .BITS_PER_SYMBOL     (8),
              .FIFO_DEPTH          (16384/AVST_DATA_WIDTH),  // set to 16K that can support maximum Ethernet frame length 9600 bytes 
@@ -241,7 +241,9 @@ logic [MAX_NUM_ETH_CHANNELS-1:0] cpr_eth_rx_st_frame_buff_tvalid;
              .USE_MEMORY_BLOCKS   (1),
              .USE_STORE_FORWARD   (1),
              .USE_ALMOST_FULL_IF  (1),
-             .USE_ALMOST_EMPTY_IF (1)
+             .USE_ALMOST_EMPTY_IF (1),
+	     .EMPTY_WIDTH         (6),
+	     .SYNC_RESET          (0)
           ) tx_sc_fifo (
              .clk                 (cpr_eth_tx_avst_frame_buff[ch].clk),
              .reset               (~cpr_eth_tx_avst_frame_buff[ch].rst_n),
@@ -265,7 +267,9 @@ logic [MAX_NUM_ETH_CHANNELS-1:0] cpr_eth_rx_st_frame_buff_tvalid;
              .out_empty           (cpr_eth_tx_avst_frame_buff[ch].tx.empty),
              .out_error           (cpr_eth_tx_avst_frame_buff[ch].tx.user.error),
              .almost_full_data    (),
-             .almost_empty_data   ()
+             .almost_empty_data   (),
+	     .in_channel          (1'b0),                                         
+	     .out_channel         ()    
           );
     
           always_comb begin
