@@ -103,7 +103,7 @@ module port_reset_fsm #(
       port_softreset_n_q     <= port_softreset_n;
       
       if(!rst_n_2x) begin
-         fsm_reset           <= RESET_HOLD;
+         fsm_reset           <= RESET_DEACT;
          reset_pulse_width   <= '0;
          afu_softreset       <= 1'b1;
          port_softreset_n    <= 1'b0;

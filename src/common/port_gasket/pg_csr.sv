@@ -775,7 +775,7 @@ assign port_csr_port_dfh_update.port_dfh.feature_type    = 4'h4;
 assign port_csr_port_dfh_update.port_dfh.reserved        = {19{1'b0}}; 
 assign port_csr_port_dfh_update.port_dfh.end_of_list     = 1'b0;
 assign port_csr_port_dfh_update.port_dfh.next_dfh_offset = PORT_CSR_NEXT_DFH_OFFSET;          // Points to User Clock i.e. 0x92000 
-assign port_csr_port_dfh_update.port_dfh.afu_maj_version = 4'h1; 
+assign port_csr_port_dfh_update.port_dfh.afu_maj_version = 4'h2; 
 assign port_csr_port_dfh_update.port_dfh.corefim_version = 12'h001;
 assign port_csr_port_afu_id_l_reset.data  = 64'h9642_B06C_6B35_5B87;
 assign port_csr_port_afu_id_l_update.data = 64'h9642_B06C_6B35_5B87;
@@ -804,7 +804,7 @@ assign port_csr_port_control_update.port_control.port_soft_reset_ack = i_port_ct
 assign port_csr_port_control_update.port_control.flr_port_reset      = i_port_ctrl[3];  // WAS port_io.inp2cr_port_control[3];
 assign port_csr_port_control_update.port_control.latency_tolerance   = 1'b1;
 assign port_csr_port_control_update.port_control.reserved1           = 1'b0;
-assign port_csr_port_control_update.port_control.port_soft_reset     = 1'b1;
+assign port_csr_port_control_update.port_control.port_soft_reset     = 1'b0;
 
 // Port Status ---------------------------------------------------------------
 assign port_csr_port_status_reset.data = port_csr_port_status_update.data;

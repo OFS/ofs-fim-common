@@ -15,16 +15,18 @@
 // Input localparams (define before including this file):
 //   NUM_TOP_PORTS -
 //     Number of ports on the top level mux. This is PF0, plus one 
-//     additional port for PF0 VFs and all non-PF0 functions.
+//     additional port for the port gasket which routes PF0 VFs when VFs are enabled on PF0 or
+//     routes PF1 when VFs are disabled on PF0, and all non-PF0/non-PF0+non-PF1 functions.
 //
 //   NUM_SR_PORTS -
 //     Number of ports to 2nd level static region. This must be the sum of all
-//     functions, both PF and VF, excluding PF0 & PF0 VFs. Each function will
+//     functions, both PF and VF, excluding PF0 & Port Gasket entries. Each function will
 //     map to a unique port.
 //
 //   ENABLE_PG_SHARED_VF -
 //     When non-zero, append a router port in the last slot to which all
-//     PF0 VFs are routed.
+//     PF0 VFs are routed when VFs are enabled on PF0 or PF1 is routed when
+//     VFs on PF0 are disabled.
 //
 //   MAX_PF_NUM -
 //     Number of the largest enabled PF. PF numbering does not have to be
@@ -42,9 +44,8 @@
 // Outputs:
 //
 //   PG_SHARED_VF_PID -
-//     Index in the routing table of the appended port for all PF0 VFs.
-//     This will always be the last port. When ENABLE_PG_SHARED_VF is 0,
-//     the PID will be -1.
+//     Index in the routing table of the appended port for all PF0 VFs or PF1.
+//     This will always be the last port. 
 //
 //   t_pf_vf_entry_info -
 //     The generated routing table's type, a vector of table entries:
@@ -58,10 +59,9 @@
 // DO NOT PREVENT LOADING THIS MULTIPLE TIMES! It may be included in more
 // than one package when there are multiple PCIe interfaces.
 
-// PF0 entry, static-region entries (2 entries to toggle VF active), port gasket entry (PF0 VF)
+// PF0 entry, static-region entries (2 entries to toggle VF active), port gasket entry (PF0 VF or PF1)
 localparam NUM_TOP_RTABLE_ENTRIES = 1 + 
-				    ((NUM_SR_PORTS > 0)  ? 2 : 0) +
-				    ((ENABLE_PG_SHARED_VF & (PF_NUM_VFS_VEC[0] > 0)) ? 1 : 0);
+				    ((NUM_SR_PORTS > 0)  ? 2 : 0) + 1;
 
 // Static region routing table data structure
 localparam NUM_SR_RTABLE_ENTRIES = (NUM_SR_PORTS > 0) ? NUM_SR_PORTS : 1;
@@ -72,10 +72,10 @@ typedef pf_vf_mux_pkg::t_pfvf_rtable_entry [NUM_SR_RTABLE_ENTRIES-1:0] t_sr_pf_v
 localparam t_sr_pf_vf_entry_info SR_PF_VF_RTABLE = get_sr_pf_vf_entry_info();
 
 // Port index in the static region MUX that should be routed to the
-// port gasket. (These are the PF0 VFs.) This port is expected to be
-// last.
+// port gasket. (These are the PF0 VFs when VFs are enabled on PF0 or PF1 when VFs on PF0 are disabled.) 
+//This port is expected to be last.
 localparam PF0_MGMT_PID       = 0;
-localparam PG_SHARED_VF_PID   = (ENABLE_PG_SHARED_VF ? 1             : -1);
+localparam PG_SHARED_VF_PID   = 1;
 localparam SR_SHARED_PFVF_PID = ((NUM_SR_PORTS > 0)  ? NUM_TOP_PORTS-1 : -1);
 
 // 
@@ -92,9 +92,9 @@ function automatic t_top_pf_vf_entry_info get_top_pf_vf_entry_info();
             map[p].pfvf_port = PF0_MGMT_PID;
         end else if (p == PG_SHARED_VF_PID) begin
             // Map the port gasket port
-            map[p].pf        =  0;
-            map[p].vf        = -1;  // Match any VF
-            map[p].vf_active =  1;
+            map[p].pf        =  ENABLE_PG_SHARED_VF ? 0 : 1;  //pf0vfs or pf1
+            map[p].vf        =  ENABLE_PG_SHARED_VF ? -1: 0;  // Match any VF
+            map[p].vf_active =  ENABLE_PG_SHARED_VF ? 1 : 0;  //pf0vfs or pf1
             map[p].pfvf_port = PG_SHARED_VF_PID;
         end else begin
             // Map the static AFU port to everything else
@@ -126,8 +126,9 @@ function automatic t_sr_pf_vf_entry_info get_sr_pf_vf_entry_info();
     bit mapping_vfs;
     t_sr_pf_vf_entry_info map;
 
-    // Start from PF1, PF0 is a device management port, PF0VF is reserved for port gasket
-    cur_pf = 1;
+    // Start from PF1 when VFs are enabled on PF0, else start
+    // from PF2, PF0 is a device management port, PF0VF/PF1 is reserved for port gasket
+    cur_pf = (ENABLE_PG_SHARED_VF || PG_NUM_PORT == 0) ? 1 : 2;
     cur_vf = 0;
     mapping_vfs = 0;
 
