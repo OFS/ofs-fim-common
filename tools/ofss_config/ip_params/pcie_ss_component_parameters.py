@@ -9,7 +9,7 @@ default_component_params = {
     "core16_dwdn_msg_fwd_en_hwtcl" : 1,
     "core16_flr_req_drop_en_hwtcl" : 0,
     "core16_enable_multi_func_hwtcl": 1,
-    "core16_enable_sriov_hwtcl": "1",
+    "core16_enable_sriov_hwtcl": 0,
     "core16_enable_10bit_tag_support_intf_hwtcl": 1,
     "core16_cpl_reordering_en_hwtcl": "1",
     "core16_ctrl_shadow_en_hwtcl": 1,

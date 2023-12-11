@@ -62,9 +62,10 @@ class PCIe(OFS):
                 "num_vfs" not in self.pcie_config["pf0"]
                 or int(self.pcie_config["pf0"]["num_vfs"]) == 0
             ):
-                self._errorExit(
-                    f"!!PCIe Config Error!! Need to have minimum 1 VF on PF0 on {self.ip_output_name}"
-                )
+                if "pf1" not in self.pcie_config: 
+                    self._errorExit(
+                        f"!!PCIe Config Error!! Need to have minimum 1 VF on PF0 or PF0 and PF1 on {self.ip_output_name}"
+                    )
 
         if self.platform == "f2000x" and self.ip_output_name == "soc_pcie_ss":
             if (
@@ -158,6 +159,9 @@ class PCIe(OFS):
                 self.process_pfs(pf)
 
             self.ip_component_params["core16_total_pf_count_hwtcl"] = self.num_pfs
+
+            if self.num_vfs > 0:
+                self.ip_component_params["core16_enable_sriov_hwtcl"] = 1
 
     def process_pfs(self, pf):
         """
