@@ -41,8 +41,8 @@ default_component_params = {
 #
 func_params = {
     "core16_{func_num}_expansion_base_address_register_hwtcl": "Disabled",
-    "core16_{func_num}_sriov_vf_bar0_type_hwtcl": "64-bit prefetchable memory",
-    "core16_{func_num}_sriov_vf_bar0_type_user_hwtcl": "64-bit prefetchable memory",
+    "core16_{func_num}_sriov_vf_bar0_type_hwtcl": "Disabled",
+    "core16_{func_num}_sriov_vf_bar0_type_user_hwtcl": "Disabled",
     "core16_{func_num}_bar0_type_user_hwtcl": "64-bit prefetchable memory",
     "core16_{func_num}_bar0_address_width_user_hwtcl": [12, "bar0_address_width"],
     "core16_virtual_{func_num}_msix_enable_user_hwtcl": 1,
@@ -94,13 +94,18 @@ multi_vfs_func_params = {
     "core16_virtual_{func_num}_msix_enable_user_hwtcl": 1,
     "core16_virtual_{func_num}_exvf_msix_cap_enable_hwtcl": 1,
     "core16_exvf_msixpba_bir_{func_num}": 4,
+    "core16_{func_num}_sriov_vf_bar0_type_hwtcl": "64-bit prefetchable memory",
+    "core16_{func_num}_sriov_vf_bar0_type_user_hwtcl": "64-bit prefetchable memory",
     "core16_{func_num}_sriov_vf_bar0_address_width_hwtcl": [
         12,
         "vf_bar0_address_width",
     ],
     "core16_{func_num}_sriov_vf_bar4_type_hwtcl": "64-bit prefetchable memory",
     "core16_{func_num}_sriov_vf_bar4_type_user_hwtcl": "64-bit prefetchable memory",
-    "core16_{func_num}_sriov_vf_bar4_address_width_hwtcl": 14,
+    "core16_{func_num}_sriov_vf_bar4_address_width_hwtcl": [
+        14,
+        "vf_bar4_address_width",
+    ],
     "core16_exvf_msix_tablesize_{func_num}": 6,
     "core16_exvf_msixtable_offset_{func_num}": 1536,
     "core16_exvf_msixtable_bir_{func_num}": 4,
