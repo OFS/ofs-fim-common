@@ -40,22 +40,38 @@ module ase_afu_main_emul
 
     // Map the PF/VF association of AFU ports to the parameters that will be
     // passed to the port gasket.
-    typedef pcie_ss_hdr_pkg::ReqHdr_pf_vf_info_t[PG_NUM_PORTS-1:0] t_afu_pf_vf_map;
-    function automatic t_afu_pf_vf_map gen_afu_pf_vf_map();
-        t_afu_pf_vf_map map;
+    typedef pcie_ss_hdr_pkg::ReqHdr_pf_vf_info_t[PG_NUM_PORTS-1:0] t_afu_pf_vf_info;
+    function automatic t_afu_pf_vf_info gen_afu_pf_vf_info();
+        t_afu_pf_vf_info info;
 
         // For simulation, we just pick a collection of VFs associated with a PF.
         for (int p = 0; p < PG_NUM_PORTS; p = p + 1) begin
-            map[p].pf_num = 0;
-            map[p].vf_num = p;
-            map[p].vf_active = 1'b1;
+            info[p].pf_num = 0;
+            info[p].vf_num = p;
+            info[p].vf_active = 1'b1;
         end
 
-        return map;
-    endfunction // gen_afu_pf_vf_map
+        return info;
+    endfunction // gen_afu_pf_vf_info
 
-    localparam pcie_ss_hdr_pkg::ReqHdr_pf_vf_info_t[PG_NUM_PORTS-1:0] PORT_PF_VF_INFO =
-        gen_afu_pf_vf_map();
+    localparam t_afu_pf_vf_info PORT_PF_VF_INFO = gen_afu_pf_vf_info();
+
+    typedef pf_vf_mux_pkg::t_pfvf_rtable_entry[PG_NUM_PORTS-1:0] t_afu_pf_vf_rtable;
+    function automatic t_afu_pf_vf_rtable gen_afu_pf_vf_rtable();
+        t_afu_pf_vf_rtable rtable;
+
+        // For simulation, we just pick a collection of VFs associated with a PF.
+        for (int p = 0; p < PG_NUM_PORTS; p = p + 1) begin
+            rtable[p].pfvf_port = p;
+            rtable[p].pf = 0;
+            rtable[p].vf = p;
+            rtable[p].vf_active = 1'b1;
+        end
+
+        return rtable;
+    endfunction // gen_afu_pf_vf_rtable
+
+    parameter t_afu_pf_vf_rtable PG_PFVF_ROUTING_TABLE = gen_afu_pf_vf_rtable();
 
 
     // ====================================================================
@@ -235,7 +251,10 @@ module ase_afu_main_emul
         .PG_NUM_PORTS(PG_NUM_PORTS),
         .PORT_PF_VF_INFO(PORT_PF_VF_INFO),
         .NUM_MEM_CH(NUM_LOCAL_MEM_BANKS),
-        .MAX_ETH_CH(NUM_ETH_CH)
+        .MAX_ETH_CH(NUM_ETH_CH),
+
+        .PG_NUM_RTABLE_ENTRIES(PG_NUM_PORTS),
+        .PG_PFVF_ROUTING_TABLE(PG_PFVF_ROUTING_TABLE)
       ) afu_main (
         .clk(pClk),
         .clk_div2(pClkDiv2),
