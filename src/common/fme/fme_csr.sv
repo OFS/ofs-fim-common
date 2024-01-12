@@ -1236,7 +1236,7 @@ assign fme_csr_glbl_perf_dfh_update.dfh.reserved        = {19{1'b0}};
 assign fme_csr_glbl_perf_dfh_update.dfh.end_of_list     = 1'b0;
 assign fme_csr_glbl_perf_dfh_update.dfh.next_dfh_offset = FME_CSR_GLBL_PERF_NEXT_DFH_OFFSET;
 assign fme_csr_glbl_perf_dfh_update.dfh.feature_rev     = 4'h0; 
-assign fme_csr_glbl_perf_dfh_update.dfh.feature_id      = 12'h007; 
+assign fme_csr_glbl_perf_dfh_update.dfh.feature_id      = 12'h000; 
 // Dummy Registers To Fill Addressing Gap in Register Space, Preventing Bus Exception in Valid Range-------
 assign fme_csr_dummy_3008_reset.data  = 64'h0000_0000_0000_0000;
 assign fme_csr_dummy_3008_update.data = 64'h0000_0000_0000_0000;
