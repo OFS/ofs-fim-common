@@ -145,16 +145,10 @@ else
       TB_SRC="$TB_SRC $TEST_SRC_DIR/../pmci_coverage_interface/pmci_interface.sv"
       cp -f $OFS_ROOTDIR/ipss/pmci/pmci_ss_nios_fw.hex $SIM_DIR
    fi
-#   TB_SRC="$TB_SRC $BFM_SRC"
+
 #  Now putting the BFM sources before the testbench so that the testbench
 #  can utilize the classes defined in the BFM.
-#TB_SRC="$BFM_SRC $TB_SRC " //n6001
-
-  if [[ $OFS_ROOTDIR == *f2000x* ]] ; then
-   TB_SRC="$TB_SRC $BFM_SRC" #Fm89
-  else
-   TB_SRC="$BFM_SRC $TB_SRC " #n6001
-  fi
+   TB_SRC="$BFM_SRC $TB_SRC "
 fi
 
 if [ -e "$TEST_SRC_DIR/cm_hier.file" ] ; then
@@ -306,25 +300,3 @@ echo "Total of $elapsed minutes elapsed for $TEST"
 echo "run_sim.sh: USER_DEFINED_SIM_OPTIONS $USER_DEFINED_SIM_OPTIONS"
 
 echo "run_sim.sh: run_sim.sh DONE!"
-
-
-
-# sh $TEST_DIR/setup.sh \
-#    "MSIM='$MSIM'" \
-#    "VCSMX='$VCSMX'" \
-#    "OFS_ROOTDIR='$OFS_ROOTDIR'" \
-#    "TEST_DIR='$TEST_DIR'" \
-#    "USER_DEFINED_SIM_OPTIONS='$USER_DEFINED_SIM_OPTIONS'" \
-#    "USER_DEFINED_ELAB_OPTIONS='$USER_DEFINED_ELAB_OPTIONS'" \
-#    "ELAB_OPTIONS='$ELAB_OPTIONS'" \
-#    "SIM_OPTIONS='$SIM_OPTIONS'" \
-#    "TEST_BASE_DIR='$TEST_BASE_DIR'" \
-#    "INC_DIR='$INC_DIR'" \
-#    "MSIM_FILELIST='$MSIM_FILELIST'" \
-#    "BASE_AFU_SRC='$BASE_AFU_SRC'" \
-#    "TB_SRC='$TB_SRC'" \
-#    "TOP_LEVEL_NAME='$TOP_LEVEL_NAME'" \
-#    "VCS_FILELIST='$VCS_FILELIST'" \
-#    "SKIP_SIM='$SKIP_SIM'" \
-#    "BFM_SRC='$BFM_SRC'" \
-#    "SIM_DIR='$SIM_DIR'"
