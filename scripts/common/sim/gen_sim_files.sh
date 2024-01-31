@@ -231,7 +231,6 @@ if ([ $TILE == "F-Tile" ] || [ $TILE_HIGHSPEED == "F-Tile" ]); then
     fi
     echo '## Macros needed to simulate F-Tile connected components' >> "${SIM_SETUP_DIR}"/generated_ftile_macros.f
     echo '+define+FTILE_SIM' >> "${SIM_SETUP_DIR}"/generated_ftile_macros.f
-    echo '+define+INCLUDE_PCIE_SS' >> "${SIM_SETUP_DIR}"/generated_ftile_macros.f
     echo '' >> "${SIM_SETUP_DIR}"/generated_ftile_macros.f
     echo "**** Done generating F-Tile support logic for $OFS_TARGET ****"
 fi
