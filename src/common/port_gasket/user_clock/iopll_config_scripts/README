@@ -1,0 +1,61 @@
+                Generate configuration data for the IOPLL
+                =========================================
+
+OVERVIEW:
+
+These scripts facilitate the creation of configuration data to be used
+with the IOPLL IP. The output of these scripts is a C header file
+called: user_clk_iopll_freq.h. Currently, a version of this header
+file resides in the OPAE project at:
+
+libopae/src/usrclk/user_clk_iopll_freq.h
+
+
+FILES:
+======
+
+generate_pll_settings_s10.tcl:
+-----------------------------
+
+The generate_pll_settings_s10.tcl script was provided by the openCL
+team. It is designed to generate 1x and 2x clock signals. The script
+receives parameters for the reference frequency and for the desired
+1x frequency.  The payload output from this script goes to a local
+file named pll_config.bin, and looks like the following:
+
+600000 1542 65536 257 257 192 4 0
+
+These are all decimal values, and are defined as follows, in the same
+order as shown above:
+
+(1) pll_freq_khz: The resulting 1x frequency in KHz
+(2) pll_m:  M counter values
+(3) pll_n:  M counter values
+(4) pll_c1: C1 counter values
+(5) pll_c0: C0 counter values
+(6) pll_lf: Loop filter values
+(7) pll_cp: Charge pump values
+(8) pll_rc: Ripplecap values
+
+The generate_pll_settings_s10.tcl script has been modified for
+Stratix 10 by implementing a frequency range for 1x from 10MHz to
+600MHz. The 2x clock will be double the 1x clock until the 1x clock
+exceeds 300MHz. For the 1x frequency range of 301MHz to 600 MHz, the
+2x output will be the same as the 1x output.
+
+iopll_gen_config_data.py:
+------------------------
+
+The iopll_gen_config_data.py python script automates the process of 
+generating the user_clk_iopll_freq.h C Header file by calling the
+generate_pll_settings_s10.tcl once for each desired frquency in a
+given range. The parameters for this script are currently hardwired
+as constants within the script:
+
+    REF_FREQ = 100
+    MIN_FREQ = 10
+    MAX_FREQ = 600
+    C_HEADER = "user_clk_iopll_freq.h"
+
+Note that the MIN_FREQ and MAX_FREQ constants are both associated
+with the 1x output frequency.

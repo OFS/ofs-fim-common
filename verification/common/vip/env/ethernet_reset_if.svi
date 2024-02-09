@@ -1,0 +1,31 @@
+//=======================================================================
+// COPYRIGHT (C) 2013 SYNOPSYS INC.
+// This software and the associated documentation are confidential and
+// proprietary to Synopsys, Inc. Your use or disclosure of this software
+// is subject to the terms and conditions of a written license agreement
+// between you, or your company, and Synopsys, Inc. In the event of
+// publications, the following notice is applicable:
+//
+// ALL RIGHTS RESERVED
+//
+// The entire notice above must be reproduced on all authorized copies.
+//-----------------------------------------------------------------------
+/**
+ * Abstract:
+ * Defines an interface that provides access to a reset signal.  This
+ * interface can be used to write sequences to drive the reset logic.
+ */
+
+`ifndef GUARD_ETHERNET_RESET_IF_SVI
+`define GUARD_ETHERNET_RESET_IF_SVI
+
+interface ethernet_reset_if();
+
+  logic reset;
+  logic clk;
+
+  modport ethernet_reset_modport (input clk, output reset);
+
+endinterface
+
+`endif // GUARD_ETHERNET_RESET_IF_SVI

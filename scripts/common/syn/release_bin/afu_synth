@@ -1,0 +1,125 @@
+#!/bin/bash
+
+##
+## Build an AFU in the PR region that has been configured from a template tree.
+## This script is copied from the source repository into a generated release
+## tree and should be invoked as:
+##
+##    $OPAE_PLATFORM_ROOT/bin/afu_synth
+##
+## inside a build tree configured with afu_synth_setup.
+##
+
+SCRIPTNAME="$(basename -- "$0")"
+SCRIPT_DIR="$(cd "$(dirname -- "$0")" 2>/dev/null && pwd -P)"
+
+# Import environment configuration
+source "${SCRIPT_DIR}"/build_env_config
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -l|--bbs-lib)
+            # Not used anymore. Kept for backward compatibility.
+            BBS_LIB_PATH="$2"
+            shift 2
+            ;;
+        -p|--packager)
+            PACKAGER="$2"
+            shift 2
+            ;;
+        -o|--gbs)
+            GBS_FILE="$2"
+            shift 2
+            ;;
+        --) shift; break;;
+        -*) echo "usage: $SCRIPTNAME [-l/--packager <packager>] [--] [afu_metadata.json]" 1>&2
+            exit 1
+            ;;
+        *) break;;
+    esac
+done
+
+if [ $# -eq 0 ]; then
+    set -- hw/*.json *.json hw/rtl/*.json
+    while [ $# -gt 0 ] && [ ! -e "$1" ]; do shift; done
+
+    if [ -z "$1" ]; then
+        echo "ERROR: JSON metadata definition not found." 1>&2
+        exit 1
+    fi
+fi
+AFU_JSON="$1"
+
+# Ensure that OPAE_PLATFORM_ROOT is defined as an environment variable.
+# It may be required by tools such as afu_platform_config below.
+export OPAE_PLATFORM_ROOT=${OPAE_PLATFORM_ROOT:-"$(dirname -- "${SCRIPT_DIR}")"}
+
+# PACKAGER environment variable is used by gen_gbs.tcl in the Quartus project
+export PACKAGER=${PACKAGER:-packager}
+GBS_FILE=${GBS_FILE:-$(basename "${AFU_JSON}" .json).gbs}
+
+if ! "${PACKAGER}" >/dev/null; then
+    echo "ERROR: Packager tool '${PACKAGER}' failed to run. Please check \$PATH and installation." 1>&2
+    exit 1
+fi
+
+if [ "${QUARTUS_BUILD_DIR}X" == "X" ]; then
+    echo "ERROR: QUARTUS_BUILD_DIR not configured in ${SCRIPT_DIR}/build_env_config" 1>&2
+    exit 1
+fi
+if [ ! -d "${QUARTUS_BUILD_DIR}" ]; then
+    echo "Build directory \"${QUARTUS_BUILD_DIR}\" not found" 1>&2
+    exit 1
+fi
+
+echo "Compiling ${Q_PROJECT} ${Q_PR_REVISION}"
+echo "Generating ${GBS_FILE}"
+echo "=================================="
+
+# Clean up from previous compilation
+rm -rf "${QUARTUS_BUILD_DIR}"/output_files/${Q_PR_REVISION}.*
+rm -rf "${QUARTUS_BUILD_DIR}"/output_files/timing_report
+rm -rf "${QUARTUS_BUILD_DIR}"/output_files/user_clock_freq.txt
+rm -f ${GBS_FILE}
+
+if [ -f hw/rtl/components.ipx ] && [ ! -e "${QUARTUS_BUILD_DIR}"/components.ipx ]; then
+    ln -s "${REL_ROOT_DIR}"/hw/rtl/components.ipx "${QUARTUS_BUILD_DIR}"/
+fi
+
+# Use the standard Quartus compilation flow
+(cd "${QUARTUS_BUILD_DIR}" \
+  && quartus_sh --flow compile ${Q_PROJECT} -c ${Q_PR_REVISION})
+
+QUARTUS_RETCODE=$?
+
+if [ $QUARTUS_RETCODE -ne 0 ]; then
+    echo "Quartus build failed"
+    exit $QUARTUS_RETCODE
+fi
+
+if [ ! -f "${QUARTUS_BUILD_DIR}"/output_files/${Q_PR_REVISION}.${Q_PR_PARTITION_NAME}.gbs ]; then
+    echo "${QUARTUS_BUILD_DIR}/output_files/${Q_PR_REVISION}.${Q_PR_PARTITION_NAME}.gbs not found!"
+    exit 1
+fi
+
+if [ ! -f "${GBS_FILE}" ]; then
+    ln -s "${QUARTUS_BUILD_DIR}"/output_files/${Q_PR_REVISION}.${Q_PR_PARTITION_NAME}.gbs "${GBS_FILE}"
+fi
+
+echo ""
+echo "==========================================================================="
+echo " PR AFU compilation complete"
+echo " AFU gbs file is '${GBS_FILE}'"
+
+TIMING_SUMMARY_FILE="${QUARTUS_BUILD_DIR}"/output_files/timing_report/clocks.sta.fail.summary
+if [ -s "${TIMING_SUMMARY_FILE}" ]; then
+    echo
+    echo "  *** Design does not meet timing"
+    echo "  *** See ${QUARTUS_BUILD_DIR}/output_files/timing_report"
+    echo
+elif [ -f "${TIMING_SUMMARY_FILE}" ]; then
+    echo " Design meets timing"
+fi
+
+echo "==========================================================================="
+echo ""

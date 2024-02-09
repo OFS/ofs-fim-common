@@ -1,0 +1,20 @@
+##
+## A simple test to drive the PCIe SS Data Mover (DM) request splitter shim.
+##
+
++incdir+../../../../../../includes
+
+SI:../../../../files_sim.f
+QI:../../../../files_quartus.tcl
+
+pcie_dm_req_splitter.json
+afu_main.sv
+port_afu_instances.sv
+dm_large_req_afu.sv
+hash32.sv
+
+../../../../../axis/axis_pipeline.sv
+../../../../../axis/axis_register.sv
+../../../../../fifo/fim_rdack_scfifo.sv
+../../../../../fifo/fim_scfifo.sv
+../../../../../arbiter/ofs_fim_fair_arbiter.sv

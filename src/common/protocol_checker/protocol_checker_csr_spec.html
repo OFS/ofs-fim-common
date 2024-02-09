@@ -1,0 +1,173 @@
+<html>
+<head>
+<style>
+<!--
+ /* Style Definitions */
+p.Body, li.Body, div.Body
+        {mso-style-name:Body;
+         margin-right:0in;
+         mso-margin-top-alt:auto;
+         mso-margin-bottom-alt:auto;
+         margin-left:0in;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         mso-bidi-font-size:12.0pt;
+         font-family:Arial;
+         mso-fareast-font-family:"Times New Roman";
+         mso-bidi-font-family:"Times New Roman";}
+p.bitdef, li.bitdef, div.bitdef
+         {mso-style-name:bitdef;
+         margin-top:5.0pt;
+         margin-right:0in;
+         margin-bottom:5.0pt;
+         margin-left:0.6in;
+         text-indent:-.5in;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         font-family:"Arial";
+         mso-fareast-font-family:"Arial";}
+p.bitdes, li.bitdes, div.bitdes
+         {mso-style-name:bitdes;
+         margin-top:5.0pt;
+         margin-right:0in;
+         margin-bottom:5.0pt;
+         margin-left:0.8in;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         font-family:"Arial";
+         mso-fareast-font-family:"Arial";}
+p.left, li.left, div.left
+        {mso-style-name:left;
+         margin:0in;
+         margin-bottom:.0001pt;
+         text-align:right;
+         mso-pagination:widow-orphan;
+         font-size:10.0pt;
+         mso-bidi-font-size:12.0pt;
+         font-family:Arial;
+         mso-fareast-font-family:"Times New Roman";
+         mso-bidi-font-family:"Times New Roman";}
+-->
+</style>
+<style type="text/css">
+table tr#BLUE  {background-color:blue; color:white;}
+</style>
+</head>
+<body>
+
+<h1>Intel Confidential</h1>
+<h2>protocol_checker Configuration Registers</h2>
+<table BORDER>
+<tr> <td><b>Register</b></td> <td><b>Offset</b></td></tr>
+<tr> <td>afu_intf_dfh</td> <td><a href="#r0x000">0x000</a></td> </tr>
+<tr> <td>afu_intf_scratchpad</td> <td><a href="#r0x008">0x008</a></td> </tr>
+<tr> <td>afu_intf_error</td> <td><a href="#r0x010">0x010</a></td> </tr>
+<tr> <td>afu_intf_first_error</td> <td><a href="#r0x018">0x018</a></td> </tr>
+<tr> <td>mmio_timeout_addr</td> <td><a href="#r0x020">0x020</a></td> </tr>
+<tr> <td>mmio_timeout_info</td> <td><a href="#r0x028">0x028</a></td> </tr>
+<tr> <td>mmio_immediate_frozen_reg</td> <td><a href="#r0x030">0x030</a></td> </tr>
+<tr> <td>mmio_tx_header_error_255_192</td> <td><a href="#r0x038">0x038</a></td> </tr>
+<tr> <td>mmio_tx_header_error_191_128</td> <td><a href="#r0x040">0x040</a></td> </tr>
+<tr> <td>mmio_tx_header_error_127_64</td> <td><a href="#r0x048">0x048</a></td> </tr>
+<tr> <td>mmio_tx_header_error_63_00</td> <td><a href="#r0x050">0x050</a></td> </tr>
+</table>
+<p><b>Table of all registers:</b></p><table BORDER>
+
+<tr id="BLUE"><td><a NAME="r0x000"</a><b>afu_intf_dfh</b></td><td><b>0x000</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>feature_type</b>[03:00]</td> <td><b>63:60</b></td> <td>RO</td><td>0x3</td><td>Feature Type = Private Feature</td> </tr>
+<tr> <td>reserved</td> <td>59:41</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>eol</b></td> <td><b>40</b></td> <td>RO</td><td>0x1</td><td>End of List</td> </tr>
+<td><b>next_dfh_byte_offset</b>[23:00]</td> <td><b>39:16</b></td> <td>RO</td><td>0x0</td><td>Next DFH Byte offset</td> </tr>
+<td><b>feature_rev</b>[03:00]</td> <td><b>15:12</b></td> <td>RO</td><td>0x2</td><td>feature revision</td> </tr>
+<td><b>feature_id</b>[11:00]</td> <td><b>11:00</b></td> <td>RO</td><td>0x10</td><td>feature ID</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x008"</a><b>afu_intf_scratchpad</b></td><td><b>0x008</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>scratchpad</b>[63:00]</td> <td><b>63:00</b></td> <td>RW</td><td>warm or cold 0x0</td><td>Scratchpad.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x010"</a><b>afu_intf_error</b></td><td><b>0x010</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <tr> <td>reserved</td> <td>63:32</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>blocking_traffic</b></td> <td><b>31</b></td> <td>RO</td><td>0x0</td><td>When a one is returned from this bit, it signifies that the RTL is blocking traffic as a result of the protocol error logic detecting an error.</td> </tr>
+<tr> <td>reserved</td> <td>30:29</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>vf_num</b>[10:00]</td> <td><b>28:18</b></td> <td>RO</td><td>NA</td><td>VF NUM</td> </tr>
+<td><b>vf_flr_access</b></td> <td><b>17</b></td> <td>RO</td><td>0x0</td><td>VF FLR Access Error from Port Reset FSM</td> </tr>
+<tr> <td>reserved</td> <td>16:15</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>malformed_tlp_err</b></td> <td><b>14</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU PCIe TLP contains unsupported format type.</td> </tr>
+<td><b>max_payload_err</b></td> <td><b>13</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU memory write payload size exceeds max payload length limit.</td> </tr>
+<td><b>max_read_req_size_err</b></td> <td><b>12</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU memory read request size exceeds max payload length limit.</td> </tr>
+<td><b>max_tag_err</b></td> <td><b>11</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU memory read request tag value exceeds the maximum supported tag count.</td> </tr>
+<tr> <td>reserved</td> <td>10:09</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>unexp_mmio_rsp_err</b></td> <td><b>8</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU is sending an MMIO read response with no matching MMIO read request.</td> </tr>
+<td><b>mmio_timeout_err</b></td> <td><b>7</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU is not responding to an MMIO read request within the pre-defined response timeout</td> </tr>
+<tr> <td>reserved</td> <td>06:05</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>mmio_data_payload_overrun_err</b></td> <td><b>4</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload sent by AFU for a given MMIO response (cplD) is more than the data length specified in the response.</td> </tr>
+<td><b>mmio_insufficient_data_err</b></td> <td><b>3</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload sent by AFU for a given MMIO response (cplD) is less than the data length specified in the response.</td> </tr>
+<td><b>tx_mwr_data_payload_overrun_err</b></td> <td><b>2</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload words sent by the AFU for a memory write request is more than the data length specified in the request.</td> </tr>
+<td><b>tx_mwr_insufficient_data_err</b></td> <td><b>1</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload words sent by the AFU for a memory write request is less than the data length specified in the request.</td> </tr>
+<tr> <td>reserved</td> <td>00</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x018"</a><b>afu_intf_first_error</b></td><td><b>0x018</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <tr> <td>reserved</td> <td>63:29</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>vf_num_ferr</b>[10:00]</td> <td><b>28:18</b></td> <td>RO</td><td>NA</td><td>VF NUM</td> </tr>
+<td><b>vf_flr_access_ferr</b></td> <td><b>17</b></td> <td>RO</td><td>0x0</td><td>VF FLR Access Error from Port Reset FSM</td> </tr>
+<tr> <td>reserved</td> <td>16:15</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>malformed_tlp_ferr</b></td> <td><b>14</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU PCIe TLP contains unsupported format type. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<td><b>max_payload_ferr</b></td> <td><b>13</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU PCIe TLP contains unsupported format type. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<td><b>max_read_req_size_ferr</b></td> <td><b>12</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU memory read request size exceeds max payload length limit. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<td><b>max_tag_ferr</b></td> <td><b>11</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU memory read request tag value exceeds the maximum supported tag count. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<tr> <td>reserved</td> <td>10:09</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>unexp_mmio_rsp_ferr</b></td> <td><b>8</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU is sending an MMIO read response with no matching MMIO read request. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<td><b>mmio_timeout_ferr</b></td> <td><b>7</b></td> <td>RW1CS</td><td>cold 0x0</td><td>AFU is not responding to an MMIO read request within the pre-defined response timeout HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<tr> <td>reserved</td> <td>06:05</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>mmio_data_payload_overrun_ferr</b></td> <td><b>4</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload sent by AFU for a given MMIO response (cplD) is more than the data length specified in the response. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<td><b>mmio_insufficient_data_ferr</b></td> <td><b>3</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload sent by AFU for a given MMIO response (cplD) is less than the data length specified in the response. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<td><b>tx_mwr_data_payload_overrun_ferr</b></td> <td><b>2</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload words sent by the AFU for a memory write request is more than the data length specified in the request. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<td><b>tx_mwr_insufficient_data_ferr</b></td> <td><b>1</b></td> <td>RW1CS</td><td>cold 0x0</td><td>The number of data payload words sent by the AFU for a memory write request is less than the data length specified in the request. HW Effects on this register are blocked when the internal ASIC net; freeze_first_err_regs is false.
+</td> </tr>
+<tr> <td>reserved</td> <td>00</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x020"</a><b>mmio_timeout_addr</b></td><td><b>0x020</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <tr> <td>reserved</td> <td>63:32</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>mmio_timeout_addr</b>[31:00]</td> <td><b>31:00</b></td> <td>ROS</td><td>NA</td><td>When bit 63 of register 0x028, timeout_regs_frozen,  is set, this register will hold the lower 32 bits of the read transaction from the host that did not receive a completion in 40960 clock cycles and therefore timed out. Additionally bit 7 of register 0x010 or register 0x018 mmio_timeout will be set.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x028"</a><b>mmio_timeout_info</b></td><td><b>0x028</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>timeout_regs_frozen</b></td> <td><b>63</b></td> <td>ROS</td><td>NA</td><td>When this bit is set it indicates that a read transaction from the host that did not receive a completion in 40960 clock cycles and therefore timed out. The data in registers 0x020 and 0x028 are valid and hold the read request information that timed out.</td> </tr>
+<tr> <td>reserved</td> <td>62:36</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>mmio_timeout_tag</b>[07:00]</td> <td><b>35:28</b></td> <td>ROS</td><td>NA</td><td>This holds the tag that was in the header of the memory read that timed out. The content of this register is only valid when bit 64 of this register is set. You will also see bit 7 of register 0x010 or register 0x018 mmio_timeout set.</td> </tr>
+<tr> <td>reserved</td> <td>27:26</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>mmio_timeout_dw0_len</b>[09:00]</td> <td><b>25:16</b></td> <td>ROS</td><td>NA</td><td>This holds the dw0_len that was in the header of the memory read that timed out. The content of this register is only valid when bit 64 of this register is set. You will also see bit 7 of register 0x010 or register 0x018 mmio_timeout set.</td> </tr>
+<td><b>mmio_timeout_requester_id</b>[15:00]</td> <td><b>15:00</b></td> <td>ROS</td><td>NA</td><td>This holds the requester_id that was in the header of the memory read that timed out. The content of this register is only valid when bit 64 of this register is set You will also see bit 7 of register 0x010 or register 0x018 mmio_timeout set.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x030"</a><b>mmio_immediate_frozen_reg</b></td><td><b>0x030</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <tr> <td>reserved</td> <td>63:02</td> <td>RsvdZ</td> <td>0</td> <td> </td> </tr><td><b>tx_hdr_is_pu_mode</b></td> <td><b>1</b></td> <td>ROS</td><td>NA</td><td>When this bit is set it indicates the data in registers x038 through 0x050 are a power user header. Otherwise it is a Data Mover header</td> </tr>
+<td><b>mmio_immediate_frozen</b></td> <td><b>0</b></td> <td>ROS</td><td>NA</td><td>When this bit is set it indicates all the data in registers 0x030 through 0x050 are valid and hold the header form the errored transaction.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x038"</a><b>mmio_tx_header_error_255_192</b></td><td><b>0x038</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>tx_header_error_255_192</b>[63:00]</td> <td><b>63:00</b></td> <td>ROS</td><td>NA</td><td>Currently returns all zeros and is not implemented. This is a place holder in case this information us needed.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x040"</a><b>mmio_tx_header_error_191_128</b></td><td><b>0x040</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>tx_header_error_191_128</b>[63:00]</td> <td><b>63:00</b></td> <td>ROS</td><td>NA</td><td>Currently returns all zeros and is not implemented. This is a place holder in case this information us needed.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x048"</a><b>mmio_tx_header_error_127_64</b></td><td><b>0x048</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>tx_header_error_127_64</b>[63:00]</td> <td><b>63:00</b></td> <td>ROS</td><td>NA</td><td>Contains bits 127:64 of the header when the error indicated in register 0x18 occured.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+
+<tr id="BLUE"><td><a NAME="r0x050"</a><b>mmio_tx_header_error_63_00</b></td><td><b>0x050</b></td><td></td><td></td><td></td></tr>
+<tr> <td><b>Register</b></td> <td><b>Bits</b></td> <td><b>Access</b></td> <td><b>Reset</b></td> <td><b>Description</b></td> </tr>
+<tr> <td><b>tx_header_error_63_00</b>[63:00]</td> <td><b>63:00</b></td> <td>ROS</td><td>NA</td><td>Contains bits 63:0 of the header when the error indicated in register 0x18 occured.</td> </tr>
+<tr>  <td>| </td>  <td> </td>  <td> </td>  <td>  </td>  <td> </td> </tr>
+</table>
+</body>
+</html>

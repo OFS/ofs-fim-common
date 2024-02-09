@@ -1,0 +1,16 @@
+
+#To Create the CSR RTL and .html specification simply cd here and type:
+make
+-or- cd here and:
+../../../../tools/mk_csr_module/mk_cfg_module_64.pl vuart_csrs.ini
+
+There is an example of a functional .ini file at:
+.../tools/mk_csr_module/
+
+See the README_for_CSRS at:
+.../tools/mk_csr_module/README_for_CSRS for complete list of
+register and field arguments and their functions
+
+You can run the example at .../tools/mk_csr_module/ and look at the
+two files it creates: example_csr.sv and example_csr_spec.html, To run
+the example, cd there and: ./mk_cfg_module_64.pl example_csrs.ini

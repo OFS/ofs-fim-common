@@ -1,0 +1,94 @@
+diff -rauN /nfs/site/disks/pac_release_1/acds_ac/quartus_21.3_b170_ww49.3_pcie_release/acds/ip/altera/subsystems/mem_ss/ip_tg_axi/rtl/altera_emif_avl_tg_2_status_checker.sv mem_ss_tg/mem_ss_tg_axi_100/synth/altera_emif_avl_tg_2_status_checker.sv
+--- /nfs/site/disks/pac_release_1/acds_ac/quartus_21.3_b170_ww49.3_pcie_release/acds/ip/altera/subsystems/mem_ss/ip_tg_axi/rtl/altera_emif_avl_tg_2_status_checker.sv	2021-12-02 09:03:45.078878000 -0800
++++ mem_ss_tg/mem_ss_tg_axi_100/synth/altera_emif_avl_tg_2_status_checker.sv	2022-01-07 13:51:52.000000000 -0800
+@@ -69,7 +69,7 @@
+    input                          all_tests_issued,
+    input                          inf_user_mode_status_en,
+    input                          at_byteenable_stage,
+-   input                          reads_in_prog,
++   input                          test_in_prog,
+    input                          incr_timeout,
+    output                         timeout
+ );
+@@ -194,7 +194,7 @@
+          fail <= '0;
+          timeout_count <= '0;
+       end else begin
+-         pass <=  !first_failure_occured & all_tests_issued & ~(reads_in_prog);
++         pass <=  !first_failure_occured & all_tests_issued & ~(test_in_prog);
+          // If TEST_DURATION == "INFINITE" then the fail signal
+          // will be asserted immediately upon any bit failure.  Otherwise,
+          // the fail signal will only be asserted after all traffic has completed.
+diff -rauN /nfs/site/disks/pac_release_1/acds_ac/quartus_21.3_b170_ww49.3_pcie_release/acds/ip/altera/subsystems/mem_ss/ip_tg_axi/rtl/altera_emif_avl_tg_2_top.sv mem_ss_tg/mem_ss_tg_axi_100/synth/altera_emif_avl_tg_2_top.sv
+--- /nfs/site/disks/pac_release_1/acds_ac/quartus_21.3_b170_ww49.3_pcie_release/acds/ip/altera/subsystems/mem_ss/ip_tg_axi/rtl/altera_emif_avl_tg_2_top.sv	2021-12-02 09:03:45.092879000 -0800
++++ mem_ss_tg/mem_ss_tg_axi_100/synth/altera_emif_avl_tg_2_top.sv	2022-01-07 13:51:04.000000000 -0800
+@@ -364,7 +364,7 @@
+    wire [MAX_CTRL_PORTS-1:0]                                at_wait_user_stage;
+    wire [MAX_CTRL_PORTS-1:0]                                at_done_stage;
+    wire [MAX_CTRL_PORTS-1:0]                                at_default_stage;
+-   wire [MAX_CTRL_PORTS-1:0]                                reads_in_prog;
++   wire [MAX_CTRL_PORTS-1:0]                                test_in_prog;
+    wire [MAX_CTRL_PORTS-1:0]                                restart_default_traffic;
+    wire [MAX_CTRL_PORTS-1:0]                                rst_config;
+    wire [MAX_CTRL_PORTS-1:0]                                inf_user_mode;
+@@ -834,7 +834,7 @@
+                   .first_fail_read_data         (first_fail_read_data[i]),
+                   .first_failure_occured        (first_failure_occured[i]),
+                   //extra signals used by the status checker
+-                  .reads_in_prog                (reads_in_prog[i]),
++                  .test_in_prog                 (test_in_prog[i]),
+                   .target_first_failing_addr    (target_first_failing_addr[i]),
+                   .restart_default_traffic      (restart_default_traffic[i]),
+                   .worm_en                      (worm_en[2]),
+@@ -888,7 +888,7 @@
+                .all_tests_issued          ((at_wait_user_stage[i]&&!BYPASS_DEFAULT_PATTERN)|(at_done_stage[i])),
+                .at_byteenable_stage       (at_byteenable_stage[i]),
+                .inf_user_mode_status_en   (inf_user_mode_status_en[i]),
+-               .reads_in_prog             (reads_in_prog[i]),
++               .test_in_prog              (test_in_prog[i]),
+                .timeout                   (traffic_gen_timeout_all[i]),
+                .incr_timeout              (incr_timeout_all[i])
+             );
+diff -rauN /nfs/site/disks/pac_release_1/acds_ac/quartus_21.3_b170_ww49.3_pcie_release/acds/ip/altera/subsystems/mem_ss/ip_tg_axi/rtl/altera_emif_avl_tg_2_traffic_gen.sv mem_ss_tg/mem_ss_tg_axi_100/synth/altera_emif_avl_tg_2_traffic_gen.sv
+--- /nfs/site/disks/pac_release_1/acds_ac/quartus_21.3_b170_ww49.3_pcie_release/acds/ip/altera/subsystems/mem_ss/ip_tg_axi/rtl/altera_emif_avl_tg_2_traffic_gen.sv	2021-12-02 09:03:45.096877000 -0800
++++ mem_ss_tg/mem_ss_tg_axi_100/synth/altera_emif_avl_tg_2_traffic_gen.sv	2022-01-07 13:52:55.000000000 -0800
+@@ -25,7 +25,7 @@
+    parameter RW_OPERATION_COUNT_WIDTH        = "",
+    parameter RW_LOOP_COUNT_WIDTH             = "",
+    parameter RAND_SEQ_CNT_WIDTH              = 8,
+-   parameter SEQ_ADDR_INCR_WIDTH             = 8,
++   parameter SEQ_ADDR_INCR_WIDTH             = 16,
+    //address generator params
+    parameter MEM_ADDR_WIDTH                  = "", //memory address width
+    parameter AMM_BURSTCOUNT_WIDTH            = "",
+@@ -173,7 +173,7 @@
+    input                            at_target_stage,
+    output                           target_first_failing_addr,
+ 
+-   output                           reads_in_prog,
++   output                           test_in_prog,
+    output logic                     restart_default_traffic,
+    input                            worm_en,
+    output reg                       tg_test_byteen,
+@@ -196,6 +196,8 @@
+    wire [AMM_WORD_ADDRESS_WIDTH-1:0]  write_addr;
+    wire [AMM_WORD_ADDRESS_WIDTH-1:0]  read_addr;
+ 
++   wire reads_in_prog;
++   wire writes_in_prog;
+    wire status_check_in_prog;
+    wire rw_gen_waitrequest;
+    wire controller_wr_ready;
+@@ -567,9 +569,11 @@
+     end
+    end
+ 
++   assign writes_in_prog = (writes_in_prog | write_req) & ~controller_rd_ready & ~rst;
+    assign reads_in_prog = status_check_in_prog | tg_start_detected;
++   assign test_in_prog = writes_in_prog | reads_in_prog;
+    assign tg_restart = rw_gen_start;
+-   assign tg_test_complete = !(rw_gen_waitrequest | reads_in_prog);
++   assign tg_test_complete = !(rw_gen_waitrequest | test_in_prog);
+ 
+    genvar dupl_cntr;
+    genvar k;

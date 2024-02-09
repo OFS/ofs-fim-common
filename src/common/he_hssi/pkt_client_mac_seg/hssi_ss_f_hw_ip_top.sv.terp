@@ -1,0 +1,2580 @@
+// Copyright 2001-2023 Intel Corporation
+// SPDX-License-Identifier: MIT
+
+
+// ==========================================================================
+// Project           : HSSI Subsystem for F-tile 
+// Module            : hssi_ss_f_hw_ip_top.sv.terp
+// Description       : Wrapper for hssi_ss IP and the packet client_wrapper, common for both Simulation and HW design
+// Author            : 
+// Created           : 
+// Description       : This file is the top level wrapper for all the ports with in the subsystem
+//                   : this is wrapper of HSSI SS IP core and the packet clients_wrapper 
+// ==========================================================================
+// synthesis translate_off
+`timescale 1ns / 1ps
+// synthesis translate_on
+ 
+@@  array set num_xcvr_ch {}
+@@  array set port_en {}
+@@  foreach {port_no no_ch} $num_xcvr_ch_in {
+@@     set num_xcvr_ch($port_no) $no_ch
+@@  }
+@@  foreach {port_no val} $port_profile_in {
+@@     set port_profile($port_no) $val
+@@  }
+@@  foreach {port_no val} $port_en_in {
+@@     set port_en($port_no) $val
+@@  }
+@@  foreach {port_no ptp_en} $port_ptp_en_in {
+@@     set port_ptp_en($port_no) $ptp_en
+@@  }
+@@  foreach {port_no ptp_en} $port_ptp_enh_en_in {
+@@     set port_ptp_enh_en($port_no) $ptp_en
+@@  }
+@@  foreach {port_no val} $port_async_adapter_en_in {
+@@     set port_async_adapter_en($port_no) $val
+@@  }
+@@  foreach {port_no val} $is_port_100g_in {
+@@     set is_port_100g($port_no) $val
+@@  }
+@@  foreach {port_no val} $port_data_width_in {
+@@     set port_data_width($port_no) $val
+@@  }
+@@  foreach {port_no val} $port_fec_type_in {
+@@     set port_fec_type($port_no) $val
+@@  }
+@@  foreach {port_no val} $inst_sub_profile_mode_in {
+@@     set inst_sub_profile_mode($port_no) $val
+@@  }
+@@  foreach {port_no val} $port_dlat_en_in {
+@@     set port_dlat_en($port_no) $val
+@@  }
+@@  foreach {port_no val} $port_ptp_fp_width_in {
+@@     set port_ptp_fp_width($port_no) $val
+@@  }
+@@  foreach {port_no val} $port_client_if_in {
+@@     set port_client_if($port_no) $val
+@@  }
+@@  foreach {port_no val} $port_axi_par_en_in {
+@@     set port_axi_par_en($port_no) $val
+@@  }
+@@  foreach {port_no val}  $port_ptp_10g_adv_en_in {
+@@     set port_ptp_10g_adv_en($port_no)  $val
+@@  }
+@@  foreach {port_no val} $port_ready_latency_in {
+@@     set port_ready_latency($port_no) $val
+@@  }
+@@  foreach {port_no val} $tx_tuser_client_width_in {
+@@      set tx_tuser_client_width($port_no) $val
+@@  }
+@@  foreach {port_no val} $rx_tuser_client_width_in {
+@@      set rx_tuser_client_width($port_no) $val
+@@  }
+@@  foreach {port_no val} $rx_tuser_sts_width_in {
+@@      set rx_tuser_sts_width($port_no) $val
+@@  }
+@@  foreach {port_no val} $preamble_passthrough_in {
+@@      set preamble_passthrough($port_no) $val
+@@  }
+@@  foreach {port_no val} $multi_stream_en_in {
+@@      set multi_stream_en($port_no) $val
+@@  }
+@@  foreach {port_no val} $num_of_stream_in {
+@@      set num_of_stream($port_no) $val
+@@  }
+@@  foreach {port_no val} $tid_width_in {
+@@      set tid_width($port_no) $val
+@@  }
+@@	foreach {port_no val} $port_dr_en_in {
+@@			set port_dr_en($port_no) $val
+@@ 	} 
+@@  foreach {port_no val} $empty_bits_in {
+@@      set empty_bits($port_no) $val
+@@  }
+
+@@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+@@     if {$port_dr_en($port_no) == 0} {
+@@       set num_of_ports($port_no) 1 	
+@@     } elseif {($port_profile($port_no) == "400GAUI-8") } {
+@@      set num_of_ports($port_no) 4 
+@@     } else {
+@@      set num_of_ports($port_no) $num_xcvr_ch($port_no) 
+@@     }
+@@ }
+
+@@ foreach {port_no val} $en_flow_control_in {
+@@     set en_flow_control($port_no) $val
+@@ }
+
+@@ foreach {port_no val} $FLOW_CONTROL_in {
+@@     set FLOW_CONTROL($port_no) $val
+@@ }
+@@  foreach {port_no val} $port_cdr_clk_en_in {
+@@      set port_cdr_clk_en($port_no) $val
+@@  }
+ 
+module hssi_ss_f_hw_ip_top #(
+ @@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+ @@    if {$port_en($port_no) == 1} {
+        parameter PORT${port_no}_XCVR_CHANNEL     = $num_xcvr_ch($port_no),
+		  	parameter PORT${port_no}_DATA_WIDTH   	  = $port_data_width($port_no), 
+		  	parameter PORT${port_no}_CLIENT_IF_TYPE   = $port_client_if($port_no),
+        parameter PORT${port_no}_PTP_GUI          = $port_ptp_en($port_no),     
+        parameter PORT${port_no}_NUM_OF_STREAM    = $num_of_stream($port_no),
+			 @@    }       
+ @@  }       
+        parameter SIM_EMULATE      = 0
+		 //parameter NUM_OF_STREAM    = 0   
+			
+			    )(
+        input  logic  [1:0]                       i_clk_ref,
+        input  logic                              app_ss_lite_clk,
+        input  logic                              app_ss_lite_areset_n,
+        input  logic                              subsystem_cold_rst_n,
+        input  logic                              packet_client_rst_n,
+        output logic                              subsystem_cold_rst_ack_n,
+			
+ @@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+ @@    if {$port_en($port_no) == 1} {
+				//        input  logic                               i_p${port_no}_rst_n_eth,
+		     @@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     @@ set dr_port_no [expr $port_no + $ch_no]
+        output logic                               o_p${dr_port_no}_rst_ack_n_eth,
+     @@ } 
+
+        input  [PORT${port_no}_XCVR_CHANNEL-1:0]  p${port_no}_rx_serial,
+        input  [PORT${port_no}_XCVR_CHANNEL-1:0]  p${port_no}_rx_serial_n,
+        output [PORT${port_no}_XCVR_CHANNEL-1:0]  p${port_no}_tx_serial,
+        output [PORT${port_no}_XCVR_CHANNEL-1:0]  p${port_no}_tx_serial_n,
+ 
+			output logic [PORT${port_no}_NUM_OF_STREAM-1:0][$num_of_ports($port_no)-1:0] ss_app_st_p${port_no}_tx_tready, //TODO:check Width required by TB
+ 
+ 
+// @@  if {$port_ptp_en($port_no) == 1} {
+//        output logic                              o_p${port_no}_tx_ptp_ready,
+//		  	output logic          						  			o_p${port_no}_rx_ptp_ready,
+// @@  }        
+//        //signals to probe
+//        output logic                              o_p${port_no}_rx_pcs_ready,
+//        output logic                              o_p${port_no}_tx_lanes_stable,
+//        output logic                              o_p${port_no}_tx_pll_locked,
+		 	 	output logic      								  			o_p${port_no}_clk_pll,
+	  	  
+			@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     	@@ set dr_port_no [expr $port_no + $ch_no]	
+				output logic  									  				o_p${dr_port_no}_clk_tx_div,   //required for asyn clk generation and required for TB,
+	 	  	output logic 									  					o_p${dr_port_no}_clk_rec_div,  // required by TB Module 
+ 				output logic                              p${dr_port_no}_cdr_lock,         //o_p${port_no}_cdr_lock,
+			@@ }
+@@ if {($port_dlat_en($port_no) ==1)} {
+  		output logic [PORT${port_no}_XCVR_CHANNEL-1:0]	  o_p${port_no}_tx_dl_async_pulse,
+  		output logic [PORT${port_no}_XCVR_CHANNEL-1:0]    o_p${port_no}_rx_dl_async_pulse,
+  		input  logic [PORT${port_no}_XCVR_CHANNEL-1:0]    i_p${port_no}_latency_sclk,
+  		input  logic [PORT${port_no}_XCVR_CHANNEL-1:0]    i_p${port_no}_tx_dl_measure_sel,
+  		input  logic [PORT${port_no}_XCVR_CHANNEL-1:0]    i_p${port_no}_rx_dl_measure_sel,
+@@ }
+													
+@@   }
+@@  }
+ 
+				
+@@    if {$any_port_ptp_en == 1} {
+		     	input  wire                  	                i_clk_master_tod,
+			   	input  wire 										    					i_ptp_master_tod_rst_n,
+      @@  if { $any_port_ptp_en_not_10g_adv } {
+			   	input  wire                				 						i_clk_ptp_sample,	
+					input  wire												 						i_clk_todsync_sample,
+		      input  wire												 						i_clk_todsync_sample_locked,
+      @@  }
+					input  wire                		  							i_clk_ptp_sample_10g_adv,	
+					input  wire																		i_clk_todsync_sample_10g_adv,
+		      input  wire																		i_clk_todsync_sample_locked_10g_adv,
+          output wire                  	      					o_ptp_pps,			
+@@    }
+				
+//new for DR
+				  // -----------------------------------------
+				  // Miscellaneous Functional Signal Interface
+				  // -----------------------------------------
+				@@ for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+				@@ if { (($port_no < $num_ports) && ($port_en($port_no) == 1)) } {
+				@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+				@@ set dr_port_no [expr $port_no + $ch_no]					
+				input  logic                  				  	i_p${dr_port_no}_tx_rst_n, 
+				input  logic                  				  	i_p${dr_port_no}_rx_rst_n,
+				output logic                    				  o_p${dr_port_no}_tx_rst_ack_n,
+				output logic                    				  o_p${dr_port_no}_rx_rst_ack_n,
+
+				  output                          o_p${dr_port_no}_tx_lanes_stable,
+				  output                          o_p${dr_port_no}_rx_pcs_ready,
+				  output                          o_p${dr_port_no}_rx_pcs_fully_aligned,
+				  output                          o_p${dr_port_no}_tx_pll_locked,
+				  output                          o_p${dr_port_no}_tx_ptp_ready,
+				  output                          o_p${dr_port_no}_rx_ptp_ready,
+				  output                          o_p${dr_port_no}_tx_ptp_offset_data_valid,
+				  output                          o_p${dr_port_no}_rx_ptp_offset_data_valid,
+				@@  }
+				@@  }
+				@@  }
+        @@  if { $port_cdr_clk_en(8) } {
+          output                          o_p8_cdr_divclk, 
+        @@  }
+        @@  if { $port_cdr_clk_en(12) } {
+          output                          o_p12_cdr_divclk, 
+        @@  } 
+        // Jtag avmm bus
+        input   logic   [31:0]                   				i_jtag_address,
+        input   logic                            				i_jtag_read,
+        input   logic                            				i_jtag_write,
+        input   logic   [31:0]                   				i_jtag_writedata,
+        input   logic   [3:0]                    				i_jtag_byteenable,
+        output  logic   [31:0]                   				o_jtag_readdata,
+        output  logic                            				o_jtag_readdatavalid,
+        output  logic                            				o_jtag_waitrequest
+);
+ 
+//added on July 5 to remove warning remove below parameters in pc_top.sv
+@@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+@@    if {$port_en($port_no) == 1} {
+      @@  set ehip_rate "10G"
+	    @@  if {[string match "10GbE" $port_profile($port_no)]} {
+      @@    set ehip_rate "10G"
+	    @@  }
+	    @@  if {[string match "25GbE" $port_profile($port_no)]} {
+      @@    set ehip_rate "25G"
+	    @@  }
+      @@  if {[string match "40GCAUI-4" $port_profile($port_no)]} {
+      @@    set ehip_rate "40G"
+	    @@  }
+      @@  if {[string match "50GAUI-2" $port_profile($port_no)]} {
+      @@    set ehip_rate "50G"
+	    @@  } 
+      @@  if {[string match "100GCAUI-4" $port_profile($port_no)]} {
+      @@    set ehip_rate "100G"
+	    @@  }  
+//PAM4 and 200G_400G Rates
+      @@  if {[string match "50GAUI-1" $port_profile($port_no)]} {
+      @@    set ehip_rate "50G"
+	   @@  } 
+      @@  if {[string match "100GAUI-2" $port_profile($port_no)]} {
+      @@    set ehip_rate "100G"
+	   @@  }  
+      @@  if {[string match "100GAUI-1" $port_profile($port_no)]} {
+      @@    set ehip_rate "100G"
+	   @@  }
+      @@  if {[string match "200GAUI-8" $port_profile($port_no)]} {
+      @@    set ehip_rate "200G"
+	   @@  } 
+      @@  if {[string match "200GAUI-4" $port_profile($port_no)]} {
+      @@    set ehip_rate "200G"
+	   @@  } 
+      @@  if {[string match "200GAUI-2" $port_profile($port_no)]} {
+      @@    set ehip_rate "200G"
+	   @@  } 
+      @@  if {[string match "400GAUI-8" $port_profile($port_no)]} {
+      @@    set ehip_rate "400G"
+	   @@  } 
+      @@  if {[string match "400GAUI-4" $port_profile($port_no)]} {
+      @@    set ehip_rate "400G"
+	   @@  } 
+      
+@@ 		if  { $itf_test_en == 0 }  {
+  localparam PKT_ROM_INIT_FILE_P${port_no} =  (PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 0 & "$ehip_rate" == "40G" & $preamble_passthrough($port_no) == 1) ? "../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PPT.hex" :  
+                                  						(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 0 & "$ehip_rate" == "50G" & $preamble_passthrough($port_no) == 1) ? "../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PPT.hex" : 
+											 												(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 1 & "$ehip_rate" == "50G" & $preamble_passthrough($port_no) == 1) ? "../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PTP_PPT.hex" : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 0 &  PORT${port_no}_PTP_GUI == 0) ? "../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_SEG.hex"      : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 0) ? "../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST.hex"     : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 0 &  PORT${port_no}_PTP_GUI == 1) ? "../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_SEG_PTP.hex"  : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 1) ? "../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PTP.hex" : 
+                                 							"../hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.hex";
+  localparam PKT_ROM_INIT_DATA_P${port_no} = "../hardware_test_design/common_f/init_file_data.${ehip_rate}.hex" ; //check tis parameter in eth_f
+   
+  localparam PKT_ROM_INIT_CTL_P${port_no}  = "../hardware_test_design/common_f/init_file_ctrl.${ehip_rate}.hex";
+@@    }  else {
+  localparam PKT_ROM_INIT_FILE_P${port_no} =  (PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 0 & "$ehip_rate" == "40G" & $preamble_passthrough($port_no) == 1) ? "../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PPT.hex" :  
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 0 & "$ehip_rate" == "50G" & $preamble_passthrough($port_no) == 1) ? "../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PPT.hex" : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 1 & "$ehip_rate" == "50G" & $preamble_passthrough($port_no) == 1) ? "../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PTP_PPT.hex" : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 0 &  PORT${port_no}_PTP_GUI == 0) ? "../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_SEG.hex"      : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 0) ? "../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST.hex"     : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 0 &  PORT${port_no}_PTP_GUI == 1) ? "../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_SEG_PTP.hex"  : 
+                                 							(PORT${port_no}_CLIENT_IF_TYPE == 1 &  PORT${port_no}_PTP_GUI == 1) ? "../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.${ehip_rate}_AVST_PTP.hex" : 
+                                 							"../eth_example_design/eth_example_design/hardware_test_design/common_f/eth_f_hw_pkt_gen_rom_init.hex";
+  localparam PKT_ROM_INIT_DATA_P${port_no} = "../eth_example_design/eth_example_design/hardware_test_design/common_f/init_file_data.${ehip_rate}.hex" ; //check tis parameter in eth_f
+   
+  localparam PKT_ROM_INIT_CTL_P${port_no}  = "../eth_example_design/eth_example_design/hardware_test_design/common_f/init_file_ctrl.${ehip_rate}.hex";
+@@    }
+@@   }
+@@ }
+ 
+
+//---------------------------------------------------------------
+//                                      Parameters
+//---------------------------------------------------------------
+@@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+@@    if {$port_en($port_no) == 1} {
+  localparam PORT${port_no}_NO_OF_BYTES   = (PORT${port_no}_DATA_WIDTH/8);		 	
+ 	localparam PORT${port_no}_NUM_SEG       = (PORT${port_no}_CLIENT_IF_TYPE == 1) ? 'd1 :(PORT${port_no}_DATA_WIDTH/64);  
+ @@   }
+ @@ }
+  
+  localparam BASEADDR_SS            = 32'h00000000;
+  localparam BASEADDR_PTP_T0D       = 32'h1000_1000;    //0x1000_1000 
+@@  for {set port_no 0} {$port_no <  $num_ports} {incr port_no} {
+@@    if {$port_en($port_no) == 1} {
+  localparam BASEADDR_P${port_no}_ETH_RCFG       = 32'h0000_0000 | (($port_no+1) <<21);      //20_0000
+  localparam BASEADDR_P${port_no}_XCVR_PMA_RCFG  = 32'h0010_0000 | (($port_no+1) <<21);      //30_0000
+	@@ if {$port_dr_en($port_no) == 1} {
+	@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+	@@ set dr_port_no [expr $port_no + $ch_no]		
+  	localparam BASEADDR_P${dr_port_no}_PC             = 32'h1000_0000 | (($dr_port_no+1) <<21);    //0x10200000 - 0x10200FFF
+	@@  }
+	@@ } else {
+		localparam BASEADDR_P${port_no}_PC             = 32'h1000_0000 | (($port_no+1) <<21);    //0x10200000 - 0x10200FFF
+	@@ }
+@@  	}
+@@  }
+ 
+ 
+//---------------------------------------------------------------
+//                                      Parameters
+//---------------------------------------------------------------
+ 
+  //logic         app_ss_lite_areset_n;
+  logic [31:0]  app_ss_lite_awaddr;
+  logic [2:0]   app_ss_lite_awprot;
+  logic         app_ss_lite_awvalid;
+  logic         ss_app_lite_awready;
+  logic [31:0]  app_ss_lite_wdata;
+  logic [3:0]   app_ss_lite_wstrb;
+  logic         app_ss_lite_wvalid;
+  logic         ss_app_lite_wready;
+  logic [1:0]   ss_app_lite_bresp;
+  logic         ss_app_lite_bvalid;
+  logic         app_ss_lite_bready;
+  logic [31:0]  app_ss_lite_araddr;
+  logic [2:0]   app_ss_lite_arprot;
+  logic         app_ss_lite_arvalid;
+  logic         ss_app_lite_arready;
+  logic [31:0]  ss_app_lite_rdata;
+  logic         ss_app_lite_rvalid;
+  logic         app_ss_lite_rready;
+  logic [1:0]   ss_app_lite_rresp;
+ 
+//---------------------------------------------------------------
+ 
+	
+// per port interface signals 
+@@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+@@    if {$port_en($port_no) == 1} {
+@@      if {($inst_sub_profile_mode($port_no) == 0)} {
+  //MAC+PCS Mode
+	//chnaged port_axi_par_en($port_no) from 0 to 1
+	@@  if {$port_axi_par_en($port_no) == 1} {
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_NUM_SEG-1:0] 		   			app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity; 
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_NUM_SEG-1:0] 						ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity; 
+  @@  }
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_NUM_SEG-1:0] 		   			app_ss_st_p${port_no}_tx_tuser_last_segment;         
+  //TODO: Not as per streams
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_NUM_SEG-1:0] 						ss_app_st_p${port_no}_rx_tuser_last_segment;  
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][$num_of_ports($port_no)-1:0]					app_ss_st_p${port_no}_tx_tvalid;
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_DATA_WIDTH-1:0]    			app_ss_st_p${port_no}_tx_tdata;
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_DATA_WIDTH/8-1:0]  			app_ss_st_p${port_no}_tx_tkeep;
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][$num_of_ports($port_no)-1:0]        		app_ss_st_p${port_no}_tx_tlast;
+  logic [PORT${port_no}_NUM_OF_STREAM-1:0][$tx_tuser_client_width($port_no)-1:0]  app_ss_st_p${port_no}_tx_tuser_client;
+  
+ 
+  logic [ PORT${port_no}_NUM_OF_STREAM-1:0][$num_of_ports($port_no)-1:0] 					ss_app_st_p${port_no}_rx_tvalid;
+  logic [ PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_DATA_WIDTH-1:0]    		ss_app_st_p${port_no}_rx_tdata;
+  logic [ PORT${port_no}_NUM_OF_STREAM-1:0][PORT${port_no}_DATA_WIDTH/8-1:0]  		ss_app_st_p${port_no}_rx_tkeep;
+  logic [ PORT${port_no}_NUM_OF_STREAM-1:0][$num_of_ports($port_no)-1:0]			ss_app_st_p${port_no}_rx_tlast;
+  logic [ PORT${port_no}_NUM_OF_STREAM-1:0][$rx_tuser_client_width($port_no)-1:0] ss_app_st_p${port_no}_rx_tuser_client;
+  logic [ PORT${port_no}_NUM_OF_STREAM-1:0][$rx_tuser_sts_width($port_no)-1:0]    ss_app_st_p${port_no}_rx_tuser_sts;
+  logic [ PORT${port_no}_NUM_OF_STREAM-1:0][31:0]  										  					ss_app_st_p${port_no}_rx_tuser_sts_extended;
+
+
+
+  //logic [7:0]  																	 					  											p${port_no}_tx_pfc = 8'b0;
+  //logic [7:0]  																	 					  											p${port_no}_rx_pfc;
+  //logic         																  																p${port_no}_tx_pause = 1'b0;
+  //logic         																 						  										p${port_no}_rx_pause;
+  @@ } else {
+  //--------------------------------------------------------------------------------
+  // PHY Direct
+  //--------------------------------------------------------------------------------
+  logic                          						    			app_ss_st_p${port_no}_txphydirect_areset_n;
+  logic [PORT${port_no}_DATA_WIDTH-1:0]   		  			app_ss_st_p${port_no}_txphydirect_tdata;
+  logic                         	 			  		  			app_ss_st_p${port_no}_txphydirect_tvalid;
+  logic                          							 				ss_app_st_p${port_no}_txphydirect_tready;
+  logic                          							 				app_ss_st_p${port_no}_rxphydirect_areset_n;
+  logic [PORT${port_no}_DATA_WIDTH-1:0]   		  			ss_app_st_p${port_no}_rxphydirect_tdata;
+  logic                          				  		  			ss_app_st_p${port_no}_rxphydirect_tvalid;
+ 
+		
+@@ }
+@@      if {$port_ptp_en($port_no) == 1} {
+  logic  [PORT${port_no}_NUM_OF_STREAM-1:0][($num_of_ports($port_no)*94)-1:0]  	 	app_ss_st_p${port_no}_tx_tuser_ptp;
+  logic  [PORT${port_no}_NUM_OF_STREAM-1:0][($num_of_ports($port_no)*328)-1:0]	  app_ss_st_p${port_no}_tx_tuser_ptp_extended;
+	@@  for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {	
+	@@    set dr_port_no [expr $port_no + $ch_no]
+  	logic         													 																				app_ss_st_p${dr_port_no}_tx_tod_tvalid; //ptp_tx_tod_valid
+  	logic [95:0]  													 																				app_ss_st_p${dr_port_no}_tx_tod_tdata;  //ptp_tx_tod
+  	logic         													 																				app_ss_st_p${dr_port_no}_rx_tod_tvalid;
+  	logic [95:0]  													 																				app_ss_st_p${dr_port_no}_rx_tod_tdata;
+  	logic        	   											 						  														ss_app_st_p${dr_port_no}_txegrts0_tvalid;
+  	logic [103:0]   	 											 																				ss_app_st_p${dr_port_no}_txegrts0_tdata;
+	@@ }
+
+  logic [$num_of_ports($port_no)-1:0]      	  	 											 						ss_app_st_p${port_no}_rxingrts0_tvalid;
+  logic [($num_of_ports($port_no)*96)-1:0]    	 											 						ss_app_st_p${port_no}_rxingrts0_tdata;
+  @@    if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+  logic [$num_of_ports($port_no)-1:0]      	  	 											 						ss_app_st_p${port_no}_rxingrts1_tvalid;
+  logic [($num_of_ports($port_no)*96)-1:0]    	 											 						ss_app_st_p${port_no}_rxingrts1_tdata;
+  @@  for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {	
+	@@    set dr_port_no [expr $port_no + $ch_no]
+	logic      													   o_p${dr_port_no}_clk_rec_div64;
+		logic        	   											 						  														ss_app_st_p${dr_port_no}_txegrts1_tvalid;
+  	logic [103:0]   	 											 																				ss_app_st_p${dr_port_no}_txegrts1_tdata;
+ 	@@ }
+
+ @@    } 
+@@      }
+ 
+ 
+ 
+//------------------------------------------------------------------------------
+ 
+@@      if {$port_async_adapter_en($port_no) == 1} {
+  @@  for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {	
+	@@    set dr_port_no [expr $port_no + $ch_no]
+  wire       app_ss_st_p${dr_port_no}_tx_clk 				 = o_p${dr_port_no}_clk_tx_div	;  
+  wire       app_ss_st_p${dr_port_no}_rx_clk 				 = o_p${dr_port_no}_clk_tx_div	; //o_p${port_no}_clk_rec_div ;  
+	wire       app_ss_st_p${port_no}_txphydirect_clk = o_p${port_no}_clk_tx_div	; 
+	wire       app_ss_st_p${port_no}_rxphydirect_clk = o_p${port_no}_clk_tx_div	; // o_p${port_no}_clk_rec_div ;
+    @@ }
+  @@      } else {
+  wire       app_ss_st_p${port_no}_tx_clk			     = o_p${port_no}_clk_pll;
+  wire       app_ss_st_p${port_no}_rx_clk 				 = o_p${port_no}_clk_pll;
+	wire       app_ss_st_p${port_no}_txphydirect_clk = o_p${port_no}_clk_pll ;
+	wire       app_ss_st_p${port_no}_rxphydirect_clk = o_p${port_no}_clk_pll ;
+ 
+@@      }
+ 
+@@  }
+//end port_no for loop
+@@ }
+ 
+
+  // -----------------
+  // Flow control signals, valid for MAC case only
+  // -----------------
+@@ set port_no 0
+@@ while {$port_no < $num_ports} {
+@@ 	if { $en_flow_control($port_no) == 1 } {
+@@  for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {	
+@@    set dr_port_no [expr $port_no + $ch_no]
+  wire                        i_p${dr_port_no}_tx_pause;
+  wire                       o_p${dr_port_no}_rx_pause;
+@@    if { ($REVISION=="REVA" || ($REVISION=="REVB" && $ENABLE_REVC_OPN == 0)) && ($FLOW_CONTROL($port_no) == "Yes") && (($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8") || ($port_profile($port_no) == "200GAUI-2") || ($port_profile($port_no) == "200GAUI-4") || ($port_profile($port_no) == "200GAUI-8")) } {
+// PFC support is added only for C0 devices in case of 200G and 400G
+
+@@ } else {
+  wire  [8-1:0]               i_p${dr_port_no}_tx_pfc;
+  wire [8-1:0]               o_p${dr_port_no}_rx_pfc;
+@@  }
+@@  }
+  @@ set port_no [expr $port_no + $num_of_ports($port_no) ]
+@@  } else {
+  @@ incr port_no
+@@  }
+@@  }
+ 
+@@  if {$any_port_ptp_en == 1} {   
+//---------------------------------------------------------------
+// PTP TODs
+//---------------------------------------------------------------
+	wire        ptp_master_tod_96b_load_valid;
+	wire [95:0] ptp_master_tod_96b_load_data;
+	wire        ptp_master_tod_valid;
+	wire [95:0] ptp_master_tod;
+	@@ if { $any_port_ptp_basic_en } {
+	wire        clk_ip_tod;				
+	wire        clk_ip_tod_locked;
+	wire        clk_ip_tod_locked_sync;
+	wire        clk_todsync_sample_locked_sync;
+	reg         ptp_ip_tod_rst_n;
+  reg         ptp_ip_tod_rst_n_flop;
+	reg [2:0]   ptp_ip_tod_rst_n_fanout;
+	wire        ptp_ip_tod_valid;
+	wire [95:0] ptp_ip_tod;
+	@@ }
+@@  }
+ 
+ 
+@@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+@@    if {$port_en($port_no) == 1} {
+//------------------------------------------------------------------------------
+//PTP_ACC_MODE == 1
+@@  		if {$port_ptp_en($port_no) == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+					@@ set dr_port_no [expr $port_no + $ch_no]	
+       @@  if {$port_ptp_enh_en($port_no) == 1 } {                 
+					  wire p${dr_port_no}_clk_tx_tod = o_p${dr_port_no}_clk_tx_div;    //ptp_enhanced mode
+            wire p${dr_port_no}_clk_rx_tod = o_p${dr_port_no}_clk_rec_div;
+ 
+        @@ } else {
+            wire p${dr_port_no}_clk_tx_tod  = clk_ip_tod;    //ptp basic mode
+            wire p${dr_port_no}_clk_rx_tod  = clk_ip_tod;
+        @@ }
+       		@@ }
+@@      }
+@@    }
+@@  }
+
+    wire clk_ref_fgt,clk_ref_fht,sys_clk_830mhz,p8_eth_f_cdr_divclk,p12_eth_f_cdr_divclk;
+@@ if {$en_sys_pll == 0} {
+    hssi_ss_f_systemclk_pll U_sys_pll(
+	    .in_refclk_fgt_0(i_clk_ref[0]),        
+	    .out_refclk_fgt_0(clk_ref_fgt),      
+      @@  if { $fht_enabled } {
+	    .in_refclk_fht_0(i_clk_ref[1]),     
+	    .out_fht_cmmpll_clk_0(clk_ref_fht), 
+      @@  }
+      @@  if { $port_cdr_clk_en(8) } {
+      .in_cdrclk_0(p8_eth_f_cdr_divclk),
+      .out_cdrclk_0(o_p8_cdr_divclk),
+      @@  }
+      @@  if { $port_cdr_clk_en(12) } {
+      .in_cdrclk_1(p12_eth_f_cdr_divclk),
+      .out_cdrclk_1(o_p12_cdr_divclk),
+      @@  }
+	    .out_systempll_clk_0(sys_clk_830mhz) 
+	    );   
+      
+      @@  if { $fht_enabled == 0 } {
+        assign clk_ref_fht =  i_clk_ref[1];
+      @@  }
+  @@ } else {
+    assign clk_ref_fgt      = i_clk_ref[0];
+    assign clk_ref_fht      = i_clk_ref[1];
+    assign o_p8_cdr_divclk  = p8_eth_f_cdr_divclk;
+    assign o_p12_cdr_divclk = p12_eth_f_cdr_divclk;
+  @@ }
+ 
+//*************************************************************************************************************
+//                                      HSSI SS IP
+//*************************************************************************************************************
+  ex_ss #(.SIM_MODE(SIM_EMULATE)) dut (
+	
+    .i_clk_ref                       (\{clk_ref_fht,clk_ref_fgt\}),
+@@ if {$en_sys_pll == 0} {
+    .i_clk_sys                       (sys_clk_830mhz),
+@@ }    
+    .app_ss_lite_clk                 ( app_ss_lite_clk ),
+    .app_ss_lite_areset_n            ( app_ss_lite_areset_n ),
+    .app_ss_lite_awaddr              ( app_ss_lite_awaddr[25:0] ),
+    .app_ss_lite_awprot              ( app_ss_lite_awprot ),
+    .app_ss_lite_awvalid             ( app_ss_lite_awvalid ),
+    .ss_app_lite_awready             ( ss_app_lite_awready ),
+    .app_ss_lite_wdata               ( app_ss_lite_wdata ),
+    .app_ss_lite_wstrb               ( app_ss_lite_wstrb ),
+    .app_ss_lite_wvalid              ( app_ss_lite_wvalid ),
+    .ss_app_lite_wready              ( ss_app_lite_wready ),
+    .ss_app_lite_bresp               ( ss_app_lite_bresp ),
+    .ss_app_lite_bvalid              ( ss_app_lite_bvalid ),
+    .app_ss_lite_bready              ( app_ss_lite_bready ),
+    .app_ss_lite_araddr              ( app_ss_lite_araddr[25:0] ),
+    .app_ss_lite_arprot              ( app_ss_lite_arprot ),
+    .app_ss_lite_arvalid             ( app_ss_lite_arvalid ),
+    .ss_app_lite_arready             ( ss_app_lite_arready ),
+    .ss_app_lite_rdata               ( ss_app_lite_rdata ),
+    .ss_app_lite_rvalid              ( ss_app_lite_rvalid ),
+    .app_ss_lite_rready              ( app_ss_lite_rready ),
+    .ss_app_lite_rresp               ( ss_app_lite_rresp ),
+    @@  if { $port_cdr_clk_en(8) } {
+    .o_p8_cdr_divclk (p8_eth_f_cdr_divclk),
+    @@ }
+    @@  if { $port_cdr_clk_en(12) } {
+    .o_p12_cdr_divclk (p12_eth_f_cdr_divclk),
+    @@ }
+      
+@@  for {set port_no 0} {$port_no <  $num_ports} {incr port_no} {
+@@    if {$port_en($port_no) == 1} {
+@@      if {$inst_sub_profile_mode($port_no) == 0} {
+        // MAC+PCS Mode
+@@ if {$multi_stream_en($port_no) == 1} {
+@@   for {set stream_no 0} {$stream_no < $num_of_stream($port_no)} {incr stream_no} {
+       .p${port_no}_s${stream_no}_app_ss_st_tx_tvalid             ( app_ss_st_p${port_no}_tx_tvalid[$stream_no]),
+       .p${port_no}_s${stream_no}_ss_app_st_tx_tready             ( ss_app_st_p${port_no}_tx_tready[$stream_no] ),
+		 .p${port_no}_s${stream_no}_app_ss_st_tx_tdata                ( app_ss_st_p${port_no}_tx_tdata[$stream_no]),
+       .p${port_no}_s${stream_no}_app_ss_st_tx_tkeep              ( app_ss_st_p${port_no}_tx_tkeep[$stream_no] ),
+       .p${port_no}_s${stream_no}_app_ss_st_tx_tlast              ( app_ss_st_p${port_no}_tx_tlast[$stream_no]),
+       .p${port_no}_s${stream_no}_app_ss_st_tx_tuser_client       ( app_ss_st_p${port_no}_tx_tuser_client[$stream_no] ),
+//check DEC20
+@@    if {$port_ptp_en($port_no) == 1} {
+       .p${port_no}_s${stream_no}_app_ss_st_tx_tuser_ptp          (app_ss_st_p${port_no}_tx_tuser_ptp[$stream_no]  ),  
+       .p${port_no}_s${stream_no}_app_ss_st_tx_tuser_ptp_extended (app_ss_st_p${port_no}_tx_tuser_ptp_extended[$stream_no] ),
+@@ }
+       .p${port_no}_s${stream_no}_ss_app_st_rx_tvalid             ( ss_app_st_p${port_no}_rx_tvalid[$stream_no]),
+       .p${port_no}_s${stream_no}_ss_app_st_rx_tdata              ( ss_app_st_p${port_no}_rx_tdata[$stream_no]),
+       .p${port_no}_s${stream_no}_ss_app_st_rx_tkeep              ( ss_app_st_p${port_no}_rx_tkeep[$stream_no] ),
+       .p${port_no}_s${stream_no}_ss_app_st_rx_tlast              ( ss_app_st_p${port_no}_rx_tlast[$stream_no] ),
+       .p${port_no}_s${stream_no}_ss_app_st_rx_tuser_client       ( ss_app_st_p${port_no}_rx_tuser_client[$stream_no] ),
+       .p${port_no}_s${stream_no}_ss_app_st_rx_tuser_sts          ( ss_app_st_p${port_no}_rx_tuser_sts[$stream_no] ),
+      //.p${port_no}_s${stream_no}_ss_app_st_rx_tuser_sts_extended ( ss_app_st_p${port_no}_rx_tuser_sts_extended[$stream_no] ),
+ 
+@@      if {$port_client_if($port_no) == 0} { ;#todo
+		    .p${port_no}_s${stream_no}_app_ss_st_tx_tuser_last_segment	   	( app_ss_st_p${port_no}_tx_tuser_last_segment[$stream_no]),
+          .p${port_no}_s${stream_no}_ss_app_st_rx_tuser_last_segment		  ( ss_app_st_p${port_no}_rx_tuser_last_segment[$stream_no]),
+@@      }
+@@      if {$port_axi_par_en($port_no) == 1} {
+          .p${port_no}_s${stream_no}_ss_app_st_rx_tuser_pkt_seg_parity    ( ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity[$stream_no] ),
+          .p${port_no}_s${stream_no}_app_ss_st_tx_tuser_pkt_seg_parity    ( app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity[$stream_no] ),
+@@      }
+@@    }
+@@  } else {
+        // TODO: Was there any reason for ST RX instanatiation order?
+      .p${port_no}_app_ss_st_tx_tvalid             ( app_ss_st_p${port_no}_tx_tvalid ),
+      .p${port_no}_ss_app_st_tx_tready             ( ss_app_st_p${port_no}_tx_tready ),
+      .p${port_no}_app_ss_st_tx_tdata              ( app_ss_st_p${port_no}_tx_tdata ),
+      .p${port_no}_app_ss_st_tx_tkeep              ( app_ss_st_p${port_no}_tx_tkeep ),
+      .p${port_no}_app_ss_st_tx_tlast              ( app_ss_st_p${port_no}_tx_tlast ),
+      .p${port_no}_app_ss_st_tx_tuser_client       ( app_ss_st_p${port_no}_tx_tuser_client ),
+      .p${port_no}_ss_app_st_rx_tvalid             ( ss_app_st_p${port_no}_rx_tvalid ),
+      .p${port_no}_ss_app_st_rx_tdata              ( ss_app_st_p${port_no}_rx_tdata ),
+      .p${port_no}_ss_app_st_rx_tkeep              ( ss_app_st_p${port_no}_rx_tkeep ),
+      .p${port_no}_ss_app_st_rx_tlast              ( ss_app_st_p${port_no}_rx_tlast ),
+      .p${port_no}_ss_app_st_rx_tuser_client       ( ss_app_st_p${port_no}_rx_tuser_client ),
+      .p${port_no}_ss_app_st_rx_tuser_sts          ( ss_app_st_p${port_no}_rx_tuser_sts ),
+      //.p${port_no}_ss_app_st_rx_tuser_sts_extended ( ss_app_st_p${port_no}_rx_tuser_sts_extended ),
+ 
+@@    if {$port_client_if($port_no) == 0} {
+		 .p${port_no}_app_ss_st_tx_tuser_last_segment			( app_ss_st_p${port_no}_tx_tuser_last_segment ),
+       .p${port_no}_ss_app_st_rx_tuser_last_segment		  ( ss_app_st_p${port_no}_rx_tuser_last_segment ),
+@@    }
+@@    if {$port_axi_par_en($port_no) == 1} {
+       .p${port_no}_ss_app_st_rx_tuser_pkt_seg_parity    ( ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity ),
+       .p${port_no}_app_ss_st_tx_tuser_pkt_seg_parity    ( app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity ),
+@@    }
+//Dec28
+@@    if {$port_ptp_en($port_no) == 1} {
+    .p${port_no}_app_ss_st_tx_tuser_ptp          ( app_ss_st_p${port_no}_tx_tuser_ptp ),
+    .p${port_no}_app_ss_st_tx_tuser_ptp_extended ( app_ss_st_p${port_no}_tx_tuser_ptp_extended ),
+    //
+    .p${port_no}_app_ss_st_rxtod_tvalid          ( app_ss_st_p${port_no}_rx_tod_tvalid),  	//app_ss_st_p${port_no}_rxtod_tvalid 
+    .p${port_no}_app_ss_st_rxtod_tdata           ( app_ss_st_p${port_no}_rx_tod_tdata),  	  //app_ss_st_p${port_no}_rxtod_tdata =ptp_tx_tod
+    .p${port_no}_app_ss_st_txtod_tvalid          ( app_ss_st_p${port_no}_tx_tod_tvalid ),   //app_ss_st_p${port_no}_txtod_tvalid 
+    .p${port_no}_app_ss_st_txtod_tdata           ( app_ss_st_p${port_no}_tx_tod_tdata ),    //app_ss_st_p${port_no}_txtod_tdata =ptp_tx_tod  
+    .i_p${port_no}_clk_tx_tod                    ( p${port_no}_clk_tx_tod), 							  //clk_ip_tod or _clk_tx_div 
+	  .i_p${port_no}_clk_rx_tod                    ( p${port_no}_clk_rx_tod),
+@@      if { $port_ptp_10g_adv_en($port_no) } {
+    .i_p${port_no}_clk_ptp_sample                ( i_clk_ptp_sample_10g_adv ),
+@@      } else {
+    .i_p${port_no}_clk_ptp_sample                ( i_clk_ptp_sample ),
+@@      }
+				@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+				@@ set dr_port_no [expr $port_no + $ch_no]	
+    .p${dr_port_no}_ss_app_st_txegrts0_tvalid       ( ss_app_st_p${dr_port_no}_txegrts0_tvalid ),
+    .p${dr_port_no}_ss_app_st_txegrts0_tdata        ( ss_app_st_p${dr_port_no}_txegrts0_tdata ),
+		@@ }
+    .p${port_no}_ss_app_st_rxingrts0_tvalid      ( ss_app_st_p${port_no}_rxingrts0_tvalid ),
+    .p${port_no}_ss_app_st_rxingrts0_tdata       ( ss_app_st_p${port_no}_rxingrts0_tdata ),
+ 
+@@  if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+				@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+				@@ set dr_port_no [expr $port_no + $ch_no]	
+    .p${dr_port_no}_ss_app_st_txegrts1_tvalid       ( ss_app_st_p${dr_port_no}_txegrts1_tvalid ),
+    .p${dr_port_no}_ss_app_st_txegrts1_tdata        ( ss_app_st_p${dr_port_no}_txegrts1_tdata ),
+		@@ }
+    .p${port_no}_ss_app_st_rxingrts1_tvalid      ( ss_app_st_p${port_no}_rxingrts1_tvalid ),
+    .p${port_no}_ss_app_st_rxingrts1_tdata       ( ss_app_st_p${port_no}_rxingrts1_tdata ),
+ 
+@@ }
+@@ }
+ 
+ 
+@@ }
+    //.i_p${port_no}_tx_pfc                        ( p${port_no}_tx_pfc ),  
+    //.o_p${port_no}_rx_pfc                        ( p${port_no}_rx_pfc ),
+    //.i_p${port_no}_tx_pause                      ( p${port_no}_tx_pause ),
+    //.o_p${port_no}_rx_pause                      ( p${port_no}_rx_pause ),
+@@      } else {
+       // Phy Direct
+    .p${port_no}_app_ss_st_txphydirect_clk       (app_ss_st_p${port_no}_txphydirect_clk),
+    .p${port_no}_app_ss_st_txphydirect_areset_n  (app_ss_st_p${port_no}_txphydirect_areset_n),
+    .p${port_no}_app_ss_st_txphydirect_tdata     (app_ss_st_p${port_no}_txphydirect_tdata),
+    .p${port_no}_app_ss_st_txphydirect_tvalid    (app_ss_st_p${port_no}_txphydirect_tvalid),
+	  .p${port_no}_ss_app_st_txphydirect_tready    (ss_app_st_p${port_no}_txphydirect_tready),
+    // -------------------------------------                                  
+    .p${port_no}_app_ss_st_rxphydirect_clk       (app_ss_st_p${port_no}_rxphydirect_clk),
+    .p${port_no}_app_ss_st_rxphydirect_areset_n  (app_ss_st_p${port_no}_rxphydirect_areset_n),
+    .p${port_no}_ss_app_st_rxphydirect_tdata     (ss_app_st_p${port_no}_rxphydirect_tdata),
+    .p${port_no}_ss_app_st_rxphydirect_tvalid    (ss_app_st_p${port_no}_rxphydirect_tvalid),
+@@      }
+    .p${port_no}_tx_serial                       ( p${port_no}_tx_serial  ),  			//output signal
+    .p${port_no}_tx_serial_n                     ( p${port_no}_tx_serial_n  ), 		  //output signal
+    .p${port_no}_rx_serial                       ( p${port_no}_rx_serial),   		    //input signal
+    .p${port_no}_rx_serial_n                     ( p${port_no}_rx_serial_n  ),  		//input signal
+ 
+ 
+    //.p${port_no}_tx_lanes_stable                 ( o_p${port_no}_tx_lanes_stable ),  
+    //.p${port_no}_rx_pcs_ready                    ( o_p${port_no}_rx_pcs_ready ),     
+    //.o_p${port_no}_tx_pll_locked                 ( o_p${port_no}_tx_pll_locked),     
+//@@      if {$port_ptp_en($port_no) == 1} {
+//    .o_p${port_no}_tx_ptp_ready                  ( o_p${port_no}_tx_ptp_ready ),  	 
+//    .o_p${port_no}_rx_ptp_ready                  ( o_p${port_no}_rx_ptp_ready ),  	 
+//@@      }
+   
+//    .i_p${port_no}_tx_rst_n                      ( i_p${port_no}_rst_n_eth ),
+//    .o_p${port_no}_tx_rst_ack_n                  ( o_p${port_no}_rst_ack_n_eth ), 
+ 
+ 
+    .o_p${port_no}_clk_pll                       ( o_p${port_no}_clk_pll ),        
+ 
+ 
+//TODO: check assignment o_tx_dl_async_pulse[portid*LANE_NUM+:LANE_NUM]
+@@  if {($port_dlat_en($port_no) ==1)} {
+    .o_p${port_no}_tx_dl_async_pulse   	 (o_p${port_no}_tx_dl_async_pulse),
+    .o_p${port_no}_rx_dl_async_pulse       (o_p${port_no}_rx_dl_async_pulse),
+    .i_p${port_no}_latency_sclk            (i_p${port_no}_latency_sclk),
+    .i_p${port_no}_tx_dl_measure_sel       (i_p${port_no}_tx_dl_measure_sel),
+    .i_p${port_no}_rx_dl_measure_sel       (i_p${port_no}_rx_dl_measure_sel),
+@@   }
+
+
+
+@@    }
+@@  }
+						@@ for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+				@@ if { (($port_no < $num_ports) && ($port_en($port_no) == 1)) } {
+@@ if {$port_async_adapter_en($port_no) == 0} {
+    .p${port_no}_app_ss_st_tx_clk                ( app_ss_st_p${port_no}_tx_clk ),
+    .p${port_no}_app_ss_st_rx_clk                ( app_ss_st_p${port_no}_rx_clk ),
+         @@ }
+				@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+				@@ set dr_port_no [expr $port_no + $ch_no]					
+    .o_p${dr_port_no}_clk_tx_div                    ( o_p${dr_port_no}_clk_tx_div  ),   
+    .o_p${dr_port_no}_clk_rec_div64                 ( o_p${dr_port_no}_clk_rec_div64 ),
+    .o_p${dr_port_no}_clk_rec_div                   ( o_p${dr_port_no}_clk_rec_div ),   
+@@ if {$port_async_adapter_en($port_no) == 1} {
+         .p${dr_port_no}_app_ss_st_tx_clk                ( app_ss_st_p${dr_port_no}_tx_clk ),
+         .p${dr_port_no}_app_ss_st_rx_clk                ( app_ss_st_p${dr_port_no}_rx_clk ),
+         @@ }
+         .p${dr_port_no}_app_ss_st_tx_areset_n           ( i_p${dr_port_no}_tx_rst_n),        
+         .p${dr_port_no}_app_ss_st_rx_areset_n           ( i_p${dr_port_no}_rx_rst_n ),				
+         .i_p${dr_port_no}_tx_rst_n                      ( i_p${dr_port_no}_tx_rst_n ),
+         .i_p${dr_port_no}_rx_rst_n                      ( i_p${dr_port_no}_rx_rst_n),
+         .o_p${dr_port_no}_rx_rst_ack_n                  ( o_p${dr_port_no}_rx_rst_ack_n ),
+         .o_p${dr_port_no}_tx_rst_ack_n                  ( o_p${dr_port_no}_tx_rst_ack_n ), 
+				  .p${dr_port_no}_tx_lanes_stable						(o_p${dr_port_no}_tx_lanes_stable),
+				  .p${dr_port_no}_rx_pcs_ready							(o_p${dr_port_no}_rx_pcs_ready),
+				  .o_p${dr_port_no}_rx_pcs_fully_aligned		(o_p${dr_port_no}_rx_pcs_fully_aligned),
+				  .o_p${dr_port_no}_tx_pll_locked						(o_p${dr_port_no}_tx_pll_locked),
+					@@      if {$port_ptp_en($port_no) == 1} {
+				  .o_p${dr_port_no}_tx_ptp_ready						(o_p${dr_port_no}_tx_ptp_ready),
+				  .o_p${dr_port_no}_rx_ptp_ready						(o_p${dr_port_no}_rx_ptp_ready),
+					@@ }
+				  //.o_p${dr_port_no}_tx_ptp_offset_data_valid(o_p${dr_port_no}_tx_ptp_offset_data_valid),
+				  //.o_p${dr_port_no}_rx_ptp_offset_data_valid(o_p${dr_port_no}_rx_ptp_offset_data_valid),
+				@@  }
+				@@  }
+				@@  }
+
+
+  // -----------------
+  // Flow control signals(), valid for MAC case only
+  // -----------------
+@@ set port_no 0
+@@ while {$port_no < $num_ports} {
+@@ 	if {( $en_flow_control($port_no) == 1) && ( $port_en($port_no) == 1)} {
+@@  for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {	
+@@    set dr_port_no [expr $port_no + $ch_no]
+  		.i_p${dr_port_no}_tx_pause	(p${dr_port_no}_tx_pause),
+  		.o_p${dr_port_no}_rx_pause	(p${dr_port_no}_rx_pause),
+@@    if { ($REVISION=="REVA" || ($REVISION=="REVB" && $ENABLE_REVC_OPN == 0)) && ($FLOW_CONTROL($port_no) == "Yes") && (($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8") || ($port_profile($port_no) == "200GAUI-2") || ($port_profile($port_no) == "200GAUI-4") || ($port_profile($port_no) == "200GAUI-8")) } {
+// PFC support is added only for C0 devices in case of 200G and 400G
+@@ } else {
+  		.i_p${dr_port_no}_tx_pfc		(p${dr_port_no}_tx_pfc),
+  		.o_p${dr_port_no}_rx_pfc		(p${dr_port_no}_rx_pfc),
+@@  }
+@@  }
+  @@ set port_no [expr $port_no + $num_of_ports($port_no) ]
+@@  } else {
+  @@ incr port_no
+@@  }
+@@  }
+
+ 
+    .subsystem_cold_rst_n            ( subsystem_cold_rst_n ),
+    .subsystem_cold_rst_ack_n        ( subsystem_cold_rst_ack_n )
+
+
+  );
+ 
+ 
+@@ for {set port_no 0} {$port_no < $num_ports} {incr port_no} { 
+@@    if {$port_en($port_no) == 1} {
+//TODO:ERROR  chnage the qsf file
+	  assign p${port_no}_cdr_lock	     = dut.hssi_ss_0.p${port_no}_cdr_lock;
+  @@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     @@ set dr_port_no [expr $port_no + $ch_no]
+    assign p${dr_port_no}_rst_ack_n_eth = dut.hssi_ss_0.p${dr_port_no}_csr_rst_ack_n;
+  @@    }	
+
+@@    }	
+@@  }
+//assign cdr_lock[$port_no]    = dut.hssi_ss_0.p${port_no}_cdr_lock;
+ 
+//---------------------------------------------------------------
+  // Timeout handler and calculation
+  reg  [15:0] timer;
+  wire [31:0] av_addr       = i_jtag_address; 
+  wire [31:0] av_readdata;
+  wire        av_read       = i_jtag_read;
+  wire        av_write      = i_jtag_write;
+  wire [31:0] av_writedata  = i_jtag_writedata;
+  wire [3:0]  av_byteenable = i_jtag_byteenable;
+  wire        av_readdata_valid;
+  wire        av_waitrequest;
+  wire [31:0] axi_readdata;
+  wire [31:0] pc_readdata;
+  wire        axi_waitrequest;
+  wire        pc_waitrequest;
+  wire        axi_readdatavalid;
+  wire        pc_readdatavalid;
+ 
+generate 
+if(SIM_EMULATE) begin
+  assign  o_jtag_waitrequest    =  av_waitrequest;    //TODO: timer value for E-Tile  16'd2000 ?
+  assign  o_jtag_readdatavalid  =  av_readdata_valid;
+  assign  o_jtag_readdata				=  av_readdata;
+end else begin
+  assign  o_jtag_waitrequest    = (timer  == 16'd4000) ? 1'b0 : av_waitrequest;    //TODO: timer value for E-Tile  16'd2000 ?
+  assign  o_jtag_readdatavalid  = ((timer == 16'd4000) & av_read) ? 1'b1 : av_readdata_valid;
+  assign  o_jtag_readdata				= (timer  == 16'd4000) ? 32'hdeadc0de : av_readdata;
+end
+endgenerate	
+ 
+  always@ (posedge app_ss_lite_clk or negedge app_ss_lite_areset_n) begin
+    if (!app_ss_lite_areset_n)
+      timer <= 16'h0;
+    else if ((timer == 16'd4000) || ~av_waitrequest)
+      timer <= 16'h0;
+    else if (av_read | av_write)
+      timer <= timer + 1'b1;
+    else
+      timer <= timer;
+  end
+ 
+  wire sel_ss              = (av_addr[31:26] == 6'h0) ? 1'b1 : 1'b0;
+  wire [4:0] active_port   = (av_addr[25:21] - 1'b1 );
+  assign av_readdata_valid = sel_ss ? axi_readdatavalid : pc_readdatavalid;
+  assign av_readdata       = sel_ss ? axi_readdata      : pc_readdata;
+  assign av_waitrequest    = sel_ss ? axi_waitrequest   : pc_waitrequest;
+ 
+  //----------------------------------------
+  // Avalon to SS AXI-Lite
+  //----------------------------------------
+ 
+  avmm2axiLite_bridge axiLite_master (
+    .aclk                     ( app_ss_lite_clk ),
+    .aresetn                  ( app_ss_lite_areset_n ),
+    .avmm_address_i           ( av_addr ),
+    .avmm_writedata_i         ( av_writedata ),
+    .avmm_byteenable_i        ( av_byteenable ),
+    .avmm_readdata_o          ( axi_readdata ),
+    .avmm_read_i              ( av_read & sel_ss ),
+    .avmm_write_i             ( av_write & sel_ss ),
+    .avmm_waitrequest_o       ( axi_waitrequest ),
+    .avmm_readdata_valid_o    ( axi_readdatavalid ),
+    .axi_lite_awvalid_o       ( app_ss_lite_awvalid ),
+    .axi_lite_awready_i       ( ss_app_lite_awready ),
+    .axi_lite_awprot_o        ( app_ss_lite_awprot ),
+    .axi_lite_awaddr_o        ( app_ss_lite_awaddr ),
+    .axi_lite_wdata_o         ( app_ss_lite_wdata  ),
+    .axi_lite_wstrb_o         ( app_ss_lite_wstrb ),
+    .axi_lite_wvalid_o        ( app_ss_lite_wvalid ),
+    .axi_lite_wready_i        ( ss_app_lite_wready ),
+    .axi_lite_bvalid_i        ( ss_app_lite_bvalid ),
+    .axi_lite_bready_o        ( app_ss_lite_bready ),
+    .axi_lite_bresp_i         ( ss_app_lite_bresp ),
+    .axi_lite_arvalid_o       ( app_ss_lite_arvalid ),
+    .axi_lite_arready_i       ( ss_app_lite_arready ),
+    .axi_lite_arprot_o        ( app_ss_lite_arprot ),
+    .axi_lite_araddr_o        ( app_ss_lite_araddr ),
+    .axi_lite_rdata_i         ( ss_app_lite_rdata  ),
+    .axi_lite_rresp_i         ( ss_app_lite_rresp ),
+    .axi_lite_rvalid_i        ( ss_app_lite_rvalid ),
+    .axi_lite_rready_o        ( app_ss_lite_rready )
+  );
+ 
+  //per port declaration
+  wire [31:0] pc_readdata_int [19:0] ;
+  wire [19:0] pc_waitrequest_int;  //active low signal
+  wire [19:0] pc_readdatavalid_int ;
+ 
+ 
+ 	wire [31:0] ptp_tod_readdata_int ;
+	wire 				ptp_tod_waitrequest_int;
+  wire 			  ptp_tod_readdatavalid_int ;
+ 
+  wire [19:0] sel_pc;
+	wire 			  sel_ptp_tod;
+	//wire [19:0] sel_ptp_tod;  ////per port declaration
+ 
+  assign pc_waitrequest    = &pc_waitrequest_int;
+  assign pc_readdatavalid  = |pc_readdatavalid_int;
+	assign pc_readdata       =  pc_readdata_int[active_port]; 
+ 
+@@ set dr_port_no 0
+@@ while {$dr_port_no < $num_ports} {
+@@ 	set port_no $dr_port_no				
+@@ 	if {$port_dr_en($port_no) == 1 && $port_en($port_no) == 1} {
+@@ 		if {$num_of_ports($port_no) == 1} {
+@@ 		incr dr_port_no
+@@ 		}				
+@@ 	 for {set ch_no 1} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {	
+@@ 	   set dr_port_no [expr $port_no + $ch_no]
+	assign pc_readdata_int[$dr_port_no] = pc_readdata_int[$port_no];
+  assign pc_readdatavalid_int[$dr_port_no] = 1'b0;
+  assign pc_waitrequest_int[$dr_port_no] = 1'b1;
+@@ if   {$ch_no == [expr $num_of_ports($port_no) - 1]}	 {
+@@ incr dr_port_no
+@@ }
+@@ }
+@@ } elseif {$port_en($port_no) == 0} {
+	assign pc_readdata_int[$dr_port_no] = 32'b0;
+  assign pc_readdatavalid_int[$dr_port_no] = 1'b0;
+  assign pc_waitrequest_int[$dr_port_no] = 1'b1;
+	@@ incr dr_port_no
+@@    } else {
+@@ incr dr_port_no				
+@@ }				
+@@ }
+logic [6:0] profile_sel_reg;
+logic [6:0] dr_mode_config [19:0];
+logic [3:0] dr_mode_10g [19:0];
+logic [4:0] profile_port_no;
+logic [4:0] sel_10g_port_no;
+logic [3:0] sel_10g_reg;
+
+always_ff@(posedge app_ss_lite_clk) begin
+	if(~app_ss_lite_areset_n) begin
+		profile_sel_reg <= 'h0; 	
+		profile_port_no <= 'h0;	
+	end
+	else if ((av_addr[31:26] == 6'h0) && (av_addr[20:0] == 'h200) && av_write && !axi_waitrequest) begin
+		profile_sel_reg <= av_writedata[3:0]; 	
+		profile_port_no <= av_addr[25:21];	
+	end
+end
+
+always_ff@(posedge app_ss_lite_clk) begin
+	if(~app_ss_lite_areset_n) begin
+		sel_10g_reg <= 'h0; 	
+		sel_10g_port_no <= 'h0;	
+	end
+	else if ((av_addr[31:26] == 6'h0)&& (av_addr[20:0] == 'h208) && av_write && !axi_waitrequest) begin
+		sel_10g_reg <= av_writedata; 	
+		sel_10g_port_no <= av_addr[25:21];	
+	end
+end
+
+
+always_ff@(posedge app_ss_lite_clk) begin
+		dr_mode_config[profile_port_no - 1] <= profile_sel_reg; 	
+		dr_mode_10g		[sel_10g_port_no - 1] <= sel_10g_reg;
+end
+//*************************************************************************************************************
+//                                      Packet client for MAC+PCS
+//*************************************************************************************************************
+	assign sel_ptp_tod = ({av_addr[31:12],12'b0} == BASEADDR_PTP_T0D) ;  //TODO: 
+ 
+@@  for {set port_no 0} {$port_no < $num_ports} {incr port_no} {
+@@    if {($port_en($port_no) == 1) && ($port_dr_en($port_no) == 0) && ($inst_sub_profile_mode($port_no) == 0)} {
+	@@    set dr_port_no [expr {$port_no + $num_ports}]
+  assign sel_pc[$port_no]      = ({av_addr[31:12],12'b0} == BASEADDR_P${port_no}_PC) ;
+//  assign sel_pc[$port_no]      = ({av_addr[31:20],20'b0} == BASEADDR_P${port_no}_PC) ;
+
+ 
+						hssi_ss_f_packet_client_top #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  .ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+ 							.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),  						
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),													
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+								
+						  .PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no)),//TODO:check
+			  	   	.BCM_SIM_ENABLE     		(0) 
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+			
+						
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+						.i_cdr_lock				  		(p${port_no}_cdr_lock),
+								
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+			  	  	.i_txegrts0_tvalid  		(ss_app_st_p${port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_txegrts0_tdata   		(ss_app_st_p${port_no}_txegrts0_tdata),
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+					 			.i_txegrts1_tvalid  		(ss_app_st_p${port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_txegrts1_tdata   		(ss_app_st_p${port_no}_txegrts1_tdata),
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ } 
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+			  	  //.axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+						.i_clk_tx_tod  						( p${port_no}_clk_tx_tod),		
+						.i_clk_rx_tod  						( p${port_no}_clk_rx_tod),  
+						.ptp_tx_tod								( app_ss_st_p${port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.ptp_tx_tod_valid			    ( app_ss_st_p${port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .ptp_rx_tod							  ( app_ss_st_p${port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.ptp_rx_tod_valid	        ( app_ss_st_p${port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+			
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+			  	    @@ if { $port_ptp_10g_adv_en($port_no) } {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample_10g_adv),
+			  	    @@ } else {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	    @@ }
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  .i_clk_status             (app_ss_lite_clk),
+			  	  .i_status_addr            ({7'd0, av_addr[15:0]}),
+			  	  .i_status_read            (av_read & sel_pc[$port_no]),
+			  	  .i_status_write           (av_write & sel_pc[$port_no]),
+			  	  .i_status_writedata       (av_writedata),
+			  	  .o_status_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_status_readdata_valid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_status_waitrequest     (pc_waitrequest_int[$port_no])
+			  	  
+			
+			
+			  	 );
+		 
+ 
+ @@  } elseif {($port_en($port_no) == 1) && ($port_dr_en($port_no) == 1) && ($inst_sub_profile_mode($port_no) == 0)} {
+	 	@@    set dr_port_no [expr {$port_no + $num_ports}]
+			
+	@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+	@@ set dr_port_no [expr $port_no + $ch_no]		
+  		assign sel_pc[$dr_port_no]      = ({av_addr[31:12],12'b0} == BASEADDR_P${dr_port_no}_PC);
+
+	@@  }
+	
+  					
+		@@ if { $port_profile($port_no) == "25GbE" } {
+					hssi_ss_f_packet_client_top_25G #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+							.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+						  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+			
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	 
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+						.i_cdr_lock				  		(p${port_no}_cdr_lock),
+
+
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+			  	  	.i_txegrts0_tvalid  		(ss_app_st_p${port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_txegrts0_tdata   		(ss_app_st_p${port_no}_txegrts0_tdata),
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+					 			.i_txegrts1_tvalid  		(ss_app_st_p${port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_txegrts1_tdata   		(ss_app_st_p${port_no}_txegrts1_tdata),
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+	
+					@@ if {$port_ptp_en($port_no)  == 1} {
+						.i_clk_tx_tod  						( p${port_no}_clk_tx_tod),		
+						.i_clk_rx_tod  						( p${port_no}_clk_rx_tod),  
+						.ptp_tx_tod								( app_ss_st_p${port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.ptp_tx_tod_valid			    ( app_ss_st_p${port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .ptp_rx_tod							  ( app_ss_st_p${port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.ptp_rx_tod_valid	        ( app_ss_st_p${port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+			
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+						.i_todsync_sel							 (dr_mode_10g[$port_no]),
+			  	  .i_clk_todsync_sample_locked_10g (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample_10g    		 (i_clk_todsync_sample_10g_adv),
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+
+			  	  				  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),			  	  			 
+			 			
+						.dr_mode_lite									(dr_mode_config[$port_no])	
+						
+					);
+			
+			 	
+
+		@@ } elseif {$port_profile($port_no) == "50GAUI-1"}  {
+				
+					hssi_ss_f_packet_client_top_50G #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+							.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),						
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),						
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+												  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+			
+
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+											.i_cdr_lock				  		(p${port_no}_cdr_lock),
+					
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+			  	  	.i_txegrts0_tvalid  		(ss_app_st_p${port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_txegrts0_tdata   		(ss_app_st_p${port_no}_txegrts0_tdata),
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+					 			.i_txegrts1_tvalid  		(ss_app_st_p${port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_txegrts1_tdata   		(ss_app_st_p${port_no}_txegrts1_tdata),
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+						.i_clk_tx_tod  						( p${port_no}_clk_tx_tod),		
+						.i_clk_rx_tod  						( p${port_no}_clk_rx_tod),  
+						.ptp_tx_tod								( app_ss_st_p${port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.ptp_tx_tod_valid			    ( app_ss_st_p${port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .ptp_rx_tod							  ( app_ss_st_p${port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.ptp_rx_tod_valid	        ( app_ss_st_p${port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+			
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+						.i_todsync_sel							 (dr_mode_10g[$port_no]),						
+			  	  .i_clk_todsync_sample_locked_10g (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample_10g    		 (i_clk_todsync_sample_10g_adv),
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  
+			 
+			  		
+						.dr_mode_lite									(dr_mode_config[$port_no])		
+						
+
+			  	 );
+			
+			 	
+
+		@@ } elseif {$port_profile($port_no) == "100GCAUI-4"} {
+				
+					hssi_ss_f_packet_client_top_100G_4 #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+								.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),						
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+																	.BASE_PORT_NUM					($port_no),
+							//.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+						  //PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+														
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+							
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+			
+						.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+											//.i_cdr_lock				  		(p${port_no}_cdr_lock),
+						@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     				@@ set dr_port_no [expr $port_no + $ch_no]
+						.i_p${ch_no}_cdr_lock				  		(p${dr_port_no}_cdr_lock),
+						@@  }		
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+							@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+							@@ set dr_port_no [expr $port_no + $ch_no]	
+			  	  	.i_p${ch_no}_txegrts0_tvalid  		(ss_app_st_p${dr_port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_p${ch_no}_txegrts0_tdata   		(ss_app_st_p${dr_port_no}_txegrts0_tdata),
+							@@ }
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+								@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+								@@ set dr_port_no [expr $port_no + $ch_no]	
+					 			.i_p${ch_no}_txegrts1_tvalid  		(ss_app_st_p${dr_port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_p${ch_no}_txegrts1_tdata   		(ss_app_st_p${dr_port_no}_txegrts1_tdata),
+								@@ }
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     			@@ set dr_port_no [expr $port_no + $ch_no]	
+						.i_p${ch_no}_clk_tx_tod  						( p${dr_port_no}_clk_tx_tod),		
+						.i_p${ch_no}_clk_rx_tod  						( p${dr_port_no}_clk_rx_tod),  
+						.p${ch_no}_ptp_tx_tod								( app_ss_st_p${dr_port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.p${ch_no}_ptp_tx_tod_valid			    ( app_ss_st_p${dr_port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .p${ch_no}_ptp_rx_tod							  ( app_ss_st_p${dr_port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.p${ch_no}_ptp_rx_tod_valid	        ( app_ss_st_p${dr_port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+					@@ }
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+						.i_todsync_sel							 (dr_mode_10g[$port_no]),
+			  	  .i_clk_todsync_sample_locked_10g (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample_10g    		 (i_clk_todsync_sample_10g_adv),
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  .dr_mode_lite									(dr_mode_config[$port_no])	
+						
+
+			  	 );
+			
+			 	
+
+		@@ } elseif {$port_profile($port_no) == "100GAUI-2"} {
+				
+					hssi_ss_f_packet_client_top_100G_2 #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+								.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),						
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),						
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+														.BASE_PORT_NUM					($port_no),
+							//.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+						  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+							
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+						.ASCT_PORT_NUM					(av_addr[25:21]-1),	
+						
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+												//.i_cdr_lock				  		(p${port_no}_cdr_lock),
+						@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     				@@ set dr_port_no [expr $port_no + $ch_no]
+						.i_p${ch_no}_cdr_lock				  		(p${dr_port_no}_cdr_lock),
+						@@  }		
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+	
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+							@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+							@@ set dr_port_no [expr $port_no + $ch_no]	
+			  	  	.i_p${ch_no}_txegrts0_tvalid  		(ss_app_st_p${dr_port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_p${ch_no}_txegrts0_tdata   		(ss_app_st_p${dr_port_no}_txegrts0_tdata),
+							@@ }
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+								@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+								@@ set dr_port_no [expr $port_no + $ch_no]	
+					 			.i_p${ch_no}_txegrts1_tvalid  		(ss_app_st_p${dr_port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_p${ch_no}_txegrts1_tdata   		(ss_app_st_p${dr_port_no}_txegrts1_tdata),
+								@@ }
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     			@@ set dr_port_no [expr $port_no + $ch_no]	
+						.i_p${ch_no}_clk_tx_tod  						( p${dr_port_no}_clk_tx_tod),		
+						.i_p${ch_no}_clk_rx_tod  						( p${dr_port_no}_clk_rx_tod),  
+						.p${ch_no}_ptp_tx_tod								( app_ss_st_p${dr_port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.p${ch_no}_ptp_tx_tod_valid			    ( app_ss_st_p${dr_port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .p${ch_no}_ptp_rx_tod							  ( app_ss_st_p${dr_port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.p${ch_no}_ptp_rx_tod_valid	        ( app_ss_st_p${dr_port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+					@@ }
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+						.i_todsync_sel							 (dr_mode_10g[$port_no]),						
+			  	  .i_clk_todsync_sample_locked_10g (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample_10g    		 (i_clk_todsync_sample_10g_adv),
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  
+			 
+			  		
+				.dr_mode_lite									(dr_mode_config[$port_no])	
+						
+
+			  	 );
+			
+			 	
+
+		@@ } elseif {$port_profile($port_no) == "100GAUI-1"} {
+		
+					hssi_ss_f_packet_client_top_100G_1 #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+								.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),	
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),								
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+														.BASE_PORT_NUM					($port_no),
+							//.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+						  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+								  	
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+		.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+	
+						
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+						//.i_cdr_lock				  		(p${port_no}_cdr_lock),
+						@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     				@@ set dr_port_no [expr $port_no + $ch_no]
+						.i_p${ch_no}_cdr_lock				  		(p${dr_port_no}_cdr_lock),
+						@@  }		
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+	
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+							@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+							@@ set dr_port_no [expr $port_no + $ch_no]	
+			  	  	.i_p${ch_no}_txegrts0_tvalid  		(ss_app_st_p${dr_port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_p${ch_no}_txegrts0_tdata   		(ss_app_st_p${dr_port_no}_txegrts0_tdata),
+							@@ }
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+								@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+								@@ set dr_port_no [expr $port_no + $ch_no]	
+					 			.i_p${ch_no}_txegrts1_tvalid  		(ss_app_st_p${dr_port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_p${ch_no}_txegrts1_tdata   		(ss_app_st_p${dr_port_no}_txegrts1_tdata),
+								@@ }
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+	
+					@@ if {$port_ptp_en($port_no)  == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     			@@ set dr_port_no [expr $port_no + $ch_no]	
+						.i_p${ch_no}_clk_tx_tod  						( p${dr_port_no}_clk_tx_tod),		
+						.i_p${ch_no}_clk_rx_tod  						( p${dr_port_no}_clk_rx_tod),  
+						.p${ch_no}_ptp_tx_tod								( app_ss_st_p${dr_port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.p${ch_no}_ptp_tx_tod_valid			    ( app_ss_st_p${dr_port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .p${ch_no}_ptp_rx_tod							  ( app_ss_st_p${dr_port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.p${ch_no}_ptp_rx_tod_valid	        ( app_ss_st_p${dr_port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+					@@ }
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+			  	    @@ if { $port_ptp_10g_adv_en($port_no) } {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample_10g_adv),
+			  	    @@ } else {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	    @@ }
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  
+			 
+			  		
+				.dr_mode_lite									(dr_mode_config[$port_no])	
+						
+
+			  	 );
+			
+			 	
+		
+		@@ } elseif {$port_profile($port_no) == "200GAUI-4"} {
+				
+					hssi_ss_f_packet_client_top_200G_4 #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+								.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),					
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),							
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+														.BASE_PORT_NUM					($port_no),
+							//.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+						  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+							 	 	 		 		  	
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+			
+					.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+	
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+						//.i_cdr_lock				  		(p${port_no}_cdr_lock),
+						@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     				@@ set dr_port_no [expr $port_no + $ch_no]
+						.i_p${ch_no}_cdr_lock				  		(p${dr_port_no}_cdr_lock),
+						@@  }		
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+	
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+							@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+							@@ set dr_port_no [expr $port_no + $ch_no]	
+			  	  	.i_p${ch_no}_txegrts0_tvalid  		(ss_app_st_p${dr_port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_p${ch_no}_txegrts0_tdata   		(ss_app_st_p${dr_port_no}_txegrts0_tdata),
+							@@ }
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+								@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+								@@ set dr_port_no [expr $port_no + $ch_no]	
+					 			.i_p${ch_no}_txegrts1_tvalid  		(ss_app_st_p${dr_port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_p${ch_no}_txegrts1_tdata   		(ss_app_st_p${dr_port_no}_txegrts1_tdata),
+								@@ }
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     			@@ set dr_port_no [expr $port_no + $ch_no]	
+						.i_p${ch_no}_clk_tx_tod  						( p${dr_port_no}_clk_tx_tod),		
+						.i_p${ch_no}_clk_rx_tod  						( p${dr_port_no}_clk_rx_tod),  
+						.p${ch_no}_ptp_tx_tod								( app_ss_st_p${dr_port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.p${ch_no}_ptp_tx_tod_valid			    ( app_ss_st_p${dr_port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .p${ch_no}_ptp_rx_tod							  ( app_ss_st_p${dr_port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.p${ch_no}_ptp_rx_tod_valid	        ( app_ss_st_p${dr_port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+					@@ }
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+			  	    @@ if { $port_ptp_10g_adv_en($port_no) } {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample_10g_adv),
+			  	    @@ } else {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	    @@ }
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  
+			 
+			  		
+				.dr_mode_lite									(dr_mode_config[$port_no])	
+						
+
+			  	 );
+			
+			 	
+
+		@@ } elseif {$port_profile($port_no) == "200GAUI-2"} {
+				
+					hssi_ss_f_packet_client_top_200G_2 #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+								.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),					
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),														
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+														.BASE_PORT_NUM					($port_no),
+							//.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+						  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+																																												
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+			
+						.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+						//.i_cdr_lock				  		(p${port_no}_cdr_lock),
+						@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     				@@ set dr_port_no [expr $port_no + $ch_no]
+						.i_p${ch_no}_cdr_lock				  		(p${dr_port_no}_cdr_lock),
+						@@  }		
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+	
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+							@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+							@@ set dr_port_no [expr $port_no + $ch_no]	
+			  	  	.i_p${ch_no}_txegrts0_tvalid  		(ss_app_st_p${dr_port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_p${ch_no}_txegrts0_tdata   		(ss_app_st_p${dr_port_no}_txegrts0_tdata),
+							@@ }
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+								@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+								@@ set dr_port_no [expr $port_no + $ch_no]	
+					 			.i_p${ch_no}_txegrts1_tvalid  		(ss_app_st_p${dr_port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_p${ch_no}_txegrts1_tdata   		(ss_app_st_p${dr_port_no}_txegrts1_tdata),
+								@@ }
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     			@@ set dr_port_no [expr $port_no + $ch_no]	
+						.i_p${ch_no}_clk_tx_tod  						( p${dr_port_no}_clk_tx_tod),		
+						.i_p${ch_no}_clk_rx_tod  						( p${dr_port_no}_clk_rx_tod),  
+						.p${ch_no}_ptp_tx_tod								( app_ss_st_p${dr_port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.p${ch_no}_ptp_tx_tod_valid			    ( app_ss_st_p${dr_port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .p${ch_no}_ptp_rx_tod							  ( app_ss_st_p${dr_port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.p${ch_no}_ptp_rx_tod_valid	        ( app_ss_st_p${dr_port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+					@@ }
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+			  	    @@ if { $port_ptp_10g_adv_en($port_no) } {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample_10g_adv),
+			  	    @@ } else {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	    @@ }
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  .dr_mode_lite									(dr_mode_config[$port_no])	
+						
+
+			  	 );
+			
+			 	
+
+		@@ } elseif {$port_profile($port_no) == "400GAUI-8"} {
+				
+					hssi_ss_f_packet_client_top_400G_8 #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+								.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),					
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),													
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+														.BASE_PORT_NUM					($port_no),
+							//.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+						  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+																																												
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+			
+					.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+	
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+						//.i_cdr_lock				  		(p${port_no}_cdr_lock),
+						@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     				@@ set dr_port_no [expr $port_no + $ch_no]
+						.i_p${ch_no}_cdr_lock				  		(p${dr_port_no}_cdr_lock),
+						@@  }	
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+	
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+							@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+							@@ set dr_port_no [expr $port_no + $ch_no]	
+			  	  	.i_p${ch_no}_txegrts0_tvalid  		(ss_app_st_p${dr_port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_p${ch_no}_txegrts0_tdata   		(ss_app_st_p${dr_port_no}_txegrts0_tdata),
+							@@ }
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+								@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+								@@ set dr_port_no [expr $port_no + $ch_no]	
+					 			.i_p${ch_no}_txegrts1_tvalid  		(ss_app_st_p${dr_port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_p${ch_no}_txegrts1_tdata   		(ss_app_st_p${dr_port_no}_txegrts1_tdata),
+								@@ }
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     			@@ set dr_port_no [expr $port_no + $ch_no]	
+						.i_p${ch_no}_clk_tx_tod  						( p${dr_port_no}_clk_tx_tod),		
+						.i_p${ch_no}_clk_rx_tod  						( p${dr_port_no}_clk_rx_tod),  
+						.p${ch_no}_ptp_tx_tod								( app_ss_st_p${dr_port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.p${ch_no}_ptp_tx_tod_valid			    ( app_ss_st_p${dr_port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .p${ch_no}_ptp_rx_tod							  ( app_ss_st_p${dr_port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.p${ch_no}_ptp_rx_tod_valid	        ( app_ss_st_p${dr_port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+					@@ }
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+			  	    @@ if { $port_ptp_10g_adv_en($port_no) } {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample_10g_adv),
+			  	    @@ } else {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	    @@ }
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  .dr_mode_lite									(dr_mode_config[$port_no])	
+									
+
+			  	 );
+			
+			 	
+
+		@@ } elseif {$port_profile($port_no) == "400GAUI-4"} {
+				
+					hssi_ss_f_packet_client_top_400G_4 #(
+							.PTP_EN									($port_ptp_en($port_no)),
+			  	    .PTP_ACC_MODE						($port_ptp_enh_en($port_no)),			
+							.CLIENT_IF_TYPE					($port_client_if($port_no)), 
+						  .EHIP_RATE							("$ehip_rate"),  													//TODO: ERROR near text G "25G" 
+							//.RSFEC_TYPE_GUI					($port_fec_type($port_no)),	
+							//.PTP_FP_WIDTH						($port_ptp_fp_width($port_no)),
+							.EN_10G_ADV_MODE				($port_ptp_10g_adv_en($port_no)), 
+							//.EMPTY_WIDTH(\$clog2(PORT${port_no}_NO_OF_BYTES)), //EMPTY_WIDTH 
+			  	    .EMPTY_WIDTH						($empty_bits($port_no)) ,
+			  	    .NO_OF_BYTES						(PORT${port_no}_NO_OF_BYTES),
+							.DATA_WIDTH							($port_data_width($port_no)),
+						  //.ENABLE_DL_GUI					($port_dlat_en($port_no)),
+					    .TX_TUSER_CLIENT_WIDTH  ($tx_tuser_client_width($port_no)),
+					    .RX_TUSER_CLIENT_WIDTH  ($rx_tuser_client_width($port_no)),
+					    .RX_TUSER_STATS_WIDTH   ($rx_tuser_sts_width($port_no)),
+			  	    .PREAMBLE_PASS_TH_EN    ($preamble_passthrough($port_no)), 
+								.PORT_PROFILE						("$port_profile($port_no)"),
+							.DR_ENABLE							($port_dr_en($port_no)),					
+							.NUM_MAX_PORTS					($num_of_ports($port_no)),						
+							//TODO
+			  	    .ST_READY_LATENCY				($port_ready_latency($port_no)),
+							.PKT_SEG_PARITY_EN  		($port_axi_par_en($port_no)), //TODO:per port comes from tcl GUI parameter
+							.ENABLE_MULTI_STREAM		($multi_stream_en($port_no)), //TODO:used for 200G/400G	
+			  	    .NUM_OF_STREAM					($num_of_stream($port_no)), //TODO: Param used for 200/400 , Hidden param in GUI
+														.BASE_PORT_NUM					($port_no),
+							//.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+						  //.PKT_ROM_INIT_FILE  		(PKT_ROM_INIT_FILE_P${port_no}),
+							//.PKT_ROM_INIT_DATA  		(PKT_ROM_INIT_DATA_P${port_no}),
+							//.PKT_ROM_INIT_CTL   		(PKT_ROM_INIT_CTL_P${port_no}),
+							.TILES   	 		  				("F"),
+			  	    .TID                		($tid_width($port_no))//,//TODO:check
+			  	   	//.BCM_SIM_ENABLE     		(0) 
+							//.ENABLE_ECC   	  		(0),  //commented on July 7 
+							//.USE_M20K			 				(1)  //commented on July 7	  	 	 		 		  	
+																																						
+						) U_p${port_no}_mac_packet_client_top (
+						.i_rst_n                (packet_client_rst_n), //subsystem_cold_rst_n chnaged on July23
+						.app_ss_lite_clk        (app_ss_lite_clk),
+						.app_ss_lite_areset_n   (app_ss_lite_areset_n),
+		.ASCT_PORT_NUM					(av_addr[25:21]-1),		
+	
+						//@@#@@  if {$any_port_ptp_enh_en == 0} {
+						//.i_clk_ip_tod        	(clk_ip_tod),   
+						//@@#@@  }
+					  .i_clk_tx               (app_ss_st_p${port_no}_tx_clk),
+			  	  //.tx_aresetn           (i_p${port_no}_tx_rst_n ),
+			  	  .i_clk_rx               (app_ss_st_p${port_no}_rx_clk),
+			  	  //.rx_aresetn           (i_p${port_no}_rx_rst_n ),
+			  	  .i_clk_pll              (o_p${port_no}_clk_pll ),
+			  	  //.rx_block_lock        (1'b1),
+			 		  //.cdr_lock				  		(cdr_lock[${port_no}]),
+						.i_tx_pll_locked		  	(o_p${port_no}_tx_pll_locked),   
+						//.i_cdr_lock				  		(p${port_no}_cdr_lock),
+						@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     				@@ set dr_port_no [expr $port_no + $ch_no]
+						.i_p${ch_no}_cdr_lock				  		(p${dr_port_no}_cdr_lock),
+						@@  }	
+						.axis_tx_tready_i     	(ss_app_st_p${port_no}_tx_tready),
+					  .axis_tx_tvalid_o      	(app_ss_st_p${port_no}_tx_tvalid),
+			  	  .axis_tx_tdata_o        (app_ss_st_p${port_no}_tx_tdata),
+			  	  .axis_tx_tkeep_o        (app_ss_st_p${port_no}_tx_tkeep),
+			  	  .axis_tx_tlast_o        (app_ss_st_p${port_no}_tx_tlast),
+			  	  .axis_tx_tuser_client_o (app_ss_st_p${port_no}_tx_tuser_client),
+			
+	
+						@@ if {$port_ptp_en($port_no) == 1} {
+			  	  	.axis_tx_tuser_ptp_o    (app_ss_st_p${port_no}_tx_tuser_ptp),
+			  	  	.axis_tx_tuser_ptp_ext_o(app_ss_st_p${port_no}_tx_tuser_ptp_extended),
+							@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+							@@ set dr_port_no [expr $port_no + $ch_no]	
+			  	  	.i_p${ch_no}_txegrts0_tvalid  		(ss_app_st_p${dr_port_no}_txegrts0_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  	.i_p${ch_no}_txegrts0_tdata   		(ss_app_st_p${dr_port_no}_txegrts0_tdata),
+							@@ }
+			 		 		.i_rxingrts0_tvalid 		(ss_app_st_p${port_no}_rxingrts0_tvalid),
+			  			.i_rxingrts0_tdata  		(ss_app_st_p${port_no}_rxingrts0_tdata),
+			
+							@@ if {($port_profile($port_no) == "400GAUI-4") || ($port_profile($port_no) == "400GAUI-8")   } {
+								@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+								@@ set dr_port_no [expr $port_no + $ch_no]	
+					 			.i_p${ch_no}_txegrts1_tvalid  		(ss_app_st_p${dr_port_no}_txegrts1_tvalid), //TODO:warning  if ($port_ptp_en($port_no) == 1) July 5 
+			  	  		.i_p${ch_no}_txegrts1_tdata   		(ss_app_st_p${dr_port_no}_txegrts1_tdata),
+								@@ }
+			 		 			.i_rxingrts1_tvalid 		(ss_app_st_p${port_no}_rxingrts1_tvalid),
+			  			 	.i_rxingrts1_tdata  		(ss_app_st_p${port_no}_rxingrts1_tdata),
+							@@ }
+			  	  @@ }
+
+			
+			  	  @@  if {$port_client_if($port_no) == 0} {  
+			  	  .axis_tx_tuser_last_seg_o				(app_ss_st_p${port_no}_tx_tuser_last_segment),
+						.axis_rx_tuser_last_seg_i 			(ss_app_st_p${port_no}_rx_tuser_last_segment), 
+			  	  @@  }
+					  @@ if {$port_axi_par_en($port_no) == 1} {
+			  	  .axis_tx_tuser_pkt_seg_parity_o (app_ss_st_p${port_no}_tx_tuser_pkt_seg_parity),
+					  .axis_rx_tuser_pkt_seg_parity_i (ss_app_st_p${port_no}_rx_tuser_pkt_seg_parity),
+			  	  @@  }
+			  	 
+			  	  .axis_rx_tvalid_i       (ss_app_st_p${port_no}_rx_tvalid),
+			  	  .axis_rx_tdata_i        (ss_app_st_p${port_no}_rx_tdata),
+//			  	  .axis_rx_tready_o       (app_ss_st_p${port_no}_rx_tready),
+			  	  .axis_rx_tkeep_i        (ss_app_st_p${port_no}_rx_tkeep),
+			  	  .axis_rx_tlast_i        (ss_app_st_p${port_no}_rx_tlast),
+			  	  .axis_rx_tuser_client_i (ss_app_st_p${port_no}_rx_tuser_client),
+			  	  .axis_rx_tuser_sts_i    (ss_app_st_p${port_no}_rx_tuser_sts),
+			  	//.axis_rx_tuser_sts_ext_i(ss_app_st_p${port_no}_rx_tuser_sts_extended),
+			  	  .axis_rx_tuser_sts_ext_i('h0),
+					
+					@@ if {$port_ptp_en($port_no)  == 1} {
+					@@ for {set ch_no 0} {$ch_no < $num_of_ports($port_no)} {incr ch_no} {
+     			@@ set dr_port_no [expr $port_no + $ch_no]	
+						.i_p${ch_no}_clk_tx_tod  						( p${dr_port_no}_clk_tx_tod),		
+						.i_p${ch_no}_clk_rx_tod  						( p${dr_port_no}_clk_rx_tod),  
+						.p${ch_no}_ptp_tx_tod								( app_ss_st_p${dr_port_no}_tx_tod_tdata ),   //output signal connected to EX_SS
+						.p${ch_no}_ptp_tx_tod_valid			    ( app_ss_st_p${dr_port_no}_tx_tod_tvalid),   //output signal connected to EX_SS
+					  .p${ch_no}_ptp_rx_tod							  ( app_ss_st_p${dr_port_no}_rx_tod_tdata),    //output signal connected to EX_SS
+						.p${ch_no}_ptp_rx_tod_valid	        ( app_ss_st_p${dr_port_no}_rx_tod_tvalid),   //output signal connected to EX_SS
+					@@ }
+			  	  @@ if {$port_ptp_enh_en($port_no) == 0} {
+			  	  .i_tx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[1]), //ptp_ip_tod_rst_n
+			  	  .i_rx_tod_rst_n  				  (ptp_ip_tod_rst_n_fanout[2]), //ptp_ip_tod_rst_n
+						.i_ptp_ip_tod							(ptp_ip_tod),         			  //TODO:warning fixed JUly 5
+			  	  .i_ptp_ip_tod_valid				(ptp_ip_tod_valid),
+			  	  @@ } else {
+			  	  .i_clk_master_tod  		  		 (i_clk_master_tod),   //TODO: not per port should present outside for loop
+			  	    @@ if { $port_ptp_10g_adv_en($port_no) } {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked_10g_adv),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample_10g_adv),
+			  	    @@ } else {
+			  	  .i_clk_todsync_sample_locked (i_clk_todsync_sample_locked),
+			  	  .i_clk_todsync_sample    		 (i_clk_todsync_sample),
+			  	    @@ }
+			  	  .i_ptp_master_tod_rst_n 	 	 (i_ptp_master_tod_rst_n),
+			  	  .i_ptp_master_tod        		 (ptp_master_tod),
+			  	  .i_ptp_master_tod_valid  		 (ptp_master_tod_valid),
+			  	  @@ }
+			  	   
+			  	@@ }
+			  	  	
+			  	 
+			  	  
+			  	  .i_jtag_address         ({7'd0, av_addr[15:0]}),
+			  	  .i_jtag_read            (av_read && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_write           (av_write && sel_pc[$num_of_ports($port_no) + $port_no - 1:$port_no]),
+			  	  .i_jtag_writedata       (av_writedata),
+			  	  .o_jtag_readdata        (pc_readdata_int[$port_no]),
+			  	  .o_jtag_readdatavalid  (pc_readdatavalid_int[$port_no]),
+			  	  .o_jtag_waitrequest     (pc_waitrequest_int[$port_no]),
+			  	  .dr_mode_lite									(dr_mode_config[$port_no])	
+						
+
+			  	 );
+			
+			 	
+
+		@@ }
+ @@ }
+ //end of port_no for loop
+ @@ }
+ 
+//@@#@@if {$port_client_if >= 2}
+//---------------------------------------------------------------
+ 
+ 
+ 
+@@       if {$any_port_ptp_en == 1} {   
+//---------------------------------------------------------------
+// PTP TODs
+//---------------------------------------------------------------
+ 
+// Master Time-of-Day //one per SS/tile 
+ 
+//assign ptp_master_tod_csr_readdata_valid = ptp_master_tod_csr_read & !ptp_master_tod_csr_waitrequest;
+//assign ptp_tod_readdatavalid_int[$port_no]  = (av_read &  sel_ptp_tod[$port_no]) & (!ptp_tod_waitrequest_int[$port_no]);
+ 
+ 
+assign ptp_tod_readdatavalid_int  = (av_read &  sel_ptp_tod) & (!ptp_tod_waitrequest_int);
+ 
+//givx : Part of qip & example_project/ptp_f
+//added on sept7
+@@ if {[string match IO96B $device_iobank_rev]} {
+localparam EN_PPS_ADV = 0;
+@@ } else {
+localparam EN_PPS_ADV = 1;
+@@ }
+ 
+eth_f_ptp_mtod_top #(
+    .EN_PPS_ADV (EN_PPS_ADV) 
+    ) master_tod (    
+    .i_clk_reconfig             (app_ss_lite_clk),
+    .i_reconfig_rst_n           (app_ss_lite_areset_n),   //reconfig_reset_sync
+    .i_clk_tod                  (i_clk_master_tod),
+    .i_tod_rst_n                (i_ptp_master_tod_rst_n),
+    .i_csr_addr                 (av_addr[5:2]), 					 //ptp_master_tod_csr_addr[5:2]//coming from eth_f_hw_avmm_decod
+    .i_csr_write                (av_write & sel_ptp_tod),  //ptp_master_tod_csr_write  //sel_ptp_tod[$port_no]
+    .i_csr_writedata            (av_writedata), 					 //ptp_master_tod_csr_writedata
+    .i_csr_read                 (av_read &  sel_ptp_tod),  //ptp_master_tod_csr_read  //sel_ptp_tod[$port_no]
+    .o_csr_readdata             (ptp_tod_readdata_int),    //ptp_master_tod_csr_readdata //(ptp_tod_readdata_int[$port_no]
+    .o_csr_waitrequest          (ptp_tod_waitrequest_int), //ptp_master_tod_csr_waitrequest //(ptp_tod_waitrequest_int[$port_no]
+    .i_tod_96b_load_valid       (ptp_master_tod_96b_load_valid),
+    .i_tod_96b_load_data        (ptp_master_tod_96b_load_data),
+    .o_tod_96b_valid            (ptp_master_tod_valid),
+    .o_tod_96b_data             (ptp_master_tod),
+    .o_pps                      (o_ptp_pps)
+);
+   
+ 
+ 
+// Master TOD load - not demonstrating
+assign ptp_master_tod_96b_load_valid  = 1'b0;
+assign ptp_master_tod_96b_load_data   = 96'h0;
+ 
+ 
+@@  if { $any_port_ptp_basic_en } {
+//---------------------------------------------------------------
+// IP Time-of-Day (PTP Timestamp Accuracy Mode == "0:Basic")
+eth_f_ptp_ip_tod_pll ip_tod_pll (
+    .refclk     (i_clk_master_tod),
+    .rst        (~i_ptp_master_tod_rst_n),
+    .outclk_0   (clk_ip_tod),
+    .locked     (clk_ip_tod_locked)
+);
+ 
+//givx : rtl/eth_f_lib/eth_f_altera_std_synchronizer_nocut.v Placed in common_f
+eth_f_altera_std_synchronizer_nocut ip_tod_locked_sync (
+    .clk        (clk_ip_tod),
+    .reset_n    (1'b1),
+    .din        (clk_ip_tod_locked),
+    .dout       (clk_ip_tod_locked_sync)
+);
+ 
+eth_f_altera_std_synchronizer_nocut todsync_sampling_locked_sync (
+    .clk        (clk_ip_tod),
+    .reset_n    (1'b1),
+    .din        (i_clk_todsync_sample_locked),
+    .dout       (clk_todsync_sample_locked_sync)
+);
+ 
+always @ (posedge clk_ip_tod) begin
+    ptp_ip_tod_rst_n 			    <= clk_ip_tod_locked_sync & clk_todsync_sample_locked_sync;
+    ptp_ip_tod_rst_n_flop <= ptp_ip_tod_rst_n;
+    ptp_ip_tod_rst_n_fanout [2:0] <= {ptp_ip_tod_rst_n_flop, ptp_ip_tod_rst_n_flop, ptp_ip_tod_rst_n_flop};
+end
+ 
+//givx : Part of example_project/ptp_f
+eth_f_ptp_stod_top #( 
+    .EN_10G_ADV_MODE (0) //basic mode only case
+) ip_tod (
+    .i_clk_reconfig             (app_ss_lite_clk),
+    .i_reconfig_rst_n           (app_ss_lite_areset_n),
+    .i_clk_mtod                 (i_clk_master_tod),
+    .i_clk_stod                 (clk_ip_tod),
+    .i_clk_todsync_sampling     (i_clk_todsync_sample),
+    .i_mtod_rst_n               (i_ptp_master_tod_rst_n),
+    .i_stod_rst_n               (ptp_ip_tod_rst_n_fanout[0]),
+    .i_mtod_data                (ptp_master_tod),				
+    .i_mtod_valid               (ptp_master_tod_valid), 
+    .o_stod_data                (ptp_ip_tod),
+    .o_stod_valid               (ptp_ip_tod_valid)
+);
+@@  }
+// PTP ED TODs -- end
+@@ } else {
+//else of any_port_ptp_en
+  assign o_ptp_pps = 1'b1;
+@@ } 
+ 
+ 
+ 
+ 
+endmodule

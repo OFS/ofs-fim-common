@@ -1,0 +1,5 @@
+# This file list is used when setting up the PIM in a build environment and no
+# PIM-based AFU is requested. Configuration requires at least a JSON file.
+# This file list is passed to afu_synth_setup.
+
+dummy_afu.json

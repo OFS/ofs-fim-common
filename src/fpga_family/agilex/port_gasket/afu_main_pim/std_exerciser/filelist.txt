@@ -1,0 +1,2 @@
+std_exerciser.json
+ofs_plat_afu.sv
