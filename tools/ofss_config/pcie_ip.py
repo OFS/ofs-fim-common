@@ -32,6 +32,7 @@ class PCIe(OFS):
         self.pcie_gen, self.pcie_instances = None, None
         self.pcie_lane_width = None
         self.PCIE_AVAILABLE_LANES = 16
+        self.pcie_instances_enabled = 1
 
         self.PCIE_SS_PARAM = None
         self.set_ip_params()
@@ -91,6 +92,11 @@ class PCIe(OFS):
                 self._errorExit(
                     f"!!PCIe Config Error!! Must provide number of PCIe instances"
                 )
+            if int(self.pcie_instances_enabled) > int(self.pcie_instances):
+                self._errorExit(
+                    f"!!PCIe Config Error!! pcie_instances_enabled should be less than or equal to pcie_instances"
+                )
+             
              
 
     def get_ip_settings(self):
@@ -114,6 +120,9 @@ class PCIe(OFS):
             self.pcie_instances = self.pcie_config["settings"]["pcie_instances"]
             self.pcie_lane_width = int(self.PCIE_AVAILABLE_LANES / int(self.pcie_instances))
  
+        if "pcie_instances_enabled" in self.pcie_config["settings"]:
+            self.pcie_instances_enabled = self.pcie_config["settings"]["pcie_instances_enabled"]
+        
         if "pcie_lane_width" in self.pcie_config["settings"]:
             self.pcie_lane_width = self.pcie_config["settings"]["pcie_lane_width"]
 
@@ -179,7 +188,7 @@ class PCIe(OFS):
             # The PCIe SS stores a second link's configuration in parameters
             # beginning with "core8_". Replicate the first link's configuration.
             # OFS expects the two links to be configured identically.
-            if self.pcie_instances is not None and int(self.pcie_instances) > 1:
+            if self.pcie_instances is not None and int(self.pcie_instances_enabled) > 1:
                 core16_keys = [k for k in self.ip_component_params if k[:7] == 'core16_']
                 for c16_k in core16_keys:
                     c8_k = 'core8' + c16_k[6:]

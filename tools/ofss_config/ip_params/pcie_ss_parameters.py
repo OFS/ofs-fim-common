@@ -46,7 +46,6 @@ func_params = {
     "core16_virtual_{func_num}_msix_enable_user_hwtcl": 1,
     "core16_virtual_{func_num}_exvf_msix_cap_enable_hwtcl": 0,
     "core16_virtual_{func_num}_acs_cap_enable_hwtcl": 1,
-    "core16_{func_num}_vf_acs_cap_enable_hwtcl": 1,
     "core16_exvf_msix_tablesize_{func_num}": 0,
     "core16_exvf_msixtable_offset_{func_num}": 0,
     "core16_exvf_msixtable_bir_{func_num}": 0,
@@ -83,12 +82,13 @@ func_params = {
     "core16_{func_num}_revision_id_user_hwtcl": ["0x00000001", "revision_id"],
     "core16_{func_num}_class_code_hwtcl": ["0x00120000", "class_code"],
     "core16_{func_num}_subsys_vendor_id_hwtcl": ["0x00008086", "subsys_vendor_id"],
-    "core16_{func_num}_subsys_dev_id_hwtcl": ["0x00001771", "subsys_dev_id"],
-    "core16_{func_num}_sriov_vf_device_id": ["0x0000bccf", "sriov_vf_device_id"],
-    "core16_exvf_subsysid_{func_num}": ["0x00001771", "exvf_subsysid"]
+    "core16_{func_num}_subsys_dev_id_hwtcl": ["0x00001771", "subsys_dev_id"]
 }
 
 multi_vfs_func_params = {
+    "core16_exvf_subsysid_{func_num}": ["0x00001771", "exvf_subsysid"],
+    "core16_{func_num}_sriov_vf_device_id": ["0x0000bccf", "sriov_vf_device_id"],
+    "core16_{func_num}_vf_acs_cap_enable_hwtcl": 1,
     "core16_virtual_{func_num}_msix_enable_user_hwtcl": 1,
     "core16_virtual_{func_num}_exvf_msix_cap_enable_hwtcl": 1,
     "core16_exvf_msixpba_bir_{func_num}": 4,
