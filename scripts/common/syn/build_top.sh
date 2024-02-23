@@ -46,6 +46,7 @@ KEEP_WORK_ARG=""
 DO_PR_BUILD_TEMPLATE_GEN=""
 STAGE="all"
 OFSS_CONFIG_SCRIPT=""
+ORIG_COMMAND_LINE=( "$0" "$@" )
 
 while getopts "ekp-:" OP; do
     case "${OP}" in
@@ -164,7 +165,14 @@ else
     exit 1
 fi
 
-"${OFS_ROOTDIR}"/ofs-common/scripts/common/syn/${CMD} "$1" "$WORK_DIR" 2>&1|tee -i "${BUILD_FIM_LOG_FILE}"
+{
+  echo 'build_top.sh launched using command line:'
+  printf ' %s' "${ORIG_COMMAND_LINE[@]}"; echo
+  echo
+  echo "Proceeding with requested build script $CMD..."
+} >"$BUILD_FIM_LOG_FILE"
+
+"${OFS_ROOTDIR}"/ofs-common/scripts/common/syn/${CMD} "$1" "$WORK_DIR" 2>&1|tee -a -i "${BUILD_FIM_LOG_FILE}"
 error_code=${?}
 if [ "${error_code}" != "0" ]; then
     echo "Error running ${OFS_ROOTDIR}/ofs-common/scripts/common/syn/${CMD}" 1>&2

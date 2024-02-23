@@ -45,12 +45,34 @@ fi
 # Default branch to 'master' if the branch variable is not set
 if [ -z "${OFS_PLATFORM_AFU_BBB_REPO_BRANCH}" ]; then
     OFS_PLATFORM_AFU_BBB_REPO_BRANCH="master"
+    _branch_not_explicit=1
 fi
 
 # Default location to clone is $REPO_PATH/ofs-platform-afu-bbb
 if [ -z "${OFS_PLATFORM_AFU_BBB}" ]; then
     export OFS_PLATFORM_AFU_BBB="${REPO_PATH}/ofs-platform-afu-bbb"
     echo "Using cloned OFS_PLATFORM_AFU_BBB=${OFS_PLATFORM_AFU_BBB}"
+
+    # If the current FIM repository is checked out at an ofs-* tag, a user is
+    # most likely trying to build a release snapshot of a FIM. Although the
+    # intent is to never break this compatibility, the ofs-platform-afu-bbb
+    # repository tags releases directly from the 'main' development branch, and
+    # there might be an incompatible change (even if temporary) when blindly
+    # jumping the latest HEAD commit.
+    #
+    # Avoid surprises by defaulting to the corresponding tag from the
+    # ofs-platform-afu-bbb repository.
+    #
+    # To override this heuristic, one can explicitly set
+    # OFS_PLATFORM_AFU_BBB_REPO_BRANCH=main to unconditionally prefer
+    # auto-cloning the latest ofs-platform-afu-bbb commits.
+    if [ "$_branch_not_explicit" = 1 ] \
+       && _current_tag=$(git -C "$OFS_ROOTDIR" describe --tags --exact-match --match 'ofs-*' 2>/dev/null) \
+       && git ls-remote -t "$OFS_PLATFORM_AFU_BBB_REPO" | grep -qF refs/tags/"$_current_tag"
+    then
+        OFS_PLATFORM_AFU_BBB_REPO_BRANCH="$_current_tag"
+    fi
+    unset _branch_not_explicit _current_tag
 fi
 
 # clone PIM repo, holding a lock to guarantee that no other builds conflict
