@@ -200,51 +200,63 @@ logic [63:0] status_rx_end_time_stamp;
       status_tx_pkt_cnt <= tx_pkt_cnt_d;
    end
 
-generate
-if( `FAMILY == "Stratix 10") begin
-    alt_e100s10_reset_synchronizer  rstx (
-        .aclr       (i_arst),
-        .clk        (i_clk_tx),
-        .aclr_sync  (tx_reset)
-    );
+    generate 
+    if(`FAMILY == "Stratix 10") begin 
+        alt_e100s10_reset_synchronizer  rstx (
+           .aclr       (i_arst),
+           .clk   (i_clk_tx),
+           .aclr_sync  (tx_reset)
+        );
 
-    alt_e100s10_reset_synchronizer  rsrx (
-        .aclr       (i_arst),
-        .clk        (i_clk_rx),
-        .aclr_sync  (rx_reset)
-    );
-end
-else begin
-    alt_ehipc3_fm_reset_synchronizer rstx (
-        .aclr       (i_arst),
-        .clk        (i_clk_tx),
-        .aclr_sync  (tx_reset)
-    );
+        alt_e100s10_reset_synchronizer  rsrx (
+          .aclr      (i_arst),
+          .clk       (i_clk_rx),
+          .aclr_sync (rx_reset)
+        );
 
-alt_ehipc3_fm_reset_synchronizer rsrx (
-        .aclr       (i_arst),
-        .clk        (i_clk_rx),
-        .aclr_sync  (rx_reset)
-    );
-end
-endgenerate
+        alt_e100s10_reset_synchronizer  rst_status_sync (
+           .aclr       (i_arst),
+           .clk        (i_clk_status),
+           .aclr_sync  (rst_status)
+        );
+    
+    end else begin
+       fim_resync #(
+          .INIT_VALUE            (1),
+          .SYNC_CHAIN_LENGTH     (3),
+          .TURN_OFF_ADD_PIPELINE (0)
+       ) rstx (
+          .clk   (i_clk_tx),
+          .reset (i_arst),
+          .d     (1'b0),
+          .q     (tx_reset)
+       );
+    
+       fim_resync #(
+          .INIT_VALUE            (1),
+          .SYNC_CHAIN_LENGTH     (3),
+          .TURN_OFF_ADD_PIPELINE (0)
+       ) rsrx (
+          .clk   (i_clk_rx),
+          .reset (i_arst),
+          .d     (1'b0),
+          .q     (rx_reset)
+       );
+    
+       fim_resync #( 
+          .INIT_VALUE            (1),
+          .SYNC_CHAIN_LENGTH     (3),
+          .TURN_OFF_ADD_PIPELINE (0)
+       ) rst_status_sync (
+          .clk       (i_clk_status),
+          .reset     (i_arst),
+          .d         (1'b0),
+          .q         (rst_status)
+       );
+    end
+    endgenerate
 
-generate
-if( `FAMILY == "Stratix 10" ) begin
-    alt_e100s10_reset_synchronizer  rst_status_sync (
-        .aclr       (i_arst),
-        .clk        (i_clk_status),
-        .aclr_sync  (rst_status)
-    );
-end
-else begin
-    alt_ehipc3_fm_reset_synchronizer rst_status_sync (
-        .aclr       (i_arst),
-        .clk        (i_clk_status),
-        .aclr_sync  (rst_status)
-    );
-end
-endgenerate 
+
     alt_e100s10_ready_skid #(
         .WIDTH  (1+1+1+6+512)  // sop, eop, empty, data
     ) output_skid (
@@ -314,49 +326,49 @@ endgenerate
     );
 
     logic [3:0] tx_ctrls;
+    generate
+    if( `FAMILY == "Stratix 10" ) begin
+       alt_e100s10_status_sync #(
+          .WIDTH (4)
+       ) ss0 (
+          .clk   (i_clk_tx),
+          .din(tx_ctrls),
+          .dout({mlb_select, rom_idle, packet_gen_idle, tx_src_select})
+       );
 
-generate
-if( `FAMILY == "Stratix 10" ) begin
-    alt_e100s10_status_sync
-    #(
-        .WIDTH  (4)
-    ) ss0 (
-        .clk(i_clk_tx),
-        .din(tx_ctrls),
-        .dout({mlb_select, rom_idle, packet_gen_idle, tx_src_select})
-    );
+       alt_e100s10_status_sync #(
+          .WIDTH (4)
+       ) ss1 (
+          .clk(i_clk_rx),
+          .din(tx_ctrls),
+          .dout({mlb_select_rxclk, rom_idle_rxclk, packet_gen_idle_rxclk, tx_src_select_rxclk})
+       );
 
-    alt_e100s10_status_sync
-    #(
-        .WIDTH  (4)
-    ) ss1 (
-        .clk(i_clk_rx),
-        .din(tx_ctrls),
-        .dout({mlb_select_rxclk, rom_idle_rxclk, packet_gen_idle_rxclk, tx_src_select_rxclk})
-    );
+       end else begin
+           fim_resync #(
+               .SYNC_CHAIN_LENGTH (3),  // Number of flip-flops for retiming. Must be >1
+               .WIDTH             (4),
+               .TURN_OFF_ADD_PIPELINE (0)
+           ) ss0 (
+               .clk   (i_clk_tx),
+               .reset (1'b0),
+               .d     (tx_ctrls),
+               .q     ({mlb_select, rom_idle, packet_gen_idle, tx_src_select})
+           );
+  
+           fim_resync #(
+               .SYNC_CHAIN_LENGTH (3),  // Number of flip-flops for retiming. Must be >1
+               .WIDTH             (4),
+               .TURN_OFF_ADD_PIPELINE (0)
+           ) ss1 (
+               .clk   (i_clk_tx),
+               .reset (1'b0),
+               .d     (tx_ctrls),
+               .q     ({mlb_select_rxclk, rom_idle_rxclk, packet_gen_idle_rxclk, tx_src_select_rxclk})
+           );
+       end
+     endgenerate
 
-end
-else begin
-    alt_ehipc3_fm_status_sync
-    #(
-        .WIDTH  (4)
-    ) ss0 (
-        .clk(i_clk_tx),
-        .din(tx_ctrls),
-        .dout({mlb_select, rom_idle, packet_gen_idle, tx_src_select})
-    );
-
-        alt_ehipc3_fm_status_sync
-    #(
-        .WIDTH  (4)
-    ) ss1 (
-        .clk(i_clk_rx),
-        .din(tx_ctrls),
-        .dout({mlb_select_rxclk, rom_idle_rxclk, packet_gen_idle_rxclk, tx_src_select_rxclk})
-    );
-
-end
-endgenerate
  // ___________________________________________________________________________________________
  //      Performance Indicator Logic
  // ___________________________________________________________________________________________

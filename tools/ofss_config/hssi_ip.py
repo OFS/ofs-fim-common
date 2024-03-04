@@ -53,12 +53,12 @@ class HSSI(OFS):
         Abort if violation
         """
         upper_bound = {
-            "10GbE": 16,
-            "25GbE": 8,
-            "100GAUI-2": 4,
-            "100GCAUI-4": 4,
-            "200GAUI-4": 2,
-            "400GAUI-8": 1,
+            "10GbE": 20,
+            "25GbE": 20,
+            "100GAUI-2": 5,
+            "100GCAUI-4": 5,
+            "200GAUI-4": 3,
+            "400GAUI-8": 2,
         }
         if self.data_rate not in upper_bound.keys():
             self._errorExit(

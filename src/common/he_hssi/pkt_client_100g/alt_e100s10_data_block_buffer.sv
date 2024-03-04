@@ -99,36 +99,40 @@ module alt_e100s10_data_block_buffer #(
         end
     end
 
-generate
-if(`FAMILY == "Stratix 10") begin 
-    alt_e100s10_mlab  #(
-        .WIDTH      (WIDTH),
-        .ADDR_WIDTH (5),
-        .SIM_EMULATE(SIM_EMULATE)
-    ) mem0 (
-        .wclk       (i_clk),
-        .wdata_reg  (i_data),
-        .wena       (i_valid),
-        .waddr_reg  (wptr),
-        .raddr      (rptr),
-        .rdata      (read_data)
-    );
-end
-else begin 
-    alt_ehipc3_fm_mlab #(
-        .WIDTH      (WIDTH),
-        .ADDR_WIDTH (5),
-        .SIM_EMULATE(SIM_EMULATE)
-    ) mem0 (
-        .wclk       (i_clk),
-        .wdata_reg  (i_data),
-        .wena       (i_valid),
-        .waddr_reg  (wptr),
-        .raddr      (rptr),
-        .rdata      (read_data)
-    );
-end 
-endgenerate 
+    generate
+    if(`FAMILY == "Stratix 10") begin 
+        alt_e100s10_mlab  #(
+            .WIDTH      (WIDTH),
+            .ADDR_WIDTH (5),
+            .SIM_EMULATE(SIM_EMULATE)
+        ) mem0 (
+            .wclk       (i_clk),
+            .wdata_reg  (i_data),
+            .wena       (i_valid),
+            .waddr_reg  (wptr),
+            .raddr      (rptr),
+            .rdata      (read_data)
+        );
+    end
+    else begin 
+        `ifdef INCLUDE_FTILE
+           intc_mlab #(
+        `else
+           alt_ehipc3_fm_mlab #(
+        `endif 
+               .WIDTH      (WIDTH),
+               .ADDR_WIDTH (5),
+               .SIM_EMULATE(SIM_EMULATE)
+           ) mem0 (
+               .wclk       (i_clk),
+               .wdata_reg  (i_data),
+               .wena       (i_valid),
+               .waddr_reg  (wptr),
+               .raddr      (rptr),
+               .rdata      (read_data)
+           );
+    end 
+    endgenerate 
 
     always_ff @(posedge i_clk) begin
         o_data  <= read_data;

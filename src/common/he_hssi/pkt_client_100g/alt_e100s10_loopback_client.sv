@@ -42,22 +42,27 @@ module alt_e100s10_loopback_client #(
     always_ff @(posedge i_clk_r) begin
     end
 
-generate
-if(`FAMILY == "Stratix 10" ) begin 
-    alt_e100s10_reset_synchronizer  reset_sync_read (
-        .clk       (i_clk_r),
-        .aclr      (i_arst),
-        .aclr_sync (r_reset)
-    );
-end
-else begin
-    alt_ehipc3_fm_reset_synchronizer reset_sync_read (
-        .clk       (i_clk_r),
-        .aclr      (i_arst),
-        .aclr_sync (r_reset)
-    );
-end
-endgenerate
+    generate
+    if(`FAMILY == "Stratix 10" ) begin 
+        alt_e100s10_reset_synchronizer  reset_sync_read (
+           .clk   (i_clk_r),
+           .aclr      (i_arst),
+           .aclr_sync (r_reset)
+        );
+    end
+    else begin
+        fim_resync #( 
+            .INIT_VALUE            (1),
+            .SYNC_CHAIN_LENGTH     (3),
+            .TURN_OFF_ADD_PIPELINE (0)
+        ) reset_sync_read (
+            .clk   (i_clk_r),
+            .reset (i_arst),
+            .d     (1'b0),
+            .q     (r_reset)
+        );
+    end
+   endgenerate
 
     alt_e100s10_data_synchronizer #(
         .SIM_EMULATE    (SIM_EMULATE)

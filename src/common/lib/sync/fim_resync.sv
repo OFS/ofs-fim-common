@@ -23,10 +23,11 @@
 `timescale 1ps / 1ps 
 
 module fim_resync #(
-   parameter SYNC_CHAIN_LENGTH = 2,  // Number of flip-flops for retiming. Must be >1
-   parameter WIDTH             = 1,  // Number of bits to resync
-   parameter INIT_VALUE        = 0,
-   parameter NO_CUT		= 1	  // See description above
+   parameter SYNC_CHAIN_LENGTH     = 2,  // Number of flip-flops for retiming. Must be >1
+   parameter WIDTH                 = 1,  // Number of bits to resync
+   parameter INIT_VALUE            = 0,
+   parameter NO_CUT                = 1,  // See description above
+   parameter TURN_OFF_ADD_PIPELINE = 1
 )(
    input  logic              clk,
    input  logic              reset,
@@ -55,7 +56,7 @@ generate
       if (NO_CUT == 0) begin
          // Synchronizer with embedded set_false_path SDC
          altera_std_synchronizer #(
-            .depth(INT_LEN)				
+            .depth(INT_LEN)
          ) synchronizer (
             .clk      (clk),
             .reset_n  (~reset),
@@ -63,7 +64,7 @@ generate
             .dout     (sync_q_out)
          );
          
-         //synthesis translate_off			
+         //synthesis translate_off
          initial begin
             synchronizer.dreg = {(INT_LEN-1){1'b0}};
             synchronizer.din_s1 = 1'b0;
@@ -72,8 +73,9 @@ generate
 
       end else begin
          // Synchronizer WITHOUT embedded set_false_path SDC
-         altera_std_synchronizer_nocut #(
-            .depth(INT_LEN)
+         ofs_std_synchronizer_nocut #(
+            .depth(INT_LEN),
+            .turn_off_add_pipeline(TURN_OFF_ADD_PIPELINE)
          ) synchronizer_nocut (
             .clk      (clk),
             .reset_n  (~reset),
@@ -86,7 +88,7 @@ generate
             synchronizer_nocut.dreg = {(INT_LEN-1){1'b0}};
             synchronizer_nocut.din_s1 = 1'b0;
          end
-         //synthesis translate_on	
+         //synthesis translate_on
       end
    end // for loop
 endgenerate

@@ -21,39 +21,42 @@ module alt_e100s10_data_synchronizer #(
     logic           r_reset;
     logic   [0:8]   w_reset_reg;    /* synthesis dont_merge */
 
-generate 
-if(`FAMILY == "Stratix 10") begin 
-    alt_e100s10_reset_synchronizer rsw (
-        .clk        (i_clk_w),
-        .aclr       (i_arst),
-        .aclr_sync  (w_reset)
-    );
-end
-else   begin    
-    alt_ehipc3_fm_reset_synchronizer rsw (
-        .clk        (i_clk_w),
-        .aclr       (i_arst),
-        .aclr_sync  (w_reset)
-    );
-end
-endgenerate
-
-generate
-if(`FAMILY == "Stratix 10") begin 
-    alt_e100s10_reset_synchronizer  rsr (
-        .clk        (i_clk_r),
-        .aclr       (i_arst),
-        .aclr_sync  (r_reset)
-    );
-end
-else begin 
-    alt_ehipc3_fm_reset_synchronizer rsr (
-        .clk        (i_clk_r),
-        .aclr       (i_arst),
-        .aclr_sync  (r_reset)
-    );
-end
-endgenerate
+    generate 
+    if(`FAMILY == "Stratix 10") begin 
+       alt_e100s10_reset_synchronizer rsw (
+          .clk       (i_clk_w),
+          .aclr      (i_arst),
+          .aclr_sync (w_reset)
+       );
+       alt_e100s10_reset_synchronizer  rsr (
+          .clk      (i_clk_r),
+          .aclr     (i_arst),
+          .aclr_sync(r_reset)
+       );        
+    end else begin
+       fim_resync #(
+         .INIT_VALUE            (1),
+         .SYNC_CHAIN_LENGTH     (3),
+         .TURN_OFF_ADD_PIPELINE (0)
+       ) rsw (
+          .clk   (i_clk_w),
+          .reset (i_arst),
+          .d     (1'b0),
+          .q     (w_reset)
+       );
+ 
+       fim_resync #(
+         .INIT_VALUE            (1),
+         .SYNC_CHAIN_LENGTH     (3),
+         .TURN_OFF_ADD_PIPELINE (0)
+       ) rsr (
+          .clk   (i_clk_r),
+          .reset (i_arst),
+          .d     (1'b0),
+          .q     (r_reset)
+       );
+    end
+    endgenerate
 
     logic   [0:519] i_data_reg;
     logic   [0:8]   i_valid_reg;    /* synthesis dont_merge */
@@ -99,35 +102,39 @@ endgenerate
                 end
             end
 
-if(`FAMILY == "Stratix 10") begin
-            alt_e100s10_mlab  #(
-                .WIDTH      (65),
-                .ADDR_WIDTH (5),
-                .SIM_EMULATE(SIM_EMULATE)
-            ) mem (
-                .wclk       (i_clk_w),
-                .wdata_reg  (i_data_reg[65*i+:65]),
-                .wena       (1'b1),
-                .waddr_reg  (wptr[i]),
-                .raddr      (rptr[i]),
-                .rdata      (read_data[65*i+:65])
-            );
-end
-else begin
-            alt_ehipc3_fm_mlab  #(
-                .WIDTH      (65),
-                .ADDR_WIDTH (5),
-                .SIM_EMULATE(SIM_EMULATE)
-            ) mem (
-                .wclk       (i_clk_w),
-                .wdata_reg  (i_data_reg[65*i+:65]),
-                .wena       (1'b1),
-                .waddr_reg  (wptr[i]),
-                .raddr      (rptr[i]),
-                .rdata      (read_data[65*i+:65])
-            );
-end
-end
+            if(`FAMILY == "Stratix 10") begin
+                        alt_e100s10_mlab  #(
+                            .WIDTH      (65),
+                            .ADDR_WIDTH (5),
+                            .SIM_EMULATE(SIM_EMULATE)
+                        ) mem (
+                            .wclk       (i_clk_w),
+                            .wdata_reg  (i_data_reg[65*i+:65]),
+                            .wena       (1'b1),
+                            .waddr_reg  (wptr[i]),
+                            .raddr      (rptr[i]),
+                            .rdata      (read_data[65*i+:65])
+                        );
+            end
+            else begin
+                        `ifdef INCLUDE_FTILE
+                           intc_mlab #(
+                        `else
+                           alt_ehipc3_fm_mlab #(
+                        `endif 
+                            .WIDTH      (65),
+                            .ADDR_WIDTH (5),
+                            .SIM_EMULATE(SIM_EMULATE)
+                        ) mem (
+                            .wclk       (i_clk_w),
+                            .wdata_reg  (i_data_reg[65*i+:65]),
+                            .wena       (1'b1),
+                            .waddr_reg  (wptr[i]),
+                            .raddr      (rptr[i]),
+                            .rdata      (read_data[65*i+:65])
+                        );
+            end
+       end
 
         always_ff @(posedge i_clk_r) begin
             o_data <= read_data;
