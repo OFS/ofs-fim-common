@@ -186,6 +186,44 @@ There is no need to run generate_pr_release.sh if you have already passed -p to 
 
 Like the in-tree flow, PR compilation may either be driven by a script ($OPAE_PLATFORM_ROOT/bin/afu_synth) or by the standard flow in the Quartus GUI. Both produce a GBS file, compute the target user clock frequency and produce a timing report.
 
+## Debugging with Signal Tap
+
+Signal Tap nodes may be generated for both FIM base regions and PR regions. In some modes, both FIM and PR regions can be tapped simultaneously by running two copies of quartus_stpw. When both FIM and PR are tapped using JTAG, the two instances are independent despite sharing the same cable.
+
+Signal Tap can be enabled in FIM base builds using standard Quartus flows. Open Signal Tap Logic Analyzer in Quartus, pick a FIM clock and signals to tap.
+
+OFS defines a Signal Tap controller in the port gasket that can be used to monitor state inside afu_main\(\) in the PR region. The PR Signal Tap controller can be connected either as a node in the JTAG chain or through a bridge over PCIe. Signal Tap for PR is connected via JTAG when the Verilog macro INCLUDE_JTAG_PR_STP is set in the base FIM's ofs_top.qsf. This is the default for most boards. To connect through PCIe, disable INCLUDE_JTAG_PR_STP and instead set INCLUDE_REMOTE_STP. When debugging PCIe problems, the JTAG version is often the better choice since it is not dependent on the PCIe link to export data.
+
+Once a FIM is compiled with either macro the normal Quartus Signal Tap flow can be used in PR projects.
+
+When INCLUDE_JTAG_PR_STP is set, run quartus_stpw and connect to the JTAG chain using a USB blaster. Note: setting the cable in Signal Tap's hardware dropdown is not sufficient! You must also set the bridge index, most likely to 0. The JTAG chain may have multiple Signal Tap nodes when both FIM and PR regions are active. For example:
+
+```
+Agilex_5E MDK Carrier [1-12.1]
+  0364F0DD   A5E(C065BB32AR0|D065BB32AR0) (IR=10)
+    Design hash    136895C63E26EDD8A6B4
+    + Node 30006E00  Signal Tap #0                  <-- FIM instance
+    + Node 10186E00  ROM/RAM/Constant #0
+    + Node 10186E01  ROM/RAM/Constant #1
+    + Node 07F86E00  Bridge #0
+       Design hash    136895C63E26EDD8A6B4
+       + Node 30006E00  Signal Tap #0               <-- PR instance on bridge 0
+```
+
+When INCLUDE_REMOTE_STP is set, the mmlink program from OPAE-SDK must be run on the host as a bridge:
+
+```bash
+sudo mmlink -P 3333 -B <FPGA PCIe bus, e.g. 0xab>
+```
+
+Add the link as a virtual JTAG cable with:
+
+```bash
+jtagconfig --add JTAG-over-protocol sti://localhost:0/intel/remote-debug/127.0.0.1:3333/0
+```
+
+and then run quartus_stpw, connecting to the virtual cable.
+
 ## Managing Platform Designer IP
 
 OFS projects point to copies of IP and QSYS files, located in ../ip_lib/ relative to a project directory. This shadow copy avoids polluting git repositories with content generated from IP files such as simulation RTL. The copy is also required in order to keep the root directory of Quartus archives within the project subtree, due to the way Quartus maps IP sources to absolute paths.

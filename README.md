@@ -28,8 +28,7 @@ Contained in this directory are the following:
       - FPGA Management Engine (FME) (***src/common/fme***): Supporting data structures, CSR definitions, and RTL for AXI Bus interface.
       - FME Identification ROM (***src/common/fme\_id\_rom***): ROM containing identification information for driver and host software.
       - Host Exerciser (HE) High-Speed Serial Interface (HSSI) (***src/common/he\_hssi***): This directory contains a variety of code and supporting resources related to the Ethernet interface and the host exerciser logic associated with it.
-      - Host Exerciser (HE) Loopback (LB) (***src/common/he\_lb***): The Host Exerciser Loopback AFU is a traffic generator that can be attached both to host memory, often over PCIe, and to local memory, such as board-attached DDR. It can test the correctness and throughput of memory channels.
-* [Host Exerciser Loopback README](src/common/he_lb/README.md) Thorough description of the Host Exerciser and its subdirectories.
+      - [Host Exerciser (HE) Loopback (LB)](src/common/he_lb/README.md) (***src/common/he\_lb***): The Host Exerciser Loopback AFU is a traffic generator that can be attached both to host memory, often over PCIe, and to local memory, such as board-attached DDR. It can test the correctness and throughput of memory channels.
       - Host Exerciser (HE) Null (***src/common/he\_null***): The Host Exercisor Null is a very basic "null" termination block for the AFU.
       - Includes Directory (***src/common/includes***): This directory contains a variety of common packages, interfaces, and defines that are used throughout the FIM design.
       - MSIX Interrupts (***src/common/interrupt***): Code supporting the MSIX interrupt implementation in the FIM is located in this directory.
