@@ -90,6 +90,23 @@ fi
 (cd "${WORK_DIR}" && rm -f quartus_proj_dir &&
      ln -s $(realpath --relative-to=. "${WORK_SYN_TOP_PATH}") quartus_proj_dir)
 
+# When WORK_SYN_BOARDS_DIR and OFS_BOARD_CORE are both set, the project
+# is being built in a directory that contains multiple boards. Remove
+# all other boards to keep the environment clean. The result will be the
+# same with or without these other board directories, but the work tree
+# would be confusing.
+if [[ ! -z "${WORK_SYN_BOARDS_DIR}" && ! -z "${OFS_BOARD_CORE}" ]]; then
+    cd ${WORK_SYN_BOARDS_DIR}
+    for d in *; do
+        if [ -d "${d}" ]; then
+            if [ "${d}" != "${OFS_BOARD_CORE}" ]; then
+                echo "Dropping other board directory: ${WORK_SYN_BOARDS_DIR}/${d}"
+                rm -rf ${d}
+            fi
+        fi
+    done
+fi
+
 # change dir into the directory where the quartus project is.
 cd ${WORK_SYN_TOP_PATH}
 chk_exit_code "cd ${WORK_SYN_TOP_PATH}"
