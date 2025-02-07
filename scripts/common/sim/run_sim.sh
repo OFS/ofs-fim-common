@@ -261,7 +261,7 @@ else # VCS and VCS-MX
         $NTB_OPTS \
         $TB_SRC +error+1 -l vlog.log
 
-    vcs -full64 -licqueue +vcs+lic+wait -fastpartcomp=j8 -j4 \
+    vcs -full64 -licqueue +vcs+lic+wait -partcomp -fastpartcomp=j8 -j4 \
         $QUARTUS_ROOTDIR/eda/sim_lib/quartus_dpi.c \
         $QUARTUS_ROOTDIR/eda/sim_lib/simsf_dpi.cpp \
         +lint=TFIPC-L \

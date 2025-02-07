@@ -140,14 +140,18 @@ mem_ss_tg tg_inst (
 			             csr_cfg.writedata});
 
    logic cfg_ccb_in_valid;
-   logic [CFG_CCB_WIDTH-1:0] cfg_ccb_in_data;
+   logic [CFG_CCB_WIDTH-1:0] cfg_ccb_in_data, cfg_ccb_in_data_d;
+
+   always_comb begin
+      cfg_ccb_in_data_d =  {csr_cfg.read,
+                            csr_cfg.write,
+                            csr_cfg.address,
+                            csr_cfg.writedata};
+   end
 
    always_ff @(posedge csr_cfg.clk) begin
       cfg_ccb_in_valid <= cfg_ccb_enq;
-      cfg_ccb_in_data <= {csr_cfg.read,
-		          csr_cfg.write,
-		          csr_cfg.address,
-		          csr_cfg.writedata};
+      cfg_ccb_in_data  <= cfg_ccb_in_data_d;
    end
 
    logic csr_cfg_waitrequest;
