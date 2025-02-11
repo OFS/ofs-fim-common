@@ -17,6 +17,12 @@ package qph_user_clk_pkg;
    typedef struct packed {
       logic [1:0]  seq;    //  2-bit: Seq
       logic        write;  //  1-bit: Write
+      logic        mask;   //  1-bit: Data is a mask to be applied to future data.
+                           //         When set, the receiver should latch data and use it
+                           //         to mask future writes. No seq update is expected.
+                           //         Unlike a write, no response is expected and the
+                           //         sequence number is ignored (not updated). Masks
+                           //         are used on only a subset of supported IOPLLs.
       logic [9:0]  addr;   // 10-bit: Address
       logic [31:0] data;   // 32-bit: Data
    } t_rcfg_ctrl;

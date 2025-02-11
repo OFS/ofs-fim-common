@@ -54,7 +54,18 @@ import fme_csr_pkg::*;
 //----------------------------------------------------------------------------
 //....[63:0 packed width].....reg[10:0 - #Features   ][22:0 - #Regs in Feature]  <<= Unpacked dimensions.
 
-localparam USER_CLK_MINOR_REV = (AGILEX == 1) ? 4'h1 : 4'h0; 
+// User clock feature's revision indicates the protocol for updating the clock.
+`ifdef CONFIG_AGILEX5
+   // Revision 2 of the user clock CSR interface is a generic read-modify-write protocol.
+   // Software sends a 32 bit register's address, data and write mask. Only the masked
+   // bits are updated. The actual device (e.g. Agilex 5) is read from a CSR within the
+   // OFS user clock manager.
+   localparam USER_CLK_MINOR_REV = 4'h2;
+`else
+   // Agilex 7 is revision 1, Stratix 10 is 0.
+   localparam USER_CLK_MINOR_REV = (AGILEX == 1) ? 4'h1 : 4'h0;
+`endif
+
 logic [CSR_REG_WIDTH-1:0]   csr_reg     [PG_CSR_FEATURE_NUM-1:0][PG_CSR_FEATURE_REG_NUM-1:0];   // CSR Registers
 logic                       csr_write   [PG_CSR_FEATURE_NUM-1:0][PG_CSR_FEATURE_REG_NUM-1:0];   // Arrayed like the CSR registers
 

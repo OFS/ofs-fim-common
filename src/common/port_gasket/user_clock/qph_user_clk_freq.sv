@@ -82,6 +82,11 @@ always @(posedge clk) begin
    timebase      <= timebase + 18'b1;
    reset_counter <= ~|timebase;
    latch_output  <= &(timebase ~^ ETIME_CYCLES);
+
+   if (~rst_n) begin
+      timebase <= '0;
+      latch_output <= 1'b0;
+   end
 end
 
 // 16x prescaler
