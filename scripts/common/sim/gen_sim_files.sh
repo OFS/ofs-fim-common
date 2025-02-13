@@ -493,7 +493,7 @@ echo "**** Done generating simulation setup for $OFS_TARGET ****"
 echo "**** Generating filelist for $OFS_TARGET ****"
 
 python $SCRIPT_DIR/gen_sim_filelist.py --qsys_list="$SIM_SETUP_DIR/generated_ip_flist.f" --output_file="$SIM_SETUP_DIR/ip_flist.sh"
-python ${OFS_ROOTDIR}/sim/bfm/ofs_axis_bfm/gen_pfvf_def_pkg.py
+python ${OFS_ROOTDIR}/ofs-common/sim/bfm/ofs_axis_bfm/gen_pfvf_def_pkg.py
 
 
 if [ $? -ne 0 ]; then
