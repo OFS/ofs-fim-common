@@ -27,9 +27,9 @@ set fh [open "design_files.txt" w]
 
 # Using the TCL procedures from the IP VCS simulation script
 # to collect the IP filelist 
-set memory_files [${ip}::get_memory_files "\$QSYS_SIMDIR"]
+set memory_files [${ip}::get_memory_files "\$QSYS_SIMDIR" "\$QUARTUS_INSTALL_DIR"]
 set common_design_files [dict values [${ip}::get_common_design_files "\$QSYS_SIMDIR"]]
-set design_files [dict values [${ip}::get_design_files "\$QSYS_SIMDIR"]]
+set design_files [dict values [${ip}::get_design_files "\$QSYS_SIMDIR" "\$QUARTUS_INSTALL_DIR"]]
 
 # Write memory initialization files to memory_files.txt
 foreach file $memory_files { 

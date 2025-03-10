@@ -1,20 +1,29 @@
 <?xml version="1.0" ?>
-<!--
-  Copyright (C) 2023-2024 Intel Corporation
-  SPDX-License-Identifier: MIT
-  -->
+<!--Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.-->
 <ipxact:component xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
-  <ipxact:vendor>Intel Corporation</ipxact:vendor>
+  <ipxact:vendor>Altera</ipxact:vendor>
   <ipxact:library>qph_user_clk_iopll_reconfig</ipxact:library>
   <ipxact:name>iopll_reconfig_0</ipxact:name>
   <ipxact:version>19.4.0</ipxact:version>
   <ipxact:busInterfaces>
     <ipxact:busInterface>
       <ipxact:name>mgmt_clk</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="clock" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="clock" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="clock" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="clock" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -48,10 +57,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>mgmt_reset</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="reset" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="reset" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="reset" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="reset" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -80,10 +89,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>mgmt_avalon_slave</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -323,6 +332,11 @@
           <ipxact:displayName>Waitrequest allowance</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
+        <ipxact:parameter parameterId="waitrequestTimeout" type="int">
+          <ipxact:name>waitrequestTimeout</ipxact:name>
+          <ipxact:displayName>Waitrequest Timeout</ipxact:displayName>
+          <ipxact:value>1024</ipxact:value>
+        </ipxact:parameter>
         <ipxact:parameter parameterId="wellBehavedWaitrequest" type="bit">
           <ipxact:name>wellBehavedWaitrequest</ipxact:name>
           <ipxact:displayName>Well-behaved waitrequest</ipxact:displayName>
@@ -348,7 +362,7 @@
           <ipxact:displayName>Feature GUID</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhGroupId" type="int">
+        <ipxact:parameter parameterId="dfhGroupId" type="longint">
           <ipxact:name>dfhGroupId</ipxact:name>
           <ipxact:displayName>Group ID</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
@@ -370,7 +384,7 @@
         </ipxact:parameter>
         <ipxact:parameter parameterId="dfhParameterData" type="string">
           <ipxact:name>dfhParameterData</ipxact:name>
-          <ipxact:displayName>Data</ipxact:displayName>
+          <ipxact:displayName>Data (HEX/DEC)</ipxact:displayName>
           <ipxact:value></ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="dfhParameterDataLength" type="string">
@@ -378,20 +392,25 @@
           <ipxact:displayName>Data length</ipxact:displayName>
           <ipxact:value></ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhFeatureMajorVersion" type="int">
+        <ipxact:parameter parameterId="dfhFeatureMajorVersion" type="longint">
           <ipxact:name>dfhFeatureMajorVersion</ipxact:name>
           <ipxact:displayName>Feature major version</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhFeatureMinorVersion" type="int">
+        <ipxact:parameter parameterId="dfhFeatureMinorVersion" type="longint">
           <ipxact:name>dfhFeatureMinorVersion</ipxact:name>
           <ipxact:displayName>Feature minor version</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhFeatureId" type="int">
+        <ipxact:parameter parameterId="dfhFeatureId" type="longint">
           <ipxact:name>dfhFeatureId</ipxact:name>
           <ipxact:displayName>Feature ID</ipxact:displayName>
           <ipxact:value>35</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="dfhFeatureType" type="longint">
+          <ipxact:name>dfhFeatureType</ipxact:name>
+          <ipxact:displayName>Feature Type</ipxact:displayName>
+          <ipxact:value>3</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
       <ipxact:vendorExtensions>
@@ -419,10 +438,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>reconfig_to_pll</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="conduit" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="conduit" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -466,10 +485,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>reconfig_from_pll</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="conduit" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="conduit" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -684,7 +703,7 @@
   </ipxact:model>
   <ipxact:vendorExtensions>
     <altera:entity_info>
-      <ipxact:vendor>Intel Corporation</ipxact:vendor>
+      <ipxact:vendor>Altera</ipxact:vendor>
       <ipxact:library>qph_user_clk_iopll_reconfig</ipxact:library>
       <ipxact:name>altera_iopll_reconfig</ipxact:name>
       <ipxact:version>19.4.0</ipxact:version>
@@ -710,6 +729,11 @@
           <ipxact:name>gui_avalon_addr_width</ipxact:name>
           <ipxact:displayName>Desired input address width</ipxact:displayName>
           <ipxact:value>10</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="device_opn" type="string">
+          <ipxact:name>device_opn</ipxact:name>
+          <ipxact:displayName>device_opn</ipxact:displayName>
+          <ipxact:value>1SX280HN2F43E2VG</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_reconfig_mif_filename" type="string">
           <ipxact:name>gui_reconfig_mif_filename</ipxact:name>
@@ -818,6 +842,11 @@
         <ipxact:parameter parameterId="dflBitArray" type="string">
           <ipxact:name>dflBitArray</ipxact:name>
           <ipxact:displayName>dflBitArray</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="cpuInfo" type="string">
+          <ipxact:name>cpuInfo</ipxact:name>
+          <ipxact:displayName>cpuInfo</ipxact:displayName>
           <ipxact:value></ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>

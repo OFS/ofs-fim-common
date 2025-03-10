@@ -1,20 +1,29 @@
 <?xml version="1.0" ?>
-<!--
-  Copyright (C) 2023-2024 Intel Corporation
-  SPDX-License-Identifier: MIT
-  -->
+<!--Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and any partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details, at
+https://fpgasoftware.intel.com/eula.-->
 <ipxact:component xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
   <ipxact:vendor>Intel Corporation</ipxact:vendor>
   <ipxact:library>jop_blaster</ipxact:library>
   <ipxact:name>jop_blaster</ipxact:name>
-  <ipxact:version>1.1.0</ipxact:version>
+  <ipxact:version>1.2.2</ipxact:version>
   <ipxact:busInterfaces>
     <ipxact:busInterface>
       <ipxact:name>clk</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="clock" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="clock" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="clock" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="clock" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -48,10 +57,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>reset</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="reset" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="reset" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="reset" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="reset" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -80,10 +89,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>jtag_clock</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="clock" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="clock" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="clock" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="clock" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -127,10 +136,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>jtag_signals</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="conduit" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="conduit" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="conduit" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -188,10 +197,10 @@
     </ipxact:busInterface>
     <ipxact:busInterface>
       <ipxact:name>avmm_s</ipxact:name>
-      <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+      <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:abstractionRef>
+          <ipxact:abstractionRef vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:abstractionRef>
           <ipxact:portMaps>
             <ipxact:portMap>
               <ipxact:logicalPort>
@@ -276,7 +285,9 @@
           </ipxact:portMaps>
         </ipxact:abstractionType>
       </ipxact:abstractionTypes>
-      <ipxact:slave></ipxact:slave>
+      <ipxact:slave>
+        <ipxact:memoryMapRef memoryMapRef="avmm_s"></ipxact:memoryMapRef>
+      </ipxact:slave>
       <ipxact:parameters>
         <ipxact:parameter parameterId="addressAlignment" type="string">
           <ipxact:name>addressAlignment</ipxact:name>
@@ -463,6 +474,11 @@
           <ipxact:displayName>Waitrequest allowance</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
+        <ipxact:parameter parameterId="waitrequestTimeout" type="int">
+          <ipxact:name>waitrequestTimeout</ipxact:name>
+          <ipxact:displayName>Waitrequest Timeout</ipxact:displayName>
+          <ipxact:value>1024</ipxact:value>
+        </ipxact:parameter>
         <ipxact:parameter parameterId="wellBehavedWaitrequest" type="bit">
           <ipxact:name>wellBehavedWaitrequest</ipxact:name>
           <ipxact:displayName>Well-behaved waitrequest</ipxact:displayName>
@@ -488,7 +504,7 @@
           <ipxact:displayName>Feature GUID</ipxact:displayName>
           <ipxact:value>282714597958528173551195778365647100945</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhGroupId" type="int">
+        <ipxact:parameter parameterId="dfhGroupId" type="longint">
           <ipxact:name>dfhGroupId</ipxact:name>
           <ipxact:displayName>Group ID</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
@@ -510,7 +526,7 @@
         </ipxact:parameter>
         <ipxact:parameter parameterId="dfhParameterData" type="string">
           <ipxact:name>dfhParameterData</ipxact:name>
-          <ipxact:displayName>Data</ipxact:displayName>
+          <ipxact:displayName>Data (HEX/DEC)</ipxact:displayName>
           <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="dfhParameterDataLength" type="string">
@@ -518,20 +534,25 @@
           <ipxact:displayName>Data length</ipxact:displayName>
           <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhFeatureMajorVersion" type="int">
+        <ipxact:parameter parameterId="dfhFeatureMajorVersion" type="longint">
           <ipxact:name>dfhFeatureMajorVersion</ipxact:name>
           <ipxact:displayName>Feature major version</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhFeatureMinorVersion" type="int">
+        <ipxact:parameter parameterId="dfhFeatureMinorVersion" type="longint">
           <ipxact:name>dfhFeatureMinorVersion</ipxact:name>
           <ipxact:displayName>Feature minor version</ipxact:displayName>
           <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
-        <ipxact:parameter parameterId="dfhFeatureId" type="int">
+        <ipxact:parameter parameterId="dfhFeatureId" type="longint">
           <ipxact:name>dfhFeatureId</ipxact:name>
           <ipxact:displayName>Feature ID</ipxact:displayName>
           <ipxact:value>35</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="dfhFeatureType" type="longint">
+          <ipxact:name>dfhFeatureType</ipxact:name>
+          <ipxact:displayName>Feature Type</ipxact:displayName>
+          <ipxact:value>3</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
       <ipxact:vendorExtensions>
@@ -558,6 +579,747 @@
       </ipxact:vendorExtensions>
     </ipxact:busInterface>
   </ipxact:busInterfaces>
+  <ipxact:memoryMaps>
+    <ipxact:memoryMap>
+      <ipxact:name>avmm_s</ipxact:name>
+      <ipxact:addressBlock>
+        <ipxact:name>intel_st_dbg_if_ip_csr_block</ipxact:name>
+        <ipxact:baseAddress>0x0</ipxact:baseAddress>
+        <ipxact:range>0x41c</ipxact:range>
+        <ipxact:width>32</ipxact:width>
+        <ipxact:usage>register</ipxact:usage>
+        <ipxact:access>read-write</ipxact:access>
+        <ipxact:register>
+          <ipxact:name>rddm_ascii_reg</ipxact:name>
+          <ipxact:displayName>rddm_ascii_reg</ipxact:displayName>
+          <ipxact:description>rddm_ascii_reg</ipxact:description>
+          <ipxact:addressOffset>0x0</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>rddm_ascii</ipxact:name>
+            <ipxact:displayName>rddm_ascii</ipxact:displayName>
+            <ipxact:description>ASCII value for Remote Debug DMA Version</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x5244444d</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>rddm_version_reg</ipxact:name>
+          <ipxact:displayName>rddm_version_reg</ipxact:displayName>
+          <ipxact:description>rddm_version_reg</ipxact:description>
+          <ipxact:addressOffset>0x4</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>rddm_version</ipxact:name>
+            <ipxact:displayName>rddm_version</ipxact:displayName>
+            <ipxact:description>Denotes version number for RDDM</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0xf</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>4</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>soft_reset_loopback_reg</ipxact:name>
+          <ipxact:displayName>soft_reset_loopback_reg</ipxact:displayName>
+          <ipxact:description>soft_reset_loopback_reg</ipxact:description>
+          <ipxact:addressOffset>0x20</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-write</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>soft_reset_h2t_t2h</ipxact:name>
+            <ipxact:displayName>soft_reset_h2t_t2h</ipxact:displayName>
+            <ipxact:description>Resets any packets in transit for H2T/T2H, available slots. 
+			         No effect on mgmt IF</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>internal_loopback_h2t_t2h</ipxact:name>
+            <ipxact:displayName>internal_loopback_h2t_t2h</ipxact:displayName>
+            <ipxact:description>Loops back AVST Sink and Source- available only in debug mode</ipxact:description>
+            <ipxact:bitOffset>1</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>enable_interrupts</ipxact:name>
+            <ipxact:displayName>enable_interrupts</ipxact:displayName>
+            <ipxact:description>Enable Interrupts</ipxact:description>
+            <ipxact:bitOffset>2</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>soft_reset_mgmt</ipxact:name>
+            <ipxact:displayName>soft_reset_mgmt</ipxact:displayName>
+            <ipxact:description>Resets any packets in transit for MGMT, available slots- available only in debug mode</ipxact:description>
+            <ipxact:bitOffset>4</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>internal_loopback_mgmt</ipxact:name>
+            <ipxact:displayName>internal_loopback_mgmt</ipxact:displayName>
+            <ipxact:description>Loops back AVST Sink and Source of MGMT INTF- available only in debug mode</ipxact:description>
+            <ipxact:bitOffset>5</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>h2t_t2h_ext_mem_depth_reg</ipxact:name>
+          <ipxact:displayName>h2t_t2h_mem_depth_reg</ipxact:displayName>
+          <ipxact:description>h2t_t2h_mem_depth_reg</ipxact:description>
+          <ipxact:addressOffset>0x24</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>h2t_t2h_ext_mem_depth</ipxact:name>
+            <ipxact:displayName>h2t_t2h_ext_mem_depth</ipxact:displayName>
+            <ipxact:description>External H2T/T2H Memory Depth</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00001000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_ext_mem_depth_reg</ipxact:name>
+          <ipxact:displayName>mgmt_mem_depth_reg</ipxact:displayName>
+          <ipxact:description>mgmt_mem_depth_reg</ipxact:description>
+          <ipxact:addressOffset>0x28</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_ext_mem_depth</ipxact:name>
+            <ipxact:displayName>mgmt_ext_mem_depth</ipxact:displayName>
+            <ipxact:description>External MGMT Memory Depth</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000020</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>h2t_t2h_descriptor_depth_reg</ipxact:name>
+          <ipxact:displayName>h2t_t2h_descriptor_depth_reg</ipxact:displayName>
+          <ipxact:description>h2t_t2h_descriptor_depth_reg</ipxact:description>
+          <ipxact:addressOffset>0x2c</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>h2t_t2h_descriptor_depth</ipxact:name>
+            <ipxact:displayName>h2t_t2h_descriptor_depth</ipxact:displayName>
+            <ipxact:description>H2T/T2H Descriptor Depth</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000020</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_descriptor_depth_reg</ipxact:name>
+          <ipxact:displayName>mgmt_descriptor_depth_reg</ipxact:displayName>
+          <ipxact:description>mgmt_descriptor_depth_reg</ipxact:description>
+          <ipxact:addressOffset>0x30</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_descriptor_depth</ipxact:name>
+            <ipxact:displayName>mgmt_descriptor_depth</ipxact:displayName>
+            <ipxact:description>MGMT Descriptor Depth</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000008</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>interrupt_reg</ipxact:name>
+          <ipxact:displayName>interrupt_reg</ipxact:displayName>
+          <ipxact:description>interrupt_reg</ipxact:description>
+          <ipxact:addressOffset>0x48</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-write</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>int_h2t_xfer</ipxact:name>
+            <ipxact:displayName>int_h2t_xfer</ipxact:displayName>
+            <ipxact:description>Mask H2T transfer interrupt</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x1</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>int_t2h_xfer</ipxact:name>
+            <ipxact:displayName>int_t2h_xfer</ipxact:displayName>
+            <ipxact:description>Mask T2H transfer interrupt</ipxact:description>
+            <ipxact:bitOffset>1</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x1</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>int_mgmt_xfer</ipxact:name>
+            <ipxact:displayName>int_mgmt_xfer</ipxact:displayName>
+            <ipxact:description>Mask MGMT transfer interrupt</ipxact:description>
+            <ipxact:bitOffset>2</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x1</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>int_mgmt_resp_xfer</ipxact:name>
+            <ipxact:displayName>int_mgmt_resp_xfer</ipxact:displayName>
+            <ipxact:description>Mask MGMT RESP transfer interrupt</ipxact:description>
+            <ipxact:bitOffset>3</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x1</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-write</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>h2t_available_slots_reg</ipxact:name>
+          <ipxact:displayName>h2t_available_slots_reg</ipxact:displayName>
+          <ipxact:description>h2t_available_slots_reg</ipxact:description>
+          <ipxact:addressOffset>0x100</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>h2t_available_slots</ipxact:name>
+            <ipxact:displayName>h2t_available_slots</ipxact:displayName>
+            <ipxact:description>Available slots for H2T Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>h2t_packet_length_reg</ipxact:name>
+          <ipxact:displayName>h2t_packet_length_reg</ipxact:displayName>
+          <ipxact:description>h2t_packet_length_reg</ipxact:description>
+          <ipxact:addressOffset>0x108</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>h2t_packet_length</ipxact:name>
+            <ipxact:displayName>h2t_packet_length</ipxact:displayName>
+            <ipxact:description>Length of Packet for H2T Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0x7fffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>31</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>h2t_packet_last_descriptor</ipxact:name>
+            <ipxact:displayName>h2t_packet_last_descriptor</ipxact:displayName>
+            <ipxact:description>Last Descriptor of Packet for H2T Transfer</ipxact:description>
+            <ipxact:bitOffset>31</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>h2t_starting_address_reg</ipxact:name>
+          <ipxact:displayName>h2t_starting_address_reg</ipxact:displayName>
+          <ipxact:description>h2t_starting_address_reg</ipxact:description>
+          <ipxact:addressOffset>0x10c</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>h2t_starting_address</ipxact:name>
+            <ipxact:displayName>h2t_starting_address</ipxact:displayName>
+            <ipxact:description>Starting Address of Packet for H2T Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>h2t_connection_id_reg</ipxact:name>
+          <ipxact:displayName>h2t_connection_id_reg</ipxact:displayName>
+          <ipxact:description>h2t_connection_id_reg</ipxact:description>
+          <ipxact:addressOffset>0x110</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>h2t_connection_id</ipxact:name>
+            <ipxact:displayName>h2t_connection_id</ipxact:displayName>
+            <ipxact:description>Connection ID for H2T Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>h2t_channel_id_reg</ipxact:name>
+          <ipxact:displayName>h2t_channel_id_reg</ipxact:displayName>
+          <ipxact:description>h2t_channel_id_reg</ipxact:description>
+          <ipxact:addressOffset>0x114</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>h2t_channel_id</ipxact:name>
+            <ipxact:displayName>h2t_channel_id</ipxact:displayName>
+            <ipxact:description>Channel ID for H2T Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x000</ipxact:value>
+                <ipxact:mask>0xfff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>12</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>t2h_packet_length_reg</ipxact:name>
+          <ipxact:displayName>t2h_packet_length_reg</ipxact:displayName>
+          <ipxact:description>t2h_packet_length_reg</ipxact:description>
+          <ipxact:addressOffset>0x208</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>t2h_packet_length</ipxact:name>
+            <ipxact:displayName>t2h_packet_length</ipxact:displayName>
+            <ipxact:description>Length of Packet for t2h Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0x7fffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>31</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>t2h_packet_last_descriptor</ipxact:name>
+            <ipxact:displayName>t2h_packet_last_descriptor</ipxact:displayName>
+            <ipxact:description>Last Descriptor of Packet for t2h Transfer</ipxact:description>
+            <ipxact:bitOffset>31</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>t2h_starting_address_reg</ipxact:name>
+          <ipxact:displayName>t2h_starting_address_reg</ipxact:displayName>
+          <ipxact:description>t2h_starting_address_reg</ipxact:description>
+          <ipxact:addressOffset>0x20c</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>t2h_starting_address</ipxact:name>
+            <ipxact:displayName>t2h_starting_address</ipxact:displayName>
+            <ipxact:description>Starting Address of Packet for t2h Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>t2h_connection_id_reg</ipxact:name>
+          <ipxact:displayName>t2h_connection_id_reg</ipxact:displayName>
+          <ipxact:description>t2h_connection_id_reg</ipxact:description>
+          <ipxact:addressOffset>0x210</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>t2h_connection_id</ipxact:name>
+            <ipxact:displayName>t2h_connection_id</ipxact:displayName>
+            <ipxact:description>Connection ID for t2h Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>t2h_channel_id_reg</ipxact:name>
+          <ipxact:displayName>t2h_channel_id_reg</ipxact:displayName>
+          <ipxact:description>t2h_channel_id_reg</ipxact:description>
+          <ipxact:addressOffset>0x214</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>t2h_channel_id</ipxact:name>
+            <ipxact:displayName>t2h_channel_id</ipxact:displayName>
+            <ipxact:description>Channel ID for t2h Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x000</ipxact:value>
+                <ipxact:mask>0xfff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>12</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>t2h_descriptors_done_reg</ipxact:name>
+          <ipxact:displayName>t2h_descriptors_done_reg</ipxact:displayName>
+          <ipxact:description>t2h_descriptors_done_reg</ipxact:description>
+          <ipxact:addressOffset>0x218</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>t2h_descriptors_done</ipxact:name>
+            <ipxact:displayName>t2h_descriptors_done</ipxact:displayName>
+            <ipxact:description>Number of Descriptors Done for t2h Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_available_slots_reg</ipxact:name>
+          <ipxact:displayName>mgmt_available_slots_reg</ipxact:displayName>
+          <ipxact:description>mgmt_available_slots_reg</ipxact:description>
+          <ipxact:addressOffset>0x300</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_available_slots</ipxact:name>
+            <ipxact:displayName>mgmt_available_slots</ipxact:displayName>
+            <ipxact:description>Available slots for MGMT Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_packet_length_reg</ipxact:name>
+          <ipxact:displayName>mgmt_packet_length_reg</ipxact:displayName>
+          <ipxact:description>mgmt_packet_length_reg</ipxact:description>
+          <ipxact:addressOffset>0x308</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_packet_length</ipxact:name>
+            <ipxact:displayName>mgmt_packet_length</ipxact:displayName>
+            <ipxact:description>Length of Packet for MGMT Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0x7fffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>31</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>mgmt_packet_last_descriptor</ipxact:name>
+            <ipxact:displayName>mgmt_packet_last_descriptor</ipxact:displayName>
+            <ipxact:description>Last Descriptor of Packet for MGMT Transfer</ipxact:description>
+            <ipxact:bitOffset>31</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_starting_address_reg</ipxact:name>
+          <ipxact:displayName>mgmt_starting_address_reg</ipxact:displayName>
+          <ipxact:description>mgmt_starting_address_reg</ipxact:description>
+          <ipxact:addressOffset>0x30c</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_starting_address</ipxact:name>
+            <ipxact:displayName>mgmt_starting_address</ipxact:displayName>
+            <ipxact:description>Starting Address of Packet for MGMT Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_channel_id_reg</ipxact:name>
+          <ipxact:displayName>mgmt_channel_id_reg</ipxact:displayName>
+          <ipxact:description>mgmt_channel_id_reg</ipxact:description>
+          <ipxact:addressOffset>0x314</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_channel_id</ipxact:name>
+            <ipxact:displayName>mgmt_channel_id</ipxact:displayName>
+            <ipxact:description>Channel ID for MGMT Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_resp_packet_length_reg</ipxact:name>
+          <ipxact:displayName>mgmt_resp_packet_length_reg</ipxact:displayName>
+          <ipxact:description>mgmt_resp_packet_length_reg</ipxact:description>
+          <ipxact:addressOffset>0x408</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_resp_packet_length</ipxact:name>
+            <ipxact:displayName>mgmt_resp_packet_length</ipxact:displayName>
+            <ipxact:description>Length of Packet for MGMT RESP Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0x7fffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>31</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+          <ipxact:field>
+            <ipxact:name>mgmt_resp_packet_last_descriptor</ipxact:name>
+            <ipxact:displayName>mgmt_resp_packet_last_descriptor</ipxact:displayName>
+            <ipxact:description>Last Descriptor of Packet for MGMT RESP Transfer</ipxact:description>
+            <ipxact:bitOffset>31</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x0</ipxact:value>
+                <ipxact:mask>0x1</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>1</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_resp_starting_address_reg</ipxact:name>
+          <ipxact:displayName>mgmt_resp_starting_address_reg</ipxact:displayName>
+          <ipxact:description>mgmt_resp_starting_address_reg</ipxact:description>
+          <ipxact:addressOffset>0x40c</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_resp_starting_address</ipxact:name>
+            <ipxact:displayName>mgmt_resp_starting_address</ipxact:displayName>
+            <ipxact:description>Starting Address of Packet for MGMT RESP Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_resp_channel_id_reg</ipxact:name>
+          <ipxact:displayName>mgmt_resp_channel_id_reg</ipxact:displayName>
+          <ipxact:description>mgmt_resp_channel_id_reg</ipxact:description>
+          <ipxact:addressOffset>0x414</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>read-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_resp_channel_id</ipxact:name>
+            <ipxact:displayName>mgmt_resp_channel_id</ipxact:displayName>
+            <ipxact:description>Channel ID for MGMT RESP Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x000</ipxact:value>
+                <ipxact:mask>0xfff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>12</ipxact:bitWidth>
+            <ipxact:access>read-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+        <ipxact:register>
+          <ipxact:name>mgmt_resp_descriptors_done_reg</ipxact:name>
+          <ipxact:displayName>mgmt_resp_descriptors_done_reg</ipxact:displayName>
+          <ipxact:description>mgmt_resp_descriptors_done_reg</ipxact:description>
+          <ipxact:addressOffset>0x418</ipxact:addressOffset>
+          <ipxact:size>32</ipxact:size>
+          <ipxact:access>write-only</ipxact:access>
+          <ipxact:field>
+            <ipxact:name>mgmt_resp_descriptors_done</ipxact:name>
+            <ipxact:displayName>mgmt_resp_descriptors_done</ipxact:displayName>
+            <ipxact:description>Number of Descriptors Done for MGMT RESP Transfer</ipxact:description>
+            <ipxact:bitOffset>0</ipxact:bitOffset>
+            <ipxact:resets>
+              <ipxact:reset>
+                <ipxact:value>0x00000000</ipxact:value>
+                <ipxact:mask>0xffffffff</ipxact:mask>
+              </ipxact:reset>
+            </ipxact:resets>
+            <ipxact:bitWidth>32</ipxact:bitWidth>
+            <ipxact:access>write-only</ipxact:access>
+          </ipxact:field>
+        </ipxact:register>
+      </ipxact:addressBlock>
+      <ipxact:addressUnitBits>8</ipxact:addressUnitBits>
+    </ipxact:memoryMap>
+  </ipxact:memoryMaps>
   <ipxact:model>
     <ipxact:views>
       <ipxact:view>
@@ -811,7 +1573,7 @@
       <ipxact:vendor>Intel Corporation</ipxact:vendor>
       <ipxact:library>jop_blaster</ipxact:library>
       <ipxact:name>intel_jop_blaster</ipxact:name>
-      <ipxact:version>1.1.0</ipxact:version>
+      <ipxact:version>1.2.2</ipxact:version>
     </altera:entity_info>
     <altera:altera_module_parameters>
       <ipxact:parameters>
@@ -1463,6 +2225,11 @@
           <ipxact:displayName>dflBitArray</ipxact:displayName>
           <ipxact:value></ipxact:value>
         </ipxact:parameter>
+        <ipxact:parameter parameterId="cpuInfo" type="string">
+          <ipxact:name>cpuInfo</ipxact:name>
+          <ipxact:displayName>cpuInfo</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
       </ipxact:parameters>
     </altera:altera_system_parameters>
     <altera:altera_interface_boundary>
@@ -1503,39 +2270,39 @@
         <ipxact:busInterfaces>
           <ipxact:busInterface>
             <ipxact:name>st_dbg_ip.ip_avmm_s</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:slave>
               <ipxact:memoryMapRef memoryMapRef="st_dbg_ip.ip_avmm_s"></ipxact:memoryMapRef>
             </ipxact:slave>
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>avmm_bridge.s0</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:slave></ipxact:slave>
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>h2t_mem.s1</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:slave></ipxact:slave>
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>h2t_mem.s2</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:slave></ipxact:slave>
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>t2h_mem.s1</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:slave></ipxact:slave>
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>t2h_mem.s2</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:slave></ipxact:slave>
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>st_dbg_ip.h2t_mem</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:master>
               <ipxact:addressSpaceRef addressSpaceRef="st_dbg_ip.h2t_mem">
                 <ipxact:baseAddress>0x0000</ipxact:baseAddress>
@@ -1544,7 +2311,7 @@
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>st_dbg_ip.t2h_mem</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:master>
               <ipxact:addressSpaceRef addressSpaceRef="st_dbg_ip.t2h_mem">
                 <ipxact:baseAddress>0x0000</ipxact:baseAddress>
@@ -1553,7 +2320,7 @@
           </ipxact:busInterface>
           <ipxact:busInterface>
             <ipxact:name>avmm_bridge.m0</ipxact:name>
-            <ipxact:busType vendor="intel" library="intel" name="avalon" version="23.4"></ipxact:busType>
+            <ipxact:busType vendor="intel" library="intel" name="avalon" version="25.1"></ipxact:busType>
             <ipxact:master>
               <ipxact:addressSpaceRef addressSpaceRef="avmm_bridge.m0">
                 <ipxact:baseAddress>0x1000</ipxact:baseAddress>
@@ -1606,26 +2373,18 @@
         <ipxact:memoryMaps>
           <ipxact:memoryMap>
             <ipxact:name>st_dbg_ip.ip_avmm_s</ipxact:name>
-            <ipxact:displayName>AVMM</ipxact:displayName>
-            <ipxact:description>Registers in Intel Streaming Debug Interface IP</ipxact:description>
             <ipxact:addressBlock>
               <ipxact:name>intel_st_dbg_if_ip_csr_block</ipxact:name>
-              <ipxact:baseAddress>'h0</ipxact:baseAddress>
-              <ipxact:range>'h41c</ipxact:range>
+              <ipxact:baseAddress>0x0</ipxact:baseAddress>
+              <ipxact:range>0x41c</ipxact:range>
               <ipxact:width>32</ipxact:width>
               <ipxact:usage>register</ipxact:usage>
               <ipxact:access>read-write</ipxact:access>
-              <ipxact:parameters>
-                <ipxact:parameter>
-                  <ipxact:name>_mre_default_</ipxact:name>
-                  <ipxact:value>true</ipxact:value>
-                </ipxact:parameter>
-              </ipxact:parameters>
               <ipxact:register>
                 <ipxact:name>rddm_ascii_reg</ipxact:name>
                 <ipxact:displayName>rddm_ascii_reg</ipxact:displayName>
                 <ipxact:description>rddm_ascii_reg</ipxact:description>
-                <ipxact:addressOffset>'h0</ipxact:addressOffset>
+                <ipxact:addressOffset>0x0</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -1635,47 +2394,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h5244444d) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x5244444d</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h5244444D</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>rddm_ascii_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>rddm_version_reg</ipxact:name>
                 <ipxact:displayName>rddm_version_reg</ipxact:displayName>
                 <ipxact:description>rddm_version_reg</ipxact:description>
-                <ipxact:addressOffset>'h4</ipxact:addressOffset>
+                <ipxact:addressOffset>0x4</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -1685,47 +2416,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,4)</ipxact:value>
-                      <ipxact:mask>('hf) / $pow(2,0) % $pow(2,4)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0xf</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>4</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>4'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>rddm_version_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>soft_reset_loopback_reg</ipxact:name>
                 <ipxact:displayName>soft_reset_loopback_reg</ipxact:displayName>
                 <ipxact:description>soft_reset_loopback_reg</ipxact:description>
-                <ipxact:addressOffset>'h20</ipxact:addressOffset>
+                <ipxact:addressOffset>0x20</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-write</ipxact:access>
                 <ipxact:field>
@@ -1736,38 +2439,12 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('h37) / $pow(2,0) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>internal_loopback_h2t_t2h</ipxact:name>
@@ -1776,38 +2453,12 @@
                   <ipxact:bitOffset>1</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,1) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('h37) / $pow(2,1) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>enable_interrupts</ipxact:name>
@@ -1816,38 +2467,12 @@
                   <ipxact:bitOffset>2</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,2) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('h37) / $pow(2,2) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>soft_reset_mgmt</ipxact:name>
@@ -1856,38 +2481,12 @@
                   <ipxact:bitOffset>4</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,4) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('h37) / $pow(2,4) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>internal_loopback_mgmt</ipxact:name>
@@ -1896,51 +2495,19 @@
                   <ipxact:bitOffset>5</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,5) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('h37) / $pow(2,5) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>soft_reset_loopback_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>h2t_t2h_ext_mem_depth_reg</ipxact:name>
                 <ipxact:displayName>h2t_t2h_mem_depth_reg</ipxact:displayName>
                 <ipxact:description>h2t_t2h_mem_depth_reg</ipxact:description>
-                <ipxact:addressOffset>'h24</ipxact:addressOffset>
+                <ipxact:addressOffset>0x24</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -1950,47 +2517,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h1000) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00001000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h00001000</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>h2t_t2h_ext_mem_depth_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_ext_mem_depth_reg</ipxact:name>
                 <ipxact:displayName>mgmt_mem_depth_reg</ipxact:displayName>
                 <ipxact:description>mgmt_mem_depth_reg</ipxact:description>
-                <ipxact:addressOffset>'h28</ipxact:addressOffset>
+                <ipxact:addressOffset>0x28</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2000,47 +2539,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h20) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000020</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h00000020</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_ext_mem_depth_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>h2t_t2h_descriptor_depth_reg</ipxact:name>
                 <ipxact:displayName>h2t_t2h_descriptor_depth_reg</ipxact:displayName>
                 <ipxact:description>h2t_t2h_descriptor_depth_reg</ipxact:description>
-                <ipxact:addressOffset>'h2c</ipxact:addressOffset>
+                <ipxact:addressOffset>0x2c</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2050,47 +2561,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h20) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000020</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h00000020</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>h2t_t2h_descriptor_depth_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_descriptor_depth_reg</ipxact:name>
                 <ipxact:displayName>mgmt_descriptor_depth_reg</ipxact:displayName>
                 <ipxact:description>mgmt_descriptor_depth_reg</ipxact:description>
-                <ipxact:addressOffset>'h30</ipxact:addressOffset>
+                <ipxact:addressOffset>0x30</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2100,47 +2583,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h8) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000008</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h00000008</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_descriptor_depth_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>interrupt_reg</ipxact:name>
                 <ipxact:displayName>interrupt_reg</ipxact:displayName>
                 <ipxact:description>interrupt_reg</ipxact:description>
-                <ipxact:addressOffset>'h48</ipxact:addressOffset>
+                <ipxact:addressOffset>0x48</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-write</ipxact:access>
                 <ipxact:field>
@@ -2150,34 +2605,12 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('hf) / $pow(2,0) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hf) / $pow(2,0) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x1</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h1</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>int_t2h_xfer</ipxact:name>
@@ -2186,34 +2619,12 @@
                   <ipxact:bitOffset>1</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('hf) / $pow(2,1) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hf) / $pow(2,1) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x1</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h1</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>int_mgmt_xfer</ipxact:name>
@@ -2222,34 +2633,12 @@
                   <ipxact:bitOffset>2</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('hf) / $pow(2,2) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hf) / $pow(2,2) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x1</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h1</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>int_mgmt_resp_xfer</ipxact:name>
@@ -2258,47 +2647,19 @@
                   <ipxact:bitOffset>3</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('hf) / $pow(2,3) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hf) / $pow(2,3) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x1</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-write</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-write</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RW</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h1</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>interrupt_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>h2t_available_slots_reg</ipxact:name>
                 <ipxact:displayName>h2t_available_slots_reg</ipxact:displayName>
                 <ipxact:description>h2t_available_slots_reg</ipxact:description>
-                <ipxact:addressOffset>'h100</ipxact:addressOffset>
+                <ipxact:addressOffset>0x100</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2308,47 +2669,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>h2t_available_slots_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>h2t_packet_length_reg</ipxact:name>
                 <ipxact:displayName>h2t_packet_length_reg</ipxact:displayName>
                 <ipxact:description>h2t_packet_length_reg</ipxact:description>
-                <ipxact:addressOffset>'h108</ipxact:addressOffset>
+                <ipxact:addressOffset>0x108</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -2358,38 +2691,12 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,31)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,31)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0x7fffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>31</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>h2t_packet_last_descriptor</ipxact:name>
@@ -2398,51 +2705,19 @@
                   <ipxact:bitOffset>31</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,31) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,31) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>h2t_packet_length_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>h2t_starting_address_reg</ipxact:name>
                 <ipxact:displayName>h2t_starting_address_reg</ipxact:displayName>
                 <ipxact:description>h2t_starting_address_reg</ipxact:description>
-                <ipxact:addressOffset>'h10c</ipxact:addressOffset>
+                <ipxact:addressOffset>0x10c</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -2452,51 +2727,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>h2t_starting_address_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>h2t_connection_id_reg</ipxact:name>
                 <ipxact:displayName>h2t_connection_id_reg</ipxact:displayName>
                 <ipxact:description>h2t_connection_id_reg</ipxact:description>
-                <ipxact:addressOffset>'h110</ipxact:addressOffset>
+                <ipxact:addressOffset>0x110</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -2506,51 +2749,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>h2t_connection_id_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>h2t_channel_id_reg</ipxact:name>
                 <ipxact:displayName>h2t_channel_id_reg</ipxact:displayName>
                 <ipxact:description>h2t_channel_id_reg</ipxact:description>
-                <ipxact:addressOffset>'h114</ipxact:addressOffset>
+                <ipxact:addressOffset>0x114</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -2560,51 +2771,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,12)</ipxact:value>
-                      <ipxact:mask>('hfff) / $pow(2,0) % $pow(2,12)</ipxact:mask>
+                      <ipxact:value>0x000</ipxact:value>
+                      <ipxact:mask>0xfff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>12</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>12'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>h2t_channel_id_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>t2h_packet_length_reg</ipxact:name>
                 <ipxact:displayName>t2h_packet_length_reg</ipxact:displayName>
                 <ipxact:description>t2h_packet_length_reg</ipxact:description>
-                <ipxact:addressOffset>'h208</ipxact:addressOffset>
+                <ipxact:addressOffset>0x208</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2614,34 +2793,12 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,31)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,31)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0x7fffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>31</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>t2h_packet_last_descriptor</ipxact:name>
@@ -2650,47 +2807,19 @@
                   <ipxact:bitOffset>31</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,31) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,31) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>t2h_packet_length_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>t2h_starting_address_reg</ipxact:name>
                 <ipxact:displayName>t2h_starting_address_reg</ipxact:displayName>
                 <ipxact:description>t2h_starting_address_reg</ipxact:description>
-                <ipxact:addressOffset>'h20c</ipxact:addressOffset>
+                <ipxact:addressOffset>0x20c</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2700,47 +2829,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>t2h_starting_address_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>t2h_connection_id_reg</ipxact:name>
                 <ipxact:displayName>t2h_connection_id_reg</ipxact:displayName>
                 <ipxact:description>t2h_connection_id_reg</ipxact:description>
-                <ipxact:addressOffset>'h210</ipxact:addressOffset>
+                <ipxact:addressOffset>0x210</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2750,47 +2851,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>t2h_connection_id_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>t2h_channel_id_reg</ipxact:name>
                 <ipxact:displayName>t2h_channel_id_reg</ipxact:displayName>
                 <ipxact:description>t2h_channel_id_reg</ipxact:description>
-                <ipxact:addressOffset>'h214</ipxact:addressOffset>
+                <ipxact:addressOffset>0x214</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2800,47 +2873,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,12)</ipxact:value>
-                      <ipxact:mask>('hfff) / $pow(2,0) % $pow(2,12)</ipxact:mask>
+                      <ipxact:value>0x000</ipxact:value>
+                      <ipxact:mask>0xfff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>12</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>12'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>t2h_channel_id_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>t2h_descriptors_done_reg</ipxact:name>
                 <ipxact:displayName>t2h_descriptors_done_reg</ipxact:displayName>
                 <ipxact:description>t2h_descriptors_done_reg</ipxact:description>
-                <ipxact:addressOffset>'h218</ipxact:addressOffset>
+                <ipxact:addressOffset>0x218</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -2850,51 +2895,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>t2h_descriptors_done_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_available_slots_reg</ipxact:name>
                 <ipxact:displayName>mgmt_available_slots_reg</ipxact:displayName>
                 <ipxact:description>mgmt_available_slots_reg</ipxact:description>
-                <ipxact:addressOffset>'h300</ipxact:addressOffset>
+                <ipxact:addressOffset>0x300</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -2904,47 +2917,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_available_slots_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_packet_length_reg</ipxact:name>
                 <ipxact:displayName>mgmt_packet_length_reg</ipxact:displayName>
                 <ipxact:description>mgmt_packet_length_reg</ipxact:description>
-                <ipxact:addressOffset>'h308</ipxact:addressOffset>
+                <ipxact:addressOffset>0x308</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -2954,38 +2939,12 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,31)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,31)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0x7fffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>31</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>mgmt_packet_last_descriptor</ipxact:name>
@@ -2994,51 +2953,19 @@
                   <ipxact:bitOffset>31</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,31) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,31) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_packet_length_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_starting_address_reg</ipxact:name>
                 <ipxact:displayName>mgmt_starting_address_reg</ipxact:displayName>
                 <ipxact:description>mgmt_starting_address_reg</ipxact:description>
-                <ipxact:addressOffset>'h30c</ipxact:addressOffset>
+                <ipxact:addressOffset>0x30c</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -3048,51 +2975,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_starting_address_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_channel_id_reg</ipxact:name>
                 <ipxact:displayName>mgmt_channel_id_reg</ipxact:displayName>
                 <ipxact:description>mgmt_channel_id_reg</ipxact:description>
-                <ipxact:addressOffset>'h314</ipxact:addressOffset>
+                <ipxact:addressOffset>0x314</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -3102,51 +2997,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('h1) / $pow(2,0) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>1'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_channel_id_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_resp_packet_length_reg</ipxact:name>
                 <ipxact:displayName>mgmt_resp_packet_length_reg</ipxact:displayName>
                 <ipxact:description>mgmt_resp_packet_length_reg</ipxact:description>
-                <ipxact:addressOffset>'h408</ipxact:addressOffset>
+                <ipxact:addressOffset>0x408</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -3156,34 +3019,12 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,31)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,31)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0x7fffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>31</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
                 <ipxact:field>
                   <ipxact:name>mgmt_resp_packet_last_descriptor</ipxact:name>
@@ -3192,47 +3033,19 @@
                   <ipxact:bitOffset>31</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,31) % $pow(2,1)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,31) % $pow(2,1)</ipxact:mask>
+                      <ipxact:value>0x0</ipxact:value>
+                      <ipxact:mask>0x1</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>1</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_resp_packet_length_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_resp_starting_address_reg</ipxact:name>
                 <ipxact:displayName>mgmt_resp_starting_address_reg</ipxact:displayName>
                 <ipxact:description>mgmt_resp_starting_address_reg</ipxact:description>
-                <ipxact:addressOffset>'h40c</ipxact:addressOffset>
+                <ipxact:addressOffset>0x40c</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -3242,47 +3055,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_resp_starting_address_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_resp_channel_id_reg</ipxact:name>
                 <ipxact:displayName>mgmt_resp_channel_id_reg</ipxact:displayName>
                 <ipxact:description>mgmt_resp_channel_id_reg</ipxact:description>
-                <ipxact:addressOffset>'h414</ipxact:addressOffset>
+                <ipxact:addressOffset>0x414</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>read-only</ipxact:access>
                 <ipxact:field>
@@ -3292,47 +3077,19 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,12)</ipxact:value>
-                      <ipxact:mask>('hfff) / $pow(2,0) % $pow(2,12)</ipxact:mask>
+                      <ipxact:value>0x000</ipxact:value>
+                      <ipxact:mask>0xfff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>12</ipxact:bitWidth>
                   <ipxact:access>read-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>12'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_resp_channel_id_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
               <ipxact:register>
                 <ipxact:name>mgmt_resp_descriptors_done_reg</ipxact:name>
                 <ipxact:displayName>mgmt_resp_descriptors_done_reg</ipxact:displayName>
                 <ipxact:description>mgmt_resp_descriptors_done_reg</ipxact:description>
-                <ipxact:addressOffset>'h418</ipxact:addressOffset>
+                <ipxact:addressOffset>0x418</ipxact:addressOffset>
                 <ipxact:size>32</ipxact:size>
                 <ipxact:access>write-only</ipxact:access>
                 <ipxact:field>
@@ -3342,45 +3099,13 @@
                   <ipxact:bitOffset>0</ipxact:bitOffset>
                   <ipxact:resets>
                     <ipxact:reset>
-                      <ipxact:value>('h0) / $pow(2,0) % $pow(2,32)</ipxact:value>
-                      <ipxact:mask>('hffffffff) / $pow(2,0) % $pow(2,32)</ipxact:mask>
+                      <ipxact:value>0x00000000</ipxact:value>
+                      <ipxact:mask>0xffffffff</ipxact:mask>
                     </ipxact:reset>
                   </ipxact:resets>
                   <ipxact:bitWidth>32</ipxact:bitWidth>
                   <ipxact:access>write-only</ipxact:access>
-                  <ipxact:parameters>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_hw_</ipxact:name>
-                      <ipxact:value>read-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_sysrdl_sw_</ipxact:name>
-                      <ipxact:value>write-only</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_SW_Access</ipxact:name>
-                      <ipxact:value>WO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>MRE_UDP__UVM_HW_Access</ipxact:name>
-                      <ipxact:value>RO</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_modifiedTriggerPort_</ipxact:name>
-                      <ipxact:value>true</ipxact:value>
-                    </ipxact:parameter>
-                    <ipxact:parameter>
-                      <ipxact:name>_mre_formatted_reset_value_</ipxact:name>
-                      <ipxact:value>32'h0</ipxact:value>
-                    </ipxact:parameter>
-                  </ipxact:parameters>
                 </ipxact:field>
-                <ipxact:parameters>
-                  <ipxact:parameter>
-                    <ipxact:name>_mre_definition_</ipxact:name>
-                    <ipxact:value>mgmt_resp_descriptors_done_reg</ipxact:value>
-                  </ipxact:parameter>
-                </ipxact:parameters>
               </ipxact:register>
             </ipxact:addressBlock>
             <ipxact:addressUnitBits>8</ipxact:addressUnitBits>
