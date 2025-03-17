@@ -66,7 +66,7 @@ proc emit_ip_cfg {ofile_name ip_name} {
     # script will just use the $core() array. The "core<width>_" prefix is dropped
     # to simplify name matching.
     foreach p [get_instance_parameters $inst] {
-        if { [string equal $p "top_topology_hwtcl"] } {
+        if { [string equal -nocase $p "top_topology_hwtcl"] } {
             # Change value to upper case and remove space
             set top_topology [string toupper [get_instance_parameter_value $inst $p]]
             regsub -all { +} $top_topology {_} top_topology
@@ -99,13 +99,13 @@ proc emit_ip_cfg {ofile_name ip_name} {
         }
 
         # Tile name
-        if { [string equal $p "TILE"] } {
+        if { [string equal -nocase $p "tile"] } {
             set tile_name [get_instance_parameter_value $inst $p]
             set tile_name_macro [string map {- _} [string toupper $tile_name]]
         }
 
         # Native endpoint mode?
-        if { [string equal $p "virtual_rp_ep_mode_hwtcl"] } {
+        if { [string equal -nocase $p "virtual_rp_ep_mode_hwtcl"] } {
             set m [get_instance_parameter_value $inst $p]
             if { [string first "Native Endpoint" $m] != -1 } {
                 set pcie_ss_rp_ep_mode "NATIVE_EP"
@@ -113,7 +113,7 @@ proc emit_ip_cfg {ofile_name ip_name} {
         }
 
         # Functional mode, original PCIe SS ("AXI-ST Data Mover" or "Power User")
-        if { [string equal $p "pcie_ss_func_mode_hwtcl"] } {
+        if { [string equal -nocase $p "pcie_ss_func_mode_hwtcl"] } {
             set fm [get_instance_parameter_value $inst $p]
             if { [string first "Data Mover" $fm] != -1 } {
                 set pcie_ss_func_mode "DM"
@@ -124,14 +124,14 @@ proc emit_ip_cfg {ofile_name ip_name} {
 
         # Pipe mode simulation?
         # pipemode_sim_hwtcl used by Agilex 5 IP
-        if { [string equal $p "pipemode_sim_hwtcl"] } {
+        if { [string equal -nocase $p "pipemode_sim_hwtcl"] } {
             set m [get_instance_parameter_value $inst $p]
             if { $m } {
                 set pcie_ss_pipe_mode 1
             }
         }
         # pipemode_sim_ed_hwtcl used by Agilex 7 AXI-S IP
-        if { [string equal $p "pipemode_sim_ed_hwtcl"] } {
+        if { [string equal -nocase $p "pipemode_sim_ed_hwtcl"] } {
             set m [get_instance_parameter_value $inst $p]
             if { $m } {
                 # Some IP has the PIPE mode flag but doesn't actually support PIPE
@@ -146,7 +146,7 @@ proc emit_ip_cfg {ofile_name ip_name} {
         }
 
         if { [regexp "^core${width}_(.*)" $p match key] } {
-            set core($key) [get_instance_parameter_value $inst $p]
+            set core([string tolower $key]) [get_instance_parameter_value $inst $p]
         }
     }
 
@@ -196,9 +196,9 @@ proc emit_ip_cfg {ofile_name ip_name} {
     if { [info exists core(dwidth_byte_hwtcl)] } {
         puts $of "`define OFS_FIM_IP_CFG_${ip_name}_DWIDTH_BYTE $core(dwidth_byte_hwtcl)"
     }
-    if { [info exists core(num_seg_hwtcl)] } {
-        puts $of "`define OFS_FIM_IP_CFG_${ip_name}_NUM_SEG ${core(num_seg_hwtcl)}"
-        puts $of "`define OFS_FIM_IP_CFG_${ip_name}_NUM_SEG_IS_${core(num_seg_hwtcl)} 1"
+    if { [info exists core(num_of_seg)] } {
+        puts $of "`define OFS_FIM_IP_CFG_${ip_name}_NUM_SEG ${core(num_of_seg)}"
+        puts $of "`define OFS_FIM_IP_CFG_${ip_name}_NUM_SEG_IS_${core(num_of_seg)} 1"
     } else {
         # Assume 1 if not set
         puts $of "`define OFS_FIM_IP_CFG_${ip_name}_NUM_SEG 1"
