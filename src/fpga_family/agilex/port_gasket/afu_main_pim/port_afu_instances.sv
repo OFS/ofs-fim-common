@@ -35,7 +35,11 @@ module port_afu_instances # (
                 {PG_NUM_PORTS{pcie_ss_hdr_pkg::ReqHdr_pf_vf_info_t'(0)}},
 
    parameter NUM_MEM_CH      = 0,
+`ifdef INCLUDE_HSSI
    parameter MAX_ETH_CH      = ofs_fim_eth_plat_if_pkg::MAX_NUM_ETH_CHANNELS,
+`else
+   parameter MAX_ETH_CH      = 0,
+`endif
 
    // Used in simulation by ASE to emulate multiple links. ASE PCIe emulation
    // supports only one link. The multi-link ASE environment adds an extra PF/VF
