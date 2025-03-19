@@ -66,44 +66,24 @@ namespace eval ::ofs_ip_cfg_db {
                 set ip_script $p
             }
 
-            set ip_basename [file tail [file rootname $ip_file]]
-            set ip_path [file dirname $ip_file]
-            set ip_wrapper_dir "${ip_path}/sv_wrapper"
-            file mkdir ${ip_wrapper_dir}
-            set ip_sv_wrapper "${ip_wrapper_dir}/${ip_basename}_sv.sv"
-
-            set_global_assignment -name SEARCH_PATH "${ip_wrapper_dir}"
-            puts $tcl_inc_fn "set_global_assignment -name SEARCH_PATH \"${ip_wrapper_dir}\""
-
-            set_global_assignment -name SYSTEMVERILOG_FILE "${ip_wrapper_dir}/${ip_basename}_param_pkg.sv"
-            set_global_assignment -name SYSTEMVERILOG_FILE "${ip_sv_wrapper}"
-
-            set tgt_fname ofs_ip_cfg_${ip_name}.vh
-            puts $wrapper_fn "`include \"${ip_basename}_if_info.vh\"    // In [regsub ^\[./\]* ${ip_wrapper_dir} {}]"
-            puts $wrapper_fn "`include \"${ip_basename}_ip_params.vh\""
-            if {$ip_script != ""} {
-                puts $wrapper_fn "`include \"${tgt_fname}\""
+            if {[file extension $ip_file] == ".ip"} {
+                # Generate a SystemVerilog wrapper around the IP
+                gen_sv_wrapper $project $revision $ip_file $ip_name $wrapper_fn $tcl_inc_fn
             }
-
-            # Don't regenerate files when the generated file exists and is younger
-            # than the IP file.
-            if { [file exists ${ip_sv_wrapper}] && [file size ${ip_sv_wrapper}] > 0 &&
-                 [file mtime ${ip_sv_wrapper}] > [file mtime ${ip_file}] } {
-                post_message "${ip_sv_wrapper} is already up to date."
-                continue
-            }
-
-            # Generate a SystemVerilog wrapper around the IP
-            set cmd "source $::env(BUILD_ROOT_REL)/ofs-common/scripts/common/syn/ip_get_cfg/ip_gen_sv_wrapper.tcl; gen_sv_wrapper ${ip_wrapper_dir} ${ip_basename}"
-            set args [list --quartus-project=${project} --rev=${revision} --system-file=${ip_file} --cmd=${cmd}]
-            post_message "Generating ${ip_sv_wrapper} with: qsys-script" -submsgs $args
-            puts $args
-            run_qsys_script args
 
             # Run the OFS-specific script to map more complex state from the IP to Verilog macros. If
             # the script is not provided only the default parameters extracted by ip_gen_sv_wrapper.tcl
             # will be used.
             if {$ip_script != ""} {
+                set tgt_fname ofs_ip_cfg_${ip_name}.vh
+                puts $wrapper_fn "`include \"${tgt_fname}\""
+
+                if { [file exists ofs_ip_cfg_db/${tgt_fname}] &&
+                     [file mtime ofs_ip_cfg_db/${tgt_fname}] > [file mtime ${ip_file}] } {
+                    post_message "ofs_ip_cfg_db/${tgt_fname} is already up to date."
+                    continue
+                }
+
                 set cmd "source ${ip_script}; emit_ip_cfg ofs_ip_cfg_db/${tgt_fname} [string toupper ${ip_name}]"
                 set args [list --quartus-project=${project} --rev=${revision} --system-file=${ip_file} --cmd=${cmd}]
                 post_message "Generating ofs_ip_cfg_db/${tgt_fname} with: qsys-script" -submsgs $args
@@ -113,6 +93,39 @@ namespace eval ::ofs_ip_cfg_db {
 
         close $wrapper_fn
         close $tcl_inc_fn
+    }
+
+    # Generate a SystemVerilog wrapper around the IP and extract HWTCL parameters to Verilog macros.
+    proc gen_sv_wrapper {project revision ip_file ip_name wrapper_fn tcl_inc_fn} {
+        set ip_basename [file tail [file rootname $ip_file]]
+        set ip_path [file dirname $ip_file]
+        set ip_wrapper_dir "${ip_path}/sv_wrapper"
+        file mkdir ${ip_wrapper_dir}
+        set ip_sv_wrapper "${ip_wrapper_dir}/${ip_basename}_sv.sv"
+
+        set_global_assignment -name SEARCH_PATH "${ip_wrapper_dir}"
+        puts $tcl_inc_fn "set_global_assignment -name SEARCH_PATH \"${ip_wrapper_dir}\""
+
+        set_global_assignment -name SYSTEMVERILOG_FILE "${ip_wrapper_dir}/${ip_basename}_param_pkg.sv"
+        set_global_assignment -name SYSTEMVERILOG_FILE "${ip_sv_wrapper}"
+
+        puts $wrapper_fn "`include \"${ip_basename}_if_info.vh\"    // In [regsub ^\[./\]* ${ip_wrapper_dir} {}]"
+        puts $wrapper_fn "`include \"${ip_basename}_ip_params.vh\""
+
+        # Don't regenerate files when the generated file exists and is younger
+        # than the IP file.
+        if { [file exists ${ip_sv_wrapper}] && [file size ${ip_sv_wrapper}] > 0 &&
+             [file mtime ${ip_sv_wrapper}] > [file mtime ${ip_file}] } {
+            post_message "${ip_sv_wrapper} is already up to date."
+            return
+        }
+
+        # Generate a SystemVerilog wrapper around the IP
+        set cmd "source $::env(BUILD_ROOT_REL)/ofs-common/scripts/common/syn/ip_get_cfg/ip_gen_sv_wrapper.tcl; gen_sv_wrapper ${ip_wrapper_dir} ${ip_basename}"
+        set args [list --quartus-project=${project} --rev=${revision} --system-file=${ip_file} --cmd=${cmd}]
+        post_message "Generating ${ip_sv_wrapper} with: qsys-script" -submsgs $args
+        puts $args
+        run_qsys_script args
     }
 
     # qsys-script writes info messages to stderr, which confuses Tcl into
