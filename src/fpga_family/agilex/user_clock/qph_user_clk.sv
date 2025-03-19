@@ -8,8 +8,6 @@
 //
 //-----------------------------------------------------------------------------
 
-`include "ofs_ip_cfg_db.vh"
-
 import qph_user_clk_pkg::*;
 
 module qph_user_clk # (
@@ -357,13 +355,11 @@ always_ff @(posedge clk) begin
 end
 
 qph_user_clk_freq
-`ifdef OFS_FIM_IP_CFG_SYS_CLK_100M_MHZ
-  // Use the actual clk_100m frequency if available, which may be
+  // Use the actual clk_100m frequency, which may be
   // slightly off 100MHz.
   #(
-    .CLK_MHZ(`OFS_FIM_IP_CFG_SYS_CLK_100M_MHZ)
+    .CLK_MHZ(sys_pll_pkg::clock_name_to_actual_mhz("clk_100m"))
     )
-`endif
   qph_user_clk_freq (
    .clk            (clk),
    .rst_n          (uclk_freq_cnt_reset_n),

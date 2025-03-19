@@ -1,4 +1,4 @@
-## Copyright (C) 2025 Intel Corporation
+## Copyright (C) 2025 Altera Corporation
 ## SPDX-License-Identifier: MIT
 
 ##
@@ -730,6 +730,8 @@ proc gen_sv_wrapper {tgt_dir ip_name} {
     puts $hdr_params_file ""
     puts $hdr_params_file "`endif  // $hdr_params_macro"
     close $hdr_params_file
+
+    return 0
 }
 
 

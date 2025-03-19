@@ -7,6 +7,8 @@
 ## out-of-tree PR build environment.
 ##
 
+set_global_assignment -name SYSTEMVERILOG_FILE $::env(BUILD_ROOT_REL)/ofs-common/src/fpga_family/agilex/sys_pll/sys_pll_pkg.sv
+
 if { [::config_env::verilog_macro_defined INCLUDE_REMOTE_STP] } {
     set_global_assignment -name IP_FILE $::env(BUILD_ROOT_REL)/ofs-common/src/fpga_family/agilex/remote_stp/AFU_debug/config_reset_release.ip
     set_global_assignment -name IP_FILE $::env(BUILD_ROOT_REL)/ofs-common/src/fpga_family/agilex/remote_stp/AFU_debug/scjio_agilex.ip

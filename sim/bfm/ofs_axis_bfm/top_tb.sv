@@ -42,13 +42,13 @@ initial begin
  `endif
 end
 
-parameter T_OUTCLK_0 = (40'd1_000_000 / `OFS_FIM_IP_CFG_SYS_CLK_CLK0_MHZ);
-parameter T_OUTCLK_1 = (40'd1_000_000 / `OFS_FIM_IP_CFG_SYS_CLK_CLK1_MHZ);
-parameter T_OUTCLK_2 = (40'd1_000_000 / `OFS_FIM_IP_CFG_SYS_CLK_CLK2_MHZ);
-parameter T_OUTCLK_3 = (40'd1_000_000 / `OFS_FIM_IP_CFG_SYS_CLK_CLK3_MHZ);
-parameter T_OUTCLK_4 = (40'd1_000_000 / `OFS_FIM_IP_CFG_SYS_CLK_CLK4_MHZ);
-parameter T_OUTCLK_5 = (40'd1_000_000 / `OFS_FIM_IP_CFG_SYS_CLK_CLK5_MHZ);
-parameter T_OUTCLK_6 = (40'd1_000_000 / `OFS_FIM_IP_CFG_SYS_CLK_CLK6_MHZ);
+parameter T_OUTCLK_0 = (40'd1_000_000 / sys_pll_pkg::ACTUAL_CLK_MHZ[0]);
+parameter T_OUTCLK_1 = (40'd1_000_000 / sys_pll_pkg::ACTUAL_CLK_MHZ[1]);
+parameter T_OUTCLK_2 = (40'd1_000_000 / sys_pll_pkg::ACTUAL_CLK_MHZ[2]);
+parameter T_OUTCLK_3 = (40'd1_000_000 / sys_pll_pkg::ACTUAL_CLK_MHZ[3]);
+parameter T_OUTCLK_4 = (40'd1_000_000 / sys_pll_pkg::ACTUAL_CLK_MHZ[4]);
+parameter T_OUTCLK_5 = (40'd1_000_000 / sys_pll_pkg::ACTUAL_CLK_MHZ[5]);
+parameter T_OUTCLK_6 = (40'd1_000_000 / sys_pll_pkg::ACTUAL_CLK_MHZ[6]);
 
 initial begin
         // #20us;
