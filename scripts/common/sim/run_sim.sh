@@ -157,10 +157,10 @@ fi
 
 TEST_NAME="`echo $TEST_SRC_DIR|grep -o '[^/]\+$'`"
 
-MSIM_OPTS=(-c opt -suppress 2244,2388,3053,7033,12023,14408,2542,13276  -do "run -all ; quit -f")
+MSIM_OPTS=(-c opt -suppress 2244,2388,3053,7033,12023,14408,2542,13276,2583 -do "run -all ; quit -f")
 VCS_SIMV_PARAMS="$SIM_OPTIONS $USER_DEFINED_SIM_OPTIONS -l transcript -assert nopostproc"
 NTB_OPTS=""
-VLOG_SUPPRESS="2244,2388,7033,7061,8386,12003,14408,16154,2542,13276"
+VLOG_SUPPRESS="2244,2388,7033,7061,8386,12003,14408,16154,2542,13276,2583"
 VOPT_SUPPRESS=""
 SV_OPTS=""
 VCS_CM_PARAMS=""
@@ -238,6 +238,7 @@ if [ $MSIM -eq 1 ] ; then
         $MSIM_FILELIST \
         $BASE_AFU_SRC \
         $TB_SRC -work work -l msim_vlog.log -suppress $VLOG_SUPPRESS
+		   
  
     # ----------------------------------------
     # simulate
