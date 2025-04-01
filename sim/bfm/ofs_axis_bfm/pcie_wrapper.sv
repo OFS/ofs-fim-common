@@ -262,7 +262,7 @@ assign pin_pcie_dummy.in_perst_n = 1'b0;
     .pin_pcie                       (pin_pcie_dummy), \
     .axi_st_txreq_if                (axi_st_txreq_if_dummy       ), \
     .axi_st_rxreq_if                (axi_st_rxreq_if_dummy       ), \
-    .ss_app_st_ctrlshadow_tvalid    (), \ 
+    .ss_app_st_ctrlshadow_tvalid    (), \
     .ss_app_st_ctrlshadow_tdata     (), \
     .axi_st_rx_if                   (axi_st_rx_if_dummy          ), \
     .axi_st_tx_if                   (axi_st_tx_if_dummy          ), \
