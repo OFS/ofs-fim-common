@@ -157,7 +157,7 @@ fi
 
 TEST_NAME="`echo $TEST_SRC_DIR|grep -o '[^/]\+$'`"
 
-MSIM_OPTS=(-c opt -suppress 2244,2388,3053,7033,12023,14408,2542,13276,2583 -do "run -all ; quit -f")
+MSIM_OPTS=(-c opt -suppress 2244,2388,3053,7033,12023,14408,2542,13276,2583,12003 -do  "run -all ; quit -f")
 VCS_SIMV_PARAMS="$SIM_OPTIONS $USER_DEFINED_SIM_OPTIONS -l transcript -assert nopostproc"
 NTB_OPTS=""
 VLOG_SUPPRESS="2244,2388,7033,7061,8386,12003,14408,16154,2542,13276,2583"
@@ -230,7 +230,7 @@ start_time="$(date -u +%s)"
 
 if [ $MSIM -eq 1 ] ; then
     vlib work
-    vlog -timescale=1ps/1ps $VLOG_PARAMS -lint -sv $SV_OPTS\
+    vlog -timescale=1ps/1ps $VLOG_PARAMS -lint -sv +acc=npr \
         $DEFINES \
         $ELAB_OPTIONS $USER_DEFINED_ELAB_OPTIONS \
         +incdir+./ \
@@ -244,7 +244,7 @@ if [ $MSIM -eq 1 ] ; then
     # simulate
     # parse transcript to remove redundant comment block (fb:435978)
     if [ $SKIP_SIM -eq 0 ]; then
-      vopt $TOP_LEVEL_NAME -o opt -access=rw+/. "${VOPT_SUPPRESS[@]}"
+      vopt $TOP_LEVEL_NAME -o opt -debug,cell "${VOPT_SUPPRESS[@]}"
       vsim "${MSIM_OPTS[@]}"
     fi
 else # VCS and VCS-MX
