@@ -66,10 +66,8 @@ namespace eval ::ofs_ip_cfg_db {
                 set ip_script $p
             }
 
-            if {[file extension $ip_file] == ".ip"} {
-                # Generate a SystemVerilog wrapper around the IP
-                gen_sv_wrapper $project $revision $ip_file $ip_name $wrapper_fn $tcl_inc_fn
-            }
+            # Generate a SystemVerilog wrapper around the IP
+            gen_sv_wrapper $project $revision $ip_file $ip_name $wrapper_fn $tcl_inc_fn
 
             # Run the OFS-specific script to map more complex state from the IP to Verilog macros. If
             # the script is not provided only the default parameters extracted by ip_gen_sv_wrapper.tcl
@@ -121,7 +119,7 @@ namespace eval ::ofs_ip_cfg_db {
         }
 
         # Generate a SystemVerilog wrapper around the IP
-        set cmd "source $::env(BUILD_ROOT_REL)/ofs-common/scripts/common/syn/ip_get_cfg/ip_gen_sv_wrapper.tcl; gen_sv_wrapper ${ip_wrapper_dir} ${ip_basename}"
+        set cmd "source $::env(BUILD_ROOT_REL)/ofs-common/scripts/common/syn/ip_get_cfg/ip_gen_sv_wrapper.tcl; gen_sv_wrapper ${ip_wrapper_dir}"
         set args [list --quartus-project=${project} --rev=${revision} --system-file=${ip_file} --cmd=${cmd}]
         post_message "Generating ${ip_sv_wrapper} with: qsys-script" -submsgs $args
         puts $args
