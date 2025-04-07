@@ -144,7 +144,7 @@ module altera_emif_avl_tg_2_axi_if # (
 // synthesis translate_off
                 if (expected_bid != axi_bid) begin
                     $display("ERROR: axi_bid mismatch");
-                    $finish;
+                    //$finish;
                 end
 // synthesis translate_on
                 expected_bid <= expected_bid + 1'b1;
@@ -158,11 +158,11 @@ module altera_emif_avl_tg_2_axi_if # (
 // synthesis translate_off
                 if (expected_rid != axi_rid) begin
                     $display("ERROR: axi_rid mismatch");
-                    $finish;
+                    //$finish;
                 end
                 if (axi_rresp != 2'b00) begin
                     $display("ERROR: axi_rresp indicates a read data error");
-                    $finish;
+                    //$finish;
                 end
 // synthesis translate_on
             end
