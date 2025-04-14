@@ -230,7 +230,7 @@ start_time="$(date -u +%s)"
 
 if [ $MSIM -eq 1 ] ; then
     vlib work
-    vlog -timescale=1ps/1ps $VLOG_PARAMS -lint -sv +acc=npr \
+    vlog -timescale=1ps/1ps $VLOG_PARAMS -lint -sv $SV_OPTS \
         $DEFINES \
         $ELAB_OPTIONS $USER_DEFINED_ELAB_OPTIONS \
         +incdir+./ \
@@ -244,7 +244,7 @@ if [ $MSIM -eq 1 ] ; then
     # simulate
     # parse transcript to remove redundant comment block (fb:435978)
     if [ $SKIP_SIM -eq 0 ]; then
-      vopt $TOP_LEVEL_NAME -o opt -debug,cell "${VOPT_SUPPRESS[@]}"
+      vopt $TOP_LEVEL_NAME -o opt -access=rw+/. -noprotectopt "${VOPT_SUPPRESS[@]}"
       vsim "${MSIM_OPTS[@]}"
     fi
 else # VCS and VCS-MX
