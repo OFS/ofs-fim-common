@@ -26,12 +26,13 @@ module local_mem_wrapper
    ofs_fim_emif_axi_mm_if.emif  afu_mem_if  [NUM_MEM_CHANNELS-1:0],
 
 `ifdef INCLUDE_DDR4  
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-   ofs_fim_emif_ddr4_if.emif ddr4_mem_if[NUM_GROUP_0_DDR4_CHANNELS-1:0],
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
-   ofs_fim_emif_ddr4_group_1_if.emif ddr4_mem_if_group_1[NUM_GROUP_1_DDR4_CHANNELS-1:0],
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
+   ofs_fim_mem_ddr4_ref_clk_if.ip ddr4_mem_if_ref_clk [NUM_DDR4_CHANNELS-1:0],
+`ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
+   mem_ss_mem_ddr4_if.ip        ddr4_mem_if         [NUM_GROUP_0_DDR4_CHANNELS-1:0],
+`endif
+`ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+   mem_ss_mem_g1_ddr4_if.ip     ddr4_mem_if_group_1 [NUM_GROUP_1_DDR4_CHANNELS-1:0],
+`endif
 `endif // INCLUDE_DDR4
 
 `ifdef INCLUDE_HBM
@@ -49,9 +50,6 @@ module local_mem_wrapper
    input  logic [1:0]           hps2emif_gp,
    output logic [4095:0]        emif2hps,
    output logic                 emif2hps_gp,
-`ifdef INCLUDE_DDR4  
-   ofs_fim_hps_ddr4_if.emif     ddr4_hps_if,
-`endif // INCLUDE_DDR4
 `endif // INCLUDE_HPS
 
    // CSR interfaces

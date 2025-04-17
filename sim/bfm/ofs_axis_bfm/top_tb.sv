@@ -92,23 +92,19 @@ end
 
 `ifdef INCLUDE_LOCAL_MEM
 `ifdef INCLUDE_DDR4
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-   ofs_fim_emif_ddr4_if ddr4_mem [ofs_fim_mem_if_pkg::NUM_GROUP_0_DDR4_CHANNELS-1:0] ();
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
-   ofs_fim_emif_ddr4_group_1_if ddr4_mem_group_1 [ofs_fim_mem_if_pkg::NUM_GROUP_1_DDR4_CHANNELS-1:0] ();
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
-
-
-`ifdef INCLUDE_HPS
-   ofs_fim_hps_ddr4_if  ddr4_hps (); 
+   ofs_fim_mem_ddr4_ref_clk_if ddr4_mem_ref_clk[ofs_fim_mem_if_pkg::NUM_DDR4_CHANNELS-1:0]();
+ `ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
+   mem_ss_mem_ddr4_if ddr4_mem[ofs_fim_mem_if_pkg::NUM_GROUP_0_DDR4_CHANNELS-1:0]();
  `endif
-`endif
+ `ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+   mem_ss_mem_g1_ddr4_if ddr4_mem_group_1[ofs_fim_mem_if_pkg::NUM_GROUP_1_DDR4_CHANNELS-1:0]();
+ `endif
+`endif // INCLUDE_DDR4
+
 `ifdef INCLUDE_HBM
    bit uib_refclk [ofs_fim_mem_if_pkg::NUM_HBM_DEVICES-1:0];
    bit noc_ctrl_refclk [ofs_fim_mem_if_pkg::NUM_HBM_DEVICES-1:0];
-`endif
+`endif // INCLUDE_HBM
 `endif
       
 `ifdef INCLUDE_HSSI
@@ -155,25 +151,22 @@ top DUT (
 
 `ifdef INCLUDE_LOCAL_MEM
 `ifdef INCLUDE_DDR4
-
-//Fabric DDR4
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
+      //Fabric DDR4
+      .ddr4_mem_ref_clk(ddr4_mem_ref_clk),
+ `ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
       .ddr4_mem  (ddr4_mem),
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
+ `endif
+ `ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
       .ddr4_mem_group_1  (ddr4_mem_group_1),
-`endif
+ `endif
+`endif // INCLUDE_DDR4
 
-`ifdef INCLUDE_HPS
-   .ddr4_hps     (ddr4_hps),
-`endif
-`endif 
 `ifdef INCLUDE_HBM
    .uib_refclk      (uib_refclk),
    .noc_ctrl_refclk (noc_ctrl_refclk),
    .hbm_temp        ('{default:'0}),
    .hbm_cattrip     ('{default:'0}),
-`endif
+`endif // INCLUDE_HBM
 `endif
  
 `ifdef INCLUDE_PMCI                                                                              
@@ -248,39 +241,41 @@ top DUT (
 // EMIF memory model   
 `ifdef INCLUDE_LOCAL_MEM
 `ifdef INCLUDE_DDR4
-`ifdef INCLUDE_HPS
-   initial ddr4_hps.ref_clk = '0;
-`endif
    genvar ch;
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_0
+   generate
+      for(ch=0; ch < ofs_fim_mem_if_pkg::NUM_DDR4_CHANNELS; ch = ch+1) begin : mem_clk
+         initial ddr4_mem_ref_clk[ch].oct_rzqin = '0;
+
+         initial ddr4_mem_ref_clk[ch].clk = '0;
+         always #833 ddr4_mem_ref_clk[ch].clk = ~ddr4_mem_ref_clk[ch].clk; // 1200 MHz
+      end
+   endgenerate
+
+`ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
    generate
       for(ch=0; ch < ofs_fim_mem_if_pkg::NUM_GROUP_0_DDR4_CHANNELS; ch = ch+1) begin : mem_model
-         initial ddr4_mem[ch].ref_clk = '0;
-         always #833 ddr4_mem[ch].ref_clk = ~ddr4_mem[ch].ref_clk; // 1200 MHz
-
           ed_sim_mem ddr_mem (
-         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem[ch], GROUP_0)
+         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem[ch], _)
           );
 
       end
    endgenerate
-`endif //OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_0
+`endif // HAS_IFC_MEM_SS_MEM_DDR4_IF
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
+`ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+ // DDR4 for HPS appears as a second group on n6001 but isn't modeled
+ `ifndef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL
    generate
       for(ch=0; ch < ofs_fim_mem_if_pkg::NUM_GROUP_1_DDR4_CHANNELS; ch = ch+1) begin : mem_model_grp1
-         initial ddr4_mem_group_1[ch].ref_clk = '0;
-         always #833 ddr4_mem_group_1[ch].ref_clk = ~ddr4_mem_group_1[ch].ref_clk; // 1200 MHz
-
          ed_sim_mem_group1 ddr_mem_group_1 (
-         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem_group_1[ch], GROUP_1)
+         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem_group_1[ch], _G1_)
          );
 
       end
    endgenerate
-`endif //OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_1
-
+ `endif
+`endif // HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
 
 `endif //DDR
 

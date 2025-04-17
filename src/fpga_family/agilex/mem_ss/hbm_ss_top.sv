@@ -42,13 +42,14 @@ module hbm_ss_top
    $error("OFS HBM Subsystem configuration is undefined, but the subsystem has been instantiated in the design!");
 `endif
 
+   // AXI-MM interface defined by the NoC SystemVerilog wrapper module.
+   hbm_ss_i_app_if ss_axi_mm[NUM_MEM_CHANNELS-1:0]();
+
    logic [NUM_HBM_DEVICES-1:0] hbm_cal_fail;
    logic [NUM_HBM_DEVICES-1:0] hbm_cal_success;
 
    logic [NUM_HBM_DEVICES-1:0] csr_cal_fail;
    logic [NUM_HBM_DEVICES-1:0] csr_cal_success;
-
-   ofs_fim_axi_lite_if #(.AWADDR_WIDTH(11), .ARADDR_WIDTH(11), .WDATA_WIDTH(64)) emif_dfh_if();
 
 fim_resync #(
    .SYNC_CHAIN_LENGTH(3),
@@ -93,221 +94,107 @@ mem_ss_csr #(
 // to wires which are implicitly connected to the PD component ports
 
 // Connect clock/reset
+wire [NUM_MEM_CHANNELS-1:0] i_app_clk_clk;
+wire [NUM_MEM_CHANNELS-1:0] i_app_rst_n_reset_n;
+
 generate for(genvar ch = 0; ch < NUM_MEM_CHANNELS; ch++) begin : mem_clk_rst
-   always_comb begin
-      afu_mem_if[ch].clk   = fab_clk[0];
-   end
+   assign afu_mem_if[ch].clk = fab_clk[0];
    fim_dup_tree dup_rst ( .clk( afu_mem_if[ch].clk ), .din( ~reset ), .dout( afu_mem_if[ch].rst_n ));
+
+   assign i_app_clk_clk[ch] = afu_mem_if[ch].clk;
+   assign i_app_rst_n_reset_n[ch] = afu_mem_if[ch].rst_n;
 end
 endgenerate
 
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i0_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i1_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i2_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i3_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i4_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i5_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i6_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i7_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i8_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i9_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i10_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i11_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i12_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i13_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i14_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i15_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i16_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i17_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i18_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i19_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i20_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i21_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i22_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i23_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i24_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i25_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i26_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i27_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i28_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i29_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i30_app, ofs_fim_mem_if_pkg::AXI_MEM)
-`DECLARE_OFS_FIM_AXI_MM_WIRES(i31_app, ofs_fim_mem_if_pkg::AXI_MEM)
-
-generate
-   `CONNECT_OFS_FIM_AXI_MM_WIRES(i0_app, afu_mem_if[0])
-   if(NUM_MEM_CHANNELS > 1) begin : i1_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i1_app, afu_mem_if[1])
-   end
-   if(NUM_MEM_CHANNELS > 2) begin : i2_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i2_app, afu_mem_if[2])
-   end
-   if(NUM_MEM_CHANNELS > 3) begin : i3_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i3_app, afu_mem_if[3])
-   end
-   if(NUM_MEM_CHANNELS > 4) begin : i4_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i4_app, afu_mem_if[4])
-   end
-   if(NUM_MEM_CHANNELS > 5) begin : i5_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i5_app, afu_mem_if[5])
-   end
-   if(NUM_MEM_CHANNELS > 6) begin : i6_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i6_app, afu_mem_if[6])
-   end
-   if(NUM_MEM_CHANNELS > 7) begin : i7_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i7_app, afu_mem_if[7])
-   end
-   if(NUM_MEM_CHANNELS > 8) begin : i8_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i8_app, afu_mem_if[8])
-   end
-   if(NUM_MEM_CHANNELS > 9) begin : i9_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i9_app, afu_mem_if[9])
-   end
-   if(NUM_MEM_CHANNELS > 10) begin : i10_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i10_app, afu_mem_if[10])
-   end
-   if(NUM_MEM_CHANNELS > 11) begin : i11_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i11_app, afu_mem_if[11])
-   end
-   if(NUM_MEM_CHANNELS > 12) begin : i12_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i12_app, afu_mem_if[12])
-   end
-   if(NUM_MEM_CHANNELS > 13) begin : i13_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i13_app, afu_mem_if[13])
-   end
-   if(NUM_MEM_CHANNELS > 14) begin : i14_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i14_app, afu_mem_if[14])
-   end
-   if(NUM_MEM_CHANNELS > 15) begin : i15_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i15_app, afu_mem_if[15])
-   end
-   if(NUM_MEM_CHANNELS > 16) begin : i16_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i16_app, afu_mem_if[16])
-   end
-   if(NUM_MEM_CHANNELS > 17) begin : i17_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i17_app, afu_mem_if[17])
-   end
-   if(NUM_MEM_CHANNELS > 18) begin : i18_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i18_app, afu_mem_if[18])
-   end
-   if(NUM_MEM_CHANNELS > 19) begin : i19_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i19_app, afu_mem_if[19])
-   end
-   if(NUM_MEM_CHANNELS > 20) begin : i20_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i20_app, afu_mem_if[20])
-   end
-   if(NUM_MEM_CHANNELS > 21) begin : i21_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i21_app, afu_mem_if[21])
-   end
-   if(NUM_MEM_CHANNELS > 22) begin : i22_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i22_app, afu_mem_if[22])
-   end
-   if(NUM_MEM_CHANNELS > 23) begin : i23_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i23_app, afu_mem_if[23])
-   end
-   if(NUM_MEM_CHANNELS > 24) begin : i24_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i24_app, afu_mem_if[24])
-   end
-   if(NUM_MEM_CHANNELS > 25) begin : i25_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i25_app, afu_mem_if[25])
-   end
-   if(NUM_MEM_CHANNELS > 26) begin : i26_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i26_app, afu_mem_if[26])
-   end
-   if(NUM_MEM_CHANNELS > 27) begin : i27_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i27_app, afu_mem_if[27])
-   end
-   if(NUM_MEM_CHANNELS > 28) begin : i28_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i28_app, afu_mem_if[28])
-   end
-   if(NUM_MEM_CHANNELS > 29) begin : i29_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i29_app, afu_mem_if[29])
-   end
-   if(NUM_MEM_CHANNELS > 30) begin : i30_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i30_app, afu_mem_if[30])
-   end
-   if(NUM_MEM_CHANNELS > 31) begin : i31_app_conn
-      `CONNECT_OFS_FIM_AXI_MM_WIRES(i31_app, afu_mem_if[31])
-   end
-endgenerate
 
    // HBM/NoC signals
-   logic        hbm_0_fab_clk_clk, hbm_1_fab_clk_clk;
-   logic        noc_0_noc_bridge_fabric_clk_clk, noc_1_noc_bridge_fabric_clk_clk;
-   logic        hbm_0_rst_n_reset_n, hbm_1_rst_n_reset_n;
-   logic        hbm_0_cattrip_conduit, hbm_1_cattrip_conduit;
-   logic [2:0]  hbm_0_temp_conduit, hbm_1_temp_conduit;
-   logic        hbm_0_local_cal_success_local_cal_success, hbm_1_local_cal_success_local_cal_success;
-   logic        hbm_0_local_cal_fail_local_cal_fail, hbm_1_local_cal_fail_local_cal_fail;
-   logic        hbm_0_uib_clk_clk, hbm_1_uib_clk_clk;
-   logic        noc_0_ctrl_clk, noc_1_ctrl_clk;
+   logic [NUM_HBM_DEVICES-1:0] hbm_fab_clk_clk;
+   logic [NUM_HBM_DEVICES-1:0] hbm_rst_n_reset_n;
+   logic [NUM_HBM_DEVICES-1:0] hbm_cattrip_conduit;
+   logic [NUM_HBM_DEVICES-1:0] [2:0] hbm_temp_conduit;
+   logic [NUM_HBM_DEVICES-1:0] hbm_uib_clk_clk;
+   logic [NUM_HBM_DEVICES-1:0] noc_ctrl_clk;
+   logic [NUM_HBM_DEVICES-1:0] noc_noc_bridge_fabric_clk_clk;
 
-generate
-   always_comb begin
-      hbm_0_fab_clk_clk     = fab_clk[0];
-      noc_0_noc_bridge_fabric_clk_clk = fab_clk_wr[0];
-      hbm_0_rst_n_reset_n   = ~reset;
-      hbm_0_cattrip_conduit = hbm_cattrip[0];
-      hbm_0_temp_conduit    = hbm_temp[0];
-      hbm_0_uib_clk_clk     = uib_refclk[0];
-      hbm_cal_success[0]    = hbm_0_local_cal_success_local_cal_success;
-      hbm_cal_fail[0]       = hbm_0_local_cal_fail_local_cal_fail;
-      noc_0_ctrl_clk        = noc_ctrl_refclk[0];
-   end
-
-if(NUM_HBM_DEVICES > 1) begin : hbm_1
-   always_comb begin
-      hbm_1_fab_clk_clk     = fab_clk[1];
-      noc_1_noc_bridge_fabric_clk_clk = fab_clk_wr[1];
-      hbm_1_rst_n_reset_n   = ~reset;
-      hbm_1_cattrip_conduit = hbm_cattrip[1];
-      hbm_1_temp_conduit    = hbm_temp[1];
-      hbm_1_uib_clk_clk     = uib_refclk[1];
-      hbm_cal_success[1]    = hbm_1_local_cal_success_local_cal_success;
-      hbm_cal_fail[1]       = hbm_1_local_cal_fail_local_cal_fail;
-      noc_1_ctrl_clk        = noc_ctrl_refclk[1];
-   end
+generate for(genvar d = 0; d < NUM_HBM_DEVICES; d++) begin : hbm_clk_rst
+   assign hbm_fab_clk_clk[d] = fab_clk[d];
+   assign hbm_rst_n_reset_n[d] = ~reset;
+   assign hbm_cattrip_conduit[d] = hbm_cattrip[d];
+   assign hbm_temp_conduit[d] = hbm_temp[d];
+   assign hbm_uib_clk_clk[d] = uib_refclk[d];
+   assign noc_ctrl_clk[d] = noc_ctrl_refclk[d];
+   assign noc_noc_bridge_fabric_clk_clk[d] = fab_clk_wr[d];
 end
 endgenerate
 
-   // Use implicit connections
-   hbm_ss hbm_inst (
-    //TIE off burstlen upper bits since NOC burstlen is hardcoded to 8
-    //and we present the correct supported size to AFU 
-    //Burstlen of 64 for 64B bus
-   `CONNECT_AND_EXTEND_NOC_BURSTLEN(i0_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i1_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i2_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i3_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i4_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i5_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i6_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i7_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i8_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i9_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i10_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i11_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i12_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i13_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i14_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i15_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i16_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i17_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i18_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i19_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i20_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i21_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i22_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i23_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i24_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i25_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i26_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i27_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i28_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i29_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i30_app, 2)
-    `CONNECT_AND_EXTEND_NOC_BURSTLEN(i31_app, 2)
+hbm_ss_sv hbm_ss_sv (
+   .hbm_fab_clk_clk,
+   .hbm_rst_n_reset_n,
+   .hbm_cattrip_conduit,
+   .hbm_temp_conduit,
+   .hbm_uib_clk_clk,
+   .noc_ctrl_clk,
+   .noc_noc_bridge_fabric_clk_clk,
 
-       .* );
+   .hbm_local_cal_success_local_cal_success(hbm_cal_success),
+   .hbm_local_cal_fail_local_cal_fail(hbm_cal_fail),
 
+   .i_app(ss_axi_mm),
+   .i_app_clk_clk,
+   .i_app_rst_n_reset_n
+ );
+
+// Map the OFS AXI-MM interface to the memory subsystem interface.
+// Clock and reset are connected in a generate block above.
+for (genvar c = 0; c < NUM_MEM_CHANNELS; c++) begin : axi_mm_map
+   // Write address channel
+   assign afu_mem_if[c].awready = ss_axi_mm[c].awready;
+   assign ss_axi_mm[c].awvalid  = afu_mem_if[c].awvalid;
+   assign ss_axi_mm[c].awid     = afu_mem_if[c].awid;
+   assign ss_axi_mm[c].awaddr   = afu_mem_if[c].awaddr;
+   assign ss_axi_mm[c].awlen    = { '0, afu_mem_if[c].awlen }; // OFS may use a narrower burst width
+   assign ss_axi_mm[c].awsize   = afu_mem_if[c].awsize;
+   assign ss_axi_mm[c].awburst  = afu_mem_if[c].awburst;
+   assign ss_axi_mm[c].awlock   = afu_mem_if[c].awlock;
+   assign ss_axi_mm[c].awprot   = afu_mem_if[c].awprot;
+   assign ss_axi_mm[c].awuser   = afu_mem_if[c].awuser;
+   // Write data channel
+   assign afu_mem_if[c].wready  = ss_axi_mm[c].wready;
+   assign ss_axi_mm[c].wvalid   = afu_mem_if[c].wvalid;
+   assign ss_axi_mm[c].wdata    = afu_mem_if[c].wdata;
+   assign ss_axi_mm[c].wstrb    = afu_mem_if[c].wstrb;
+   assign ss_axi_mm[c].wlast    = afu_mem_if[c].wlast;
+   assign ss_axi_mm[c].wuser    = '0;
+   // Write response channel
+   assign ss_axi_mm[c].bready   = afu_mem_if[c].bready;
+   assign afu_mem_if[c].bvalid  = ss_axi_mm[c].bvalid;
+   assign afu_mem_if[c].bid     = ss_axi_mm[c].bid;
+   assign afu_mem_if[c].bresp   = ss_axi_mm[c].bresp;
+ `ifdef IFC_MEM_SS_I_AXI_MM_IF_WIDTH_RUSER
+   assign afu_mem_if[c].buser   = ss_axi_mm[c].buser;
+ `else
+   assign afu_mem_if[c].buser   = '0;
+ `endif
+   // Read address channel
+   assign afu_mem_if[c].arready = ss_axi_mm[c].arready;
+   assign ss_axi_mm[c].arvalid  = afu_mem_if[c].arvalid;
+   assign ss_axi_mm[c].arid     = afu_mem_if[c].arid;
+   assign ss_axi_mm[c].araddr   = afu_mem_if[c].araddr;
+   assign ss_axi_mm[c].arlen    = { '0, afu_mem_if[c].arlen }; // OFS may use a narrower burst width
+   assign ss_axi_mm[c].arsize   = afu_mem_if[c].arsize;
+   assign ss_axi_mm[c].arburst  = afu_mem_if[c].arburst;
+   assign ss_axi_mm[c].arlock   = afu_mem_if[c].arlock;
+   assign ss_axi_mm[c].arprot   = afu_mem_if[c].arprot;
+   assign ss_axi_mm[c].aruser   = afu_mem_if[c].aruser;
+   assign ss_axi_mm[c].arqos   = '0;
+   // Read response channel
+   assign ss_axi_mm[c].rready   = afu_mem_if[c].rready;
+   assign afu_mem_if[c].rvalid  = ss_axi_mm[c].rvalid;
+   assign afu_mem_if[c].rid     = ss_axi_mm[c].rid;
+   assign afu_mem_if[c].rdata   = ss_axi_mm[c].rdata;
+   assign afu_mem_if[c].rresp   = ss_axi_mm[c].rresp;
+   assign afu_mem_if[c].rlast   = ss_axi_mm[c].rlast;
+   assign afu_mem_if[c].ruser   = ss_axi_mm[c].ruser;
+end
+      
 endmodule // mem_ss_top

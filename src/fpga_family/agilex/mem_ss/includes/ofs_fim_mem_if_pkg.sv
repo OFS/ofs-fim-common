@@ -27,128 +27,130 @@ package ofs_fim_mem_if_pkg;
    // The fallback values do not provide a functional mapping to IP interfaces. They are only defined for compilation
    // units included within common design files.
 
-   // AXI-MM PARAMS
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_USER_AXI
-   localparam NUM_MEM_CHANNELS        = `OFS_FIM_IP_CFG_LOCAL_MEM_NUM_AXI_CHANNELS;
+//
+// AXI-MM PARAMS --
+//  These macros are created by ip_gen_sv_wrapper.tcl, which reads the memory subsystem IP and generates
+//  a SystemVerilog wrapper around it.
+//
+`ifdef MEM_SS_PORT_I_AXI_MM_IS_VEC
+   // Number of AXI-MM channels to EMIF. The value may be lower than the number of DIMMs
+   // when some memory is mapped for use by HPS.
+   localparam NUM_MEM_CHANNELS        = `MEM_SS_PORT_I_AXI_MM_IS_VEC;
+
    // AW
-   parameter AXI_MEM_AWID_WIDTH       = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_AWID_WIDTH;
-   parameter AXI_MEM_AWADDR_WIDTH     = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_AWADDR_WIDTH;
-   parameter AXI_MEM_AWUSER_WIDTH     = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_AWUSER_WIDTH;
+   localparam AXI_MEM_AWID_WIDTH      = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_AWID;
+   localparam AXI_MEM_AWADDR_WIDTH    = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_AWADDR;
+   localparam AXI_MEM_AWUSER_WIDTH    = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_AWUSER;
    // W
-   parameter AXI_MEM_WDATA_WIDTH      = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_WDATA_WIDTH;
-   parameter AXI_MEM_WUSER_WIDTH      = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_WUSER_WIDTH;
+   localparam AXI_MEM_WDATA_WIDTH     = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_WDATA;
+ `ifdef IFC_MEM_SS_I_AXI_MM_IF_WIDTH_WUSER
+   localparam AXI_MEM_WUSER_WIDTH     = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_WUSER;
+ `else
+   localparam AXI_MEM_WUSER_WIDTH     = 1;
+ `endif
    // B
-   parameter AXI_MEM_BID_WIDTH        = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_BID_WIDTH;
-   parameter AXI_MEM_BUSER_WIDTH      = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_BUSER_WIDTH;
+   localparam AXI_MEM_BID_WIDTH       = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_BID;
+   localparam AXI_MEM_BUSER_WIDTH     = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_BUSER;
    // AR
-   parameter AXI_MEM_ARID_WIDTH       = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_ARID_WIDTH;
-   parameter AXI_MEM_ARADDR_WIDTH     = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_ARADDR_WIDTH;
-   parameter AXI_MEM_ARUSER_WIDTH     = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_ARUSER_WIDTH;
+   localparam AXI_MEM_ARID_WIDTH      = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_ARID;
+   localparam AXI_MEM_ARADDR_WIDTH    = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_ARADDR;
+   localparam AXI_MEM_ARUSER_WIDTH    = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_ARUSER;
    // R
-   parameter AXI_MEM_RDATA_WIDTH      = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_RDATA_WIDTH;
-   parameter AXI_MEM_RID_WIDTH        = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_RID_WIDTH;
-   parameter AXI_MEM_RUSER_WIDTH      = `OFS_FIM_IP_CFG_LOCAL_MEM_AXI_RUSER_WIDTH;
-`else 
+   localparam AXI_MEM_RDATA_WIDTH     = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_RDATA;
+   localparam AXI_MEM_RID_WIDTH       = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_RID;
+ `ifdef IFC_MEM_SS_I_AXI_MM_IF_WIDTH_RUSER
+   localparam AXI_MEM_RUSER_WIDTH     = `IFC_MEM_SS_I_AXI_MM_IF_WIDTH_RUSER;
+ `else
+   localparam AXI_MEM_RUSER_WIDTH     = 1;
+ `endif
+
+`elsif HBM_SS_PORT_I_APP_IS_VEC
+   // HBM as local memory
+   localparam NUM_MEM_CHANNELS        = `HBM_SS_PORT_I_APP_IS_VEC;
+
+   // AW
+   localparam AXI_MEM_AWID_WIDTH      = `IFC_HBM_SS_I_APP_IF_WIDTH_AWID;
+   localparam AXI_MEM_AWADDR_WIDTH    = `IFC_HBM_SS_I_APP_IF_WIDTH_AWADDR;
+   localparam AXI_MEM_AWUSER_WIDTH    = `IFC_HBM_SS_I_APP_IF_WIDTH_AWUSER;
+   // W
+   localparam AXI_MEM_WDATA_WIDTH     = `IFC_HBM_SS_I_APP_IF_WIDTH_WDATA;
+ `ifdef IFC_HBM_SS_I_APP_IF_WIDTH_WUSER
+   localparam AXI_MEM_WUSER_WIDTH     = `IFC_HBM_SS_I_APP_IF_WIDTH_WUSER;
+ `else
+   localparam AXI_MEM_WUSER_WIDTH     = 1;
+ `endif
+   // B
+   localparam AXI_MEM_BID_WIDTH       = `IFC_HBM_SS_I_APP_IF_WIDTH_BID;
+ `ifdef IFC_HBM_SS_I_APP_IF_WIDTH_BUSER
+   localparam AXI_MEM_BUSER_WIDTH     = `IFC_HBM_SS_I_APP_IF_WIDTH_BUSER;
+ `else
+   localparam AXI_MEM_BUSER_WIDTH     = 1;
+ `endif
+
+   // AR
+   localparam AXI_MEM_ARID_WIDTH      = `IFC_HBM_SS_I_APP_IF_WIDTH_ARID;
+   localparam AXI_MEM_ARADDR_WIDTH    = `IFC_HBM_SS_I_APP_IF_WIDTH_ARADDR;
+   localparam AXI_MEM_ARUSER_WIDTH    = `IFC_HBM_SS_I_APP_IF_WIDTH_ARUSER;
+   // R
+   localparam AXI_MEM_RDATA_WIDTH     = `IFC_HBM_SS_I_APP_IF_WIDTH_RDATA;
+   localparam AXI_MEM_RID_WIDTH       = `IFC_HBM_SS_I_APP_IF_WIDTH_RID;
+ `ifdef IFC_HBM_SS_I_APP_IF_WIDTH_RUSER
+   localparam AXI_MEM_RUSER_WIDTH     = `IFC_HBM_SS_I_APP_IF_WIDTH_RUSER;
+ `else
+   localparam AXI_MEM_RUSER_WIDTH     = 1;
+ `endif
+
+ `else
+   // Defaults when local memory subsystem is not present
    localparam NUM_MEM_CHANNELS        = 1;
-   parameter AXI_MEM_AWID_WIDTH       = 1;
-   parameter AXI_MEM_AWADDR_WIDTH     = 32;
-   parameter AXI_MEM_AWUSER_WIDTH     = 1;
-   parameter AXI_MEM_WDATA_WIDTH      = 512;
-   parameter AXI_MEM_WUSER_WIDTH      = 1;
-   parameter AXI_MEM_BID_WIDTH        = 1;
-   parameter AXI_MEM_BUSER_WIDTH      = 1;
-   parameter AXI_MEM_ARID_WIDTH       = 1;
-   parameter AXI_MEM_ARADDR_WIDTH     = 32;
-   parameter AXI_MEM_ARUSER_WIDTH     = 1;
-   parameter AXI_MEM_RDATA_WIDTH      = 512;
-   parameter AXI_MEM_RID_WIDTH        = 1;
-   parameter AXI_MEM_RUSER_WIDTH      = 1;
+   localparam AXI_MEM_AWID_WIDTH      = 1;
+   localparam AXI_MEM_AWADDR_WIDTH    = 32;
+   localparam AXI_MEM_AWUSER_WIDTH    = 1;
+   localparam AXI_MEM_WDATA_WIDTH     = 512;
+   localparam AXI_MEM_WUSER_WIDTH     = 1;
+   localparam AXI_MEM_BID_WIDTH       = 1;
+   localparam AXI_MEM_BUSER_WIDTH     = 1;
+   localparam AXI_MEM_ARID_WIDTH      = 1;
+   localparam AXI_MEM_ARADDR_WIDTH    = 32;
+   localparam AXI_MEM_ARUSER_WIDTH    = 1;
+   localparam AXI_MEM_RDATA_WIDTH     = 512;
+   localparam AXI_MEM_RID_WIDTH       = 1;
+   localparam AXI_MEM_RUSER_WIDTH     = 1;
+`endif // MEM_SS_PORT_I_AXI_MM_IS_VEC
+
+
+// Total number of all DDR4 channels (DIMMs) in the system -- the sum of all
+// NUM_GROUP_*_DDR4_CHANNELS below.
+`ifdef MEM_SS_PORT_MEM_PLL_REF_CLK_IS_VEC
+   localparam NUM_DDR4_CHANNELS       = `MEM_SS_PORT_MEM_PLL_REF_CLK_IS_VEC;
+`else
+   localparam NUM_DDR4_CHANNELS       = 1;
 `endif
+
+`ifdef MEM_SS_PORT_MEM_DDR4_IS_VEC
+   localparam NUM_GROUP_0_DDR4_CHANNELS = `MEM_SS_PORT_MEM_DDR4_IS_VEC;
+`endif
+`ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+   localparam NUM_GROUP_1_DDR4_CHANNELS = `MEM_SS_PORT_MEM_G1_DDR4_IS_VEC;
+`endif
+
 `ifdef INCLUDE_HBM
    // Max request size for NOC with 64B bus
    localparam AXI_MEM_BURST_LEN_WIDTH = 6;
-`else 
+`else
    // This is defined by the AXI standard
    localparam AXI_MEM_BURST_LEN_WIDTH = 8;
 `endif
-   // TODO: Temporary
+
 `ifdef INCLUDE_HBM
-   localparam NUM_HBM_DEVICES = 2;
+   localparam NUM_HBM_DEVICES = `HBM_SS_PORT_HBM_UIB_CLK_CLK_IS_VEC;
+   // TODO: Temporary
    localparam PER_HBM_ADDR_WIDTH = 34;  // 33 = 8GB; 34 = 16GB
 `else
    localparam NUM_HBM_DEVICES = 0;
    localparam PER_HBM_ADDR_WIDTH = 0;
 `endif
-   // DDR4 PARAMS
-   
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-   localparam NUM_DDR4_CHANNELS = `OFS_FIM_IP_CFG_LOCAL_MEM_NUM_DDR4_CHANNELS;
-   
-   localparam NUM_GROUP_0_DDR4_CHANNELS = `OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0_NUM_CH;
-   localparam DDR4_GROUP_0_A_WIDTH   = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_A_WIDTH;
-   localparam DDR4_GROUP_0_BA_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_BA_WIDTH;
-   localparam DDR4_GROUP_0_BG_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_BG_WIDTH;
-   localparam DDR4_GROUP_0_CK_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_CK_WIDTH;
-   localparam DDR4_GROUP_0_CKE_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_CKE_WIDTH;
-   localparam DDR4_GROUP_0_CS_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_CS_N_WIDTH;
-   localparam DDR4_GROUP_0_ODT_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_ODT_WIDTH;
-   localparam DDR4_GROUP_0_DQ_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_DQ_WIDTH;
-   localparam DDR4_GROUP_0_DQS_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_DQS_WIDTH;
-   localparam DDR4_GROUP_0_DQS_DIV2_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_0_DDR4_DQS_DIV2_WIDTH;
-`else
-   localparam NUM_DDR4_CHANNELS = 1;
-   
-   localparam NUM_GROUP_0_DDR4_CHANNELS = 1;
-   localparam DDR4_GROUP_0_A_WIDTH   = 17;
-   localparam DDR4_GROUP_0_BA_WIDTH  = 2;
-   localparam DDR4_GROUP_0_BG_WIDTH  = 1;
-   localparam DDR4_GROUP_0_CK_WIDTH  = 1;
-   localparam DDR4_GROUP_0_CKE_WIDTH = 1;
-   localparam DDR4_GROUP_0_CS_WIDTH  = 2;
-   localparam DDR4_GROUP_0_ODT_WIDTH = 1;
-   localparam DDR4_GROUP_0_DQ_WIDTH  = 32;
-   localparam DDR4_GROUP_0_DQS_WIDTH = 4;
-   localparam DDR4_GROUP_0_DQS_DIV2_WIDTH = 2;
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
-   localparam NUM_GROUP_1_DDR4_CHANNELS = `OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1_NUM_CH;
-   localparam DDR4_GROUP_1_A_WIDTH   = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_A_WIDTH;
-   localparam DDR4_GROUP_1_BA_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_BA_WIDTH;
-   localparam DDR4_GROUP_1_BG_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_BG_WIDTH;
-   localparam DDR4_GROUP_1_CK_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_CK_WIDTH;
-   localparam DDR4_GROUP_1_CKE_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_CKE_WIDTH;
-   localparam DDR4_GROUP_1_CS_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_CS_N_WIDTH;
-   localparam DDR4_GROUP_1_ODT_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_ODT_WIDTH;
-   localparam DDR4_GROUP_1_DQ_WIDTH  = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_DQ_WIDTH;
-   localparam DDR4_GROUP_1_DQS_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_DQS_WIDTH;
-   localparam DDR4_GROUP_1_DQS_DIV2_WIDTH = `OFS_FIM_IP_CFG_LOCAL_MEM_PARAM_GROUP_1_DDR4_DQS_DIV2_WIDTH;
-`endif
-   
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_HPS_DDR4
-   localparam HPS_A_WIDTH            = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_A_WIDTH;
-   localparam HPS_BA_WIDTH           = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_BA_WIDTH;
-   localparam HPS_BG_WIDTH           = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_BG_WIDTH;
-   localparam HPS_CK_WIDTH           = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CK_WIDTH;
-   localparam HPS_CKE_WIDTH          = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CKE_WIDTH;
-   localparam HPS_CS_WIDTH           = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CS_N_WIDTH;
-   localparam HPS_ODT_WIDTH          = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_ODT_WIDTH;
-   localparam HPS_DQ_WIDTH           = `OFS_FIM_IP_CFG_LOCAL_MEM_HPS_DQ_WIDTH;
-`else
-   localparam NUM_HPS_CHANNELS       = 1;
-   localparam HPS_A_WIDTH            = 17;
-   localparam HPS_BA_WIDTH           = 2;
-   localparam HPS_BG_WIDTH           = 1;
-   localparam HPS_CK_WIDTH           = 1;
-   localparam HPS_CKE_WIDTH          = 1;
-   localparam HPS_CS_WIDTH           = 2;
-   localparam HPS_ODT_WIDTH          = 1;
-   localparam HPS_DQ_WIDTH           = 32;
-`endif
-   localparam HPS_DQS_WIDTH          = HPS_DQ_WIDTH/8;
-   
 endpackage : ofs_fim_mem_if_pkg
 
 `endif //  `ifndef __OFS_FIM_MEM_IF_PKG__
-   

@@ -61,6 +61,18 @@ namespace eval ip_gen_sv {
     variable ifc_groups
     array set ifc_groups {}
 
+    # Interface group number. Each entry is a list with two entries:
+    #   0: group number - the id0 entry is always group 0
+    #   1: group index offset - mapping from the original port name to vector offset
+    # Group number is used to handle a collection of similarly named ports that have
+    # multiple interfaces. For example, a board with 4 sets of EMIF -- two with ECC
+    # and two without. If all 4 EMIF ports have consistent names, such as mem0_ddr,
+    # mem1_ddr, mem2_ddr, and mem3_ddr, the group number will be 0 for the first
+    # two and 1 for the last two. The index offset will be 0 for the first two and
+    # 2 for the last two.
+    variable ifc_group_num
+    array set ifc_group_num {}
+
     # Map from HWTCL interface name to vector length of ports coalesced into
     # a group. If an entry is present, the interface is either the primary
     # interface for a vector or a subordinate member of a primary entry.
@@ -134,31 +146,42 @@ proc gen_interface {name ifc port_list} {
     # Instance from which this public interface is exported
     set export_of_inst [lindex [split [get_interface_property $ifc "EXPORT_OF"] "."] 0]
 
-    # Is an associated clock or reset present? If yes, add them to the SV interface.
-    set clk [get_exported_interface_parameter_value $ifc associatedClock]
-    set rst [get_exported_interface_parameter_value $ifc associatedReset]
-    if {$clk != "" && $export_of_inst == $name} {
-        lappend port_decl [list "clk" [list "output" "wire " ""] 0]
-        lappend port_outputs "clk"
-    }
-    if {$rst != "" && $export_of_inst == $name} {
-        # Find the reset polarity from the port
-        set rst_roll [get_first_port_role $name $rst]
-        if {[string tolower [string index $rst_roll end]] == "n"} {
-            lappend port_decl [list "rst_n" [list "output" "wire " ""] 0]
-            lappend port_outputs "rst_n"
-        } else {
-            lappend port_decl [list "rst" [list "output" "wire " ""] 0]
-            lappend port_outputs "rst"
-        }
-    }
-
+    # Generate a list of signals in the interface.
+    set port_name_list [list]
     foreach port $port_list {
         # Short port name inside the interface scope       
         set pname [get_interface_port_property $ifc $port ROLE]
         if {$pname == ""} {
             set pname $port
         }
+        lappend port_name_list $pname
+    }
+
+    # Look for a common prefix on each signal in the interface. Prefixes are strings, separated
+    # by underscores.
+    set common_prefix [split [string trimright [lindex $port_name_list 0] _] _]
+    # Can't delete the whole string
+    set common_prefix [lrange $common_prefix 0 end-1]
+    foreach pname $port_name_list {
+        if {[llength $common_prefix] == 0} { break }
+        set new_common_prefix [list]
+        foreach c $common_prefix p [split $pname "_"] {
+            if {$c != $p} { break }
+            lappend new_common_prefix $c
+        }
+        set common_prefix $new_common_prefix
+    }
+    set common_prefix_len 0
+    if {[llength $common_prefix] > 0} {
+        set common_prefix_len [string length [join $common_prefix _]_]
+        puts $::ip_gen_sv::log_file "${name} ${ifc} removing common prefix: [join $common_prefix _]_"
+    }
+
+    # Add signals to the Tcl interface data structure.
+    set pname_list [list]
+    foreach port $port_list port_name $port_name_list {
+        # Short port name inside the interface scope, dropping common prefix if one was found.
+        set pname [string range $port_name $common_prefix_len end]
         set ptype "logic"
 
         set dir [string tolower [get_interface_port_property $ifc $port DIRECTION]]
@@ -167,14 +190,35 @@ proc gen_interface {name ifc port_list} {
             set ptype "wire "
         }
 
-        set w [get_interface_port_property $ifc $port WIDTH]
-        if {$w == 1} {
-            lappend port_decl [list $pname [list $dir $ptype ""]]
+        set width [get_interface_port_property $ifc $port WIDTH]
+        lappend port_decl [list $pname [list $dir $ptype $width]]
+        lappend pname_list $pname
+    }
+
+    # Is an associated clock or reset present? If yes, add them to the SV interface.
+    # Do not add them if there is already a clock or reset port with the same name.
+    set rst [get_exported_interface_parameter_value $ifc associatedReset]
+    if {$rst != "" && $export_of_inst == $name} {
+        # Find the reset polarity from the port
+        set rst_roll [get_first_port_role $name $rst]
+        if {[string tolower [string index $rst_roll end]] == "n"} {
+            if {[lsearch $pname_list "rst_n"] == -1} {
+                set port_decl [lreplace $port_decl 0 -1 [list "rst_n" [list "output" "wire " ""] 0]]
+            }
         } else {
-            lappend port_decl [list $pname [list $dir $ptype "\[[expr $w-1]:0\] "]]
+            if {[lsearch $pname_list "rst"] == -1} {
+                set port_decl [lreplace $port_decl 0 -1 [list "rst" [list "output" "wire " ""] 0]]
+            }
+        }
+    }
+    set clk [get_exported_interface_parameter_value $ifc associatedClock]
+    if {$clk != "" && $export_of_inst == $name} {
+        if {[lsearch $pname_list "clk"] == -1} {
+            set port_decl [lreplace $port_decl 0 -1 [list "clk" [list "output" "wire " ""] 0]]
         }
     }
 
+    # Pick modport names
     set class_name [string tolower [get_exported_interface_property $ifc CLASS_NAME]]
     if {[string first "axi" $class_name] != -1} {
         if {[string first "slave" $class_name] != -1 || [string first "subord" $class_name] != -1} {
@@ -336,11 +380,9 @@ proc gen_simple_port {name ifc port} {
         set pname $port
     }
 
-    set w [get_interface_port_property $ifc $port WIDTH]
-    if {$w == 1} {
-        set width ""
-    } else {
-        set width "\[[expr $w-1]:0\] "
+    set width [get_interface_port_property $ifc $port WIDTH]
+    if {$width == ""} {
+        set width 1
     }
 
     set dir [string tolower [get_interface_port_property $ifc $port DIRECTION]]
@@ -408,6 +450,7 @@ proc decode_sv_interfaces {} {
             set ::ip_gen_sv::ifc_name_map($map_key) $ifc_name
             set ::ip_gen_sv::ifc_name_map_key($map_key) $map_key
             set ::ip_gen_sv::ifc_groups($map_key) $pub_ifc
+            set ::ip_gen_sv::ifc_group_num($map_key) [list 0 0]
 
             puts $::ip_gen_sv::log_file "${pub_ifc} is id0 of a potential group. Using ${ifc_name}."
             puts $::ip_gen_sv::log_file "  Map key: ${map_key}"
@@ -415,10 +458,20 @@ proc decode_sv_interfaces {} {
         } else {
             # Check existing id0 interfaces for coalescing matches. This is O(n^2) but n is small.
             set found_match 0
+            set merge_pattern ""
+            set merge_next_group_num 1
             foreach key [array names ::ip_gen_sv::ifc_name_map_pattern] {
                 if {[regexp $::ip_gen_sv::ifc_name_map_pattern($key) $pub_ifc dummy prefix idx suffix]} {
                     # Found a name match. Does the interface match?
                     set test_ifc_name $::ip_gen_sv::ifc_name_map($key)
+
+                    # Found a pattern match. Record details of the pattern and port name group IDs in case
+                    # the interface does not match.
+                    set merge_pattern $::ip_gen_sv::ifc_name_map_pattern($key)
+                    if {[lindex $::ip_gen_sv::ifc_group_num($key) 0] >= $merge_next_group_num} {
+                        set merge_next_group_num [expr [lindex $::ip_gen_sv::ifc_group_num($key) 0] + 1]
+                    }
+
                     if {[info exists ::ip_gen_sv::ip_ifcs($test_ifc_name)] && $::ip_gen_sv::ip_ifcs($test_ifc_name) == $sv_ifc} {
                         # Merge with the 0 index entry
                         set ::ip_gen_sv::ifc_name_map($map_key) $test_ifc_name
@@ -435,13 +488,34 @@ proc decode_sv_interfaces {} {
                     }
                 }
             }
+
             if {$found_match == 0} {
-                # No match. Use the original name.
-                set ifc_name "${name}_[string trimright $pub_ifc _]_if"
-                set ::ip_gen_sv::ip_ifcs($ifc_name) $sv_ifc
-                set ::ip_gen_sv::ifc_name_map($map_key) $ifc_name
-                set ::ip_gen_sv::ifc_name_map_key($map_key) $map_key
-                puts $::ip_gen_sv::log_file "${ifc} is not part of a group. Using ${ifc_name}."
+                if {$merge_pattern != ""} {
+                    # Found a pattern match but the interface does not match. Use the
+                    # pattern to generate a new name.
+                    regexp $merge_pattern $pub_ifc dummy prefix idx suffix
+                    set ifc_name "${name}_[string trimright ${prefix}_g${merge_next_group_num}${suffix} _]_if"
+
+                    set ::ip_gen_sv::ifc_name_map_pattern($map_key) $merge_pattern
+
+                    set ::ip_gen_sv::ip_ifcs($ifc_name) $sv_ifc
+                    set ::ip_gen_sv::ifc_name_map($map_key) $ifc_name
+                    set ::ip_gen_sv::ifc_name_map_key($map_key) $map_key
+                    set ::ip_gen_sv::ifc_groups($map_key) $pub_ifc
+                    set ::ip_gen_sv::ifc_group_num($map_key) [list $merge_next_group_num $idx]
+
+                    puts $::ip_gen_sv::log_file "${pub_ifc} starts a new group with interface ${ifc_name}."
+                    puts $::ip_gen_sv::log_file "  Map key: ${map_key}"
+                    puts $::ip_gen_sv::log_file "  Pattern: $::ip_gen_sv::ifc_name_map_pattern($map_key)"
+                    puts $::ip_gen_sv::log_file "  Group number / Start index: $::ip_gen_sv::ifc_group_num($map_key)"
+                } else {
+                    # No match. Use the original name.
+                    set ifc_name "${name}_[string trimright $pub_ifc _]_if"
+                    set ::ip_gen_sv::ip_ifcs($ifc_name) $sv_ifc
+                    set ::ip_gen_sv::ifc_name_map($map_key) $ifc_name
+                    set ::ip_gen_sv::ifc_name_map_key($map_key) $map_key
+                    puts $::ip_gen_sv::log_file "${ifc} is not part of a group. Using ${ifc_name}."
+                }
             }
         }
     }
@@ -652,7 +726,8 @@ proc gen_sv_wrapper {tgt_dir} {
 
     # Write out the SV interfaces
     puts $hdr_if_file "//"
-    puts $hdr_if_file "// Macros describing SystemVerilog interfaces"
+    puts $hdr_if_file "// Macros describing SystemVerilog interfaces. Interface macros indicate"
+    puts $hdr_if_file "// both the presence of a signal and its width."
     puts $hdr_if_file "//"
     puts $hdr_if_file ""
     foreach ifc_name [lsort_dict [array names ::ip_gen_sv::ip_ifcs]] {
@@ -674,16 +749,24 @@ proc gen_sv_wrapper {tgt_dir} {
             set port_direction [lindex [lindex $port 1] 0]
             set port_type [lindex [lindex $port 1] 1]
             set port_width [lindex [lindex $port 1] 2]
+            if {$port_width == ""} {
+                set port_width 1
+            }
 
-            puts $hdr_if_file "`define IFC_[string toupper ${pretty_ifc_name}]_HAS_PORT_[string toupper ${port_name}] 1"
+            set port_range ""
+            if {$port_width != 1} {
+                set port_range "\[[expr ${port_width}-1]:0\] "
+            }
+
+            puts $hdr_if_file "`define IFC_[string toupper ${pretty_ifc_name}]_WIDTH_[string toupper ${port_name}] ${port_width}"
 
             if {[llength $port] > 2 && [lindex $port 2] > 0} {
                 # Merged port (vector of base ports detected from sequentially numbered naming)
                 set n_entries [expr [lindex $port 2] - 1]
-                puts $of "  ${port_type} \[${n_entries}:0\] ${port_width}${port_name};"
+                puts $of "  ${port_type} \[${n_entries}:0\] ${port_range}${port_name};"
                 puts $hdr_if_file "`define IFC_[string toupper ${pretty_ifc_name}]_PORT_[string toupper ${port_name}]_IS_VEC [expr $n_entries+1]"
             } else {
-                puts $of "  ${port_type} ${port_width}${port_name};"
+                puts $of "  ${port_type} ${port_range}${port_name};"
             }
 
             if {$port_direction == "input"} {
@@ -757,7 +840,7 @@ proc gen_sv_wrapper {tgt_dir} {
             # modports present. Use a SV interface.
             set port "  ${pretty_ifc_name}.[lindex [lindex $sv_ifc 1] 0] "
             if {$vec_len != ""} {
-                append port "[string trimright [ifc_to_group $name $ifc] _]\[${vec_len}\]"
+                append port "[string trimright [ifc_to_group $name $ifc] _]\[${vec_len}-1:0\]"
                 set def_name [string toupper [string trimright [ifc_to_group $name $ifc] _]]
                 puts $hdr_if_file "`define ${ip_name}_PORT_${def_name}_IS_VEC ${name}_param_pkg::${vec_len}"
                 puts $hdr_if_file "`define ${ip_name}_HAS_PORT_${def_name} 1"
@@ -773,13 +856,21 @@ proc gen_sv_wrapper {tgt_dir} {
             set port_name $pub_ifc
             set simple_port [lindex $sv_ifc 0]
             set port "  [join [lrange $simple_port 0 1]]"
+
+            set port_range ""
+            set port_width [lindex $simple_port 2]
+            if {$port_width != 1} {
+                set port_range "\[[expr ${port_width}-1]:0\] "
+            }
+
             if {$vec_len != ""} {
                 append port " \[${vec_len}-1:0\]"
                 set port_name [ifc_to_group $name $ifc $pub_ifc]
                 puts $hdr_if_file "`define ${ip_name}_PORT_[string toupper [string trimright $port_name _]]_IS_VEC ${name}_param_pkg::${vec_len}"
             }
-            append port " [lindex $simple_port 2][string trimright $port_name _]"
+            append port " ${port_range}[string trimright $port_name _]"
             puts $hdr_if_file "`define ${ip_name}_HAS_PORT_[string toupper [string trimright $port_name _]] 1"
+            puts $hdr_if_file "`define ${ip_name}_PORT_WIDTH_[string toupper [string trimright $port_name _]] ${port_width}"
         }
 
         lappend all_ports $port
@@ -930,8 +1021,15 @@ proc ifc_to_group {name ifc {pub_ifc ""}} {
         set pub_ifc $ifc
     }
 
+    # Does the group have a non-zero group ID? If so, add it to the name.
+    set grp_num [lindex $::ip_gen_sv::ifc_group_num($map_key) 0]
+    set grp_num_str ""
+    if {$grp_num > 0} {
+        set grp_num_str "_g${grp_num}"
+    }
+
     regexp $pattern $pub_ifc dummy prefix id suffix
-    return "[string trimright $prefix _]${suffix}"
+    return "[string trimright $prefix _]${grp_num_str}${suffix}"
 }
 
 # Map an interface to the group index.
@@ -943,8 +1041,13 @@ proc ifc_to_group_id {name ifc {pub_ifc ""}} {
         set pub_ifc $ifc
     }
 
+    # Mapping from the index from the interface name to the index of the
+    # group's vector. Most will both be 0. Ports with matching names but
+    # different interfaces are broken into groups and require index mapping.
+    set start_id [lindex $::ip_gen_sv::ifc_group_num($map_key) 1]
+
     regexp $pattern $pub_ifc dummy prefix id suffix
-    return ${id}
+    return [expr $id - $start_id]
 }
 
 # Potential port coalescing was already discovered during decode_sv_interfaces.
@@ -961,7 +1064,7 @@ proc find_coalesce_groups {name} {
         set pattern $::ip_gen_sv::ifc_name_map_pattern($map_key)
 
         set has_suffix 0
-        set expect_idx 0
+        set expect_idx [lindex $::ip_gen_sv::ifc_group_num($map_key) 1]
         set idx_is_dense 1
 
         # Each interface in the group
@@ -983,6 +1086,8 @@ proc find_coalesce_groups {name} {
             # Coalesce them into a single vector.
             lappend coalesce_groups $::ip_gen_sv::ifc_groups($map_key)
             puts $::ip_gen_sv::log_file "${name}: coalescing group $::ip_gen_sv::ifc_groups($map_key)"
+        } else {
+            puts $::ip_gen_sv::log_file "${name}: $::ip_gen_sv::ifc_groups($map_key) is not a group"
         }
     }
 
@@ -1019,33 +1124,64 @@ proc coalesce_get_num_ports {groups} {
     return $num_ports
 }
 
-# foo_bar0_baz -> bar
-proc map_func_near_prefix {name} {
-    if {[regexp {([a-zA-Z]+)[0-9]+(_|$)} $name dummy g] == 0} {
+# Standard interface to group name mapping
+proc map_func_near_prefix {name ifc} {
+    if {[regexp {([a-zA-Z]+)[0-9]+(_|$)} $ifc dummy g] == 0} {
         return ""
     }
-    return [string trimright $g _]
+    set g [string trimright $g _]
+
+    # Don't accept single character results
+    if {[string length $g] < 2} {
+        return ""
+    }
+
+    return $g
 }
 
 # foo_txbar0_baz -> bar (same as map_func_near prefix but remove TX and RX,
 # trying to merge pairs of interfaces)
-proc map_func_near_prefix_drop_txrx {name} {
-    set g [map_func_near_prefix $name]
+proc map_func_near_prefix_drop_txrx {name ifc} {
+    set g [map_func_near_prefix $name $ifc]
     regsub -nocase {^(tx|rx)} $g "" g
     return $g
 }
 
 # foo_bar0_baz -> foo_bar
-proc map_func_full_prefix {name} {
-    if {[regexp {(^.*[^0-9])[0-9]+(_|$)} $name dummy g] == 0} {
+proc map_func_full_prefix {name ifc} {
+    if {[regexp {([a-zA-Z_]+)[0-9]+(_|$)} $ifc dummy g] == 0} {
         return ""
     }
-    return [string trimright $g _]
+
+    # Don't accept single character results
+    if {[string length $g] < 2} {
+        return ""
+    }
+
+    return $g
 }
 
 # foo_bar0_baz -> foo_bar_baz
-proc map_func_full_name {name} {
-    regsub {[0-9]+(_|$)} $name _ g
+proc map_func_full_name {name ifc} {
+    # Try to use the stored pattern match
+    set map_ifc $ifc
+    if {![info exists ::ip_gen_sv::ifc_groups(${name}_${ifc})]} {
+        foreach key [array names ::ip_gen_sv::ifc_groups] {
+            if {$::ip_gen_sv::ifc_groups($key) == $ifc} {
+                regsub "^${name}_" $key "" map_ifc
+                break
+            }
+        }
+    }
+
+    if {[info exists ::ip_gen_sv::ifc_groups(${name}_${map_ifc})]} {
+        set g [ifc_to_group $name $map_ifc [lindex $::ip_gen_sv::ifc_groups(${name}_${map_ifc}) 0]]
+        regsub "_if$" $g "" g
+        return $g
+    }
+
+    # Give up and just use the interface name
+    regsub {[0-9]+(_|$)} $ifc _ g
     return [string trimright $g _]
 }
 
@@ -1055,7 +1191,7 @@ proc map_func_full_name {name} {
 proc coalesce_try_map_func {name groups map_func} {
     array set name_to_size {}
     foreach group $groups {
-        set mapped_name [$map_func [lindex $group 0]]
+        set mapped_name [$map_func $name [lindex $group 0]]
         if {$mapped_name == ""} {
             # Mapping function failed. Try the next one.
             return 0
@@ -1073,7 +1209,7 @@ proc coalesce_try_map_func {name groups map_func} {
 
     # Mapping works. Update ::ip_gen_sv::ifc_vec_len with chosen naming.
     foreach group $groups {
-        set mapped_name [string toupper [$map_func [lindex $group 0]]]
+        set mapped_name [string toupper [$map_func $name [lindex $group 0]]]
 
         if {$mapped_name != "PORTS"} {
            set param_name "NUM_${mapped_name}"

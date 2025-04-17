@@ -12,7 +12,7 @@
 `include "ofs_fim_mem_defines.vh"
 `include "ofs_ip_cfg_db.vh"
 
-module mem_ss_top 
+module mem_ss_top
    import ofs_fim_mem_if_pkg::*;
 #(
    parameter bit [11:0] FEAT_ID         = 12'h00f,
@@ -20,17 +20,18 @@ module mem_ss_top
    parameter bit [23:0] NEXT_DFH_OFFSET = 24'h1000,
    parameter bit        END_OF_LIST     = 1'b0
 )(
-   input                        clk,
-   input                        reset,
+   input  wire                  clk,
+   input  wire                  reset,
 
    ofs_fim_emif_axi_mm_if.emif  afu_mem_if  [NUM_MEM_CHANNELS-1:0],
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-   ofs_fim_emif_ddr4_if.emif ddr4_mem_if[NUM_GROUP_0_DDR4_CHANNELS-1:0],
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
-   ofs_fim_emif_ddr4_group_1_if.emif ddr4_mem_if_group_1[NUM_GROUP_1_DDR4_CHANNELS-1:0],
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
+   ofs_fim_mem_ddr4_ref_clk_if.ip ddr4_mem_if_ref_clk [NUM_DDR4_CHANNELS-1:0],
+`ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
+   mem_ss_mem_ddr4_if.ip        ddr4_mem_if         [NUM_GROUP_0_DDR4_CHANNELS-1:0],
+`endif
+`ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+   mem_ss_mem_g1_ddr4_if.ip     ddr4_mem_if_group_1 [NUM_GROUP_1_DDR4_CHANNELS-1:0],
+`endif
 
 `ifdef INCLUDE_HPS
    // HPS interfaces
@@ -38,8 +39,6 @@ module mem_ss_top
    input  logic [1:0]           hps2emif_gp,
    output logic [4095:0]        emif2hps,
    output logic                 emif2hps_gp,
-
-   ofs_fim_hps_ddr4_if.emif     ddr4_hps_if,
 `endif
 
    // CSR interfaces
@@ -57,144 +56,54 @@ module mem_ss_top
    // and which user interfaces are enabled in the memory crossbar.
    // (OFS defaults to 1-to-1 AXI-MEM interface mapping)
 
-   enum {
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_0
-      MEM_0,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_1
-      MEM_1,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_2
-      MEM_2,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_3
-      MEM_3,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_4
-      MEM_4,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_5
-      MEM_5,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_6
-      MEM_6,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_7
-      MEM_7,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_8
-      MEM_8,
-`endif
-      MEM_XXX
-   } mem_idx;
+   // AXI-MM interface defined by mem_ss SystemVerilog wrapper module.
+   mem_ss_i_axi_mm_if           ss_axi_mm[NUM_MEM_CHANNELS-1:0]();
+   wire  [NUM_MEM_CHANNELS-1:0] mem_ss_app_usr_clk;
+   wire  [NUM_MEM_CHANNELS-1:0] mem_ss_app_usr_reset_n;
+ 
+   mem_ss_subsystem_reset_if    ss_reset_if();
+   logic                        mem_ss_rst_init;
 
-   // Map memory subsystem channel index to interface index for parameter group 0
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-   enum {
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_0_PARAM_GROUP_0
-      GROUP_0_MEM_0,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_1_PARAM_GROUP_0
-      GROUP_0_MEM_1,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_2_PARAM_GROUP_0
-      GROUP_0_MEM_2,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_3_PARAM_GROUP_0
-      GROUP_0_MEM_3,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_4_PARAM_GROUP_0
-      GROUP_0_MEM_4,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_5_PARAM_GROUP_0
-      GROUP_0_MEM_5,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_6_PARAM_GROUP_0
-      GROUP_0_MEM_6,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_7_PARAM_GROUP_0
-      GROUP_0_MEM_7,
-`endif
-      GROUP_0_MEM_XXX
-   } group_0_mem_idx;
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_0
-
-   // Map memory subsystem channel index to interface index for parameter group 1
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
-   enum {
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_0_PARAM_GROUP_1
-      GROUP_1_MEM_0,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_1_PARAM_GROUP_1
-      GROUP_1_MEM_1,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_2_PARAM_GROUP_1
-      GROUP_1_MEM_2,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_3_PARAM_GROUP_1
-      GROUP_1_MEM_3,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_4_PARAM_GROUP_1
-      GROUP_1_MEM_4,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_5_PARAM_GROUP_1
-      GROUP_1_MEM_5,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_6_PARAM_GROUP_1
-      GROUP_1_MEM_6,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_7_PARAM_GROUP_1
-      GROUP_1_MEM_7,
-`endif
-      GROUP_1_MEM_XXX
-   } group_1_mem_idx;
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_DEFINES_EMIF_DDR4_PARAM_GROUP_1
-
-   enum {
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_0
-      AXI_0,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_1
-      AXI_1,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_2
-      AXI_2,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_3
-      AXI_3,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_4
-      AXI_4,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_5
-      AXI_5,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_6
-      AXI_6,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_7
-      AXI_7,
-`endif
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_8
-      AXI_8,
-`endif
-      AXI_XXX
-   } axi_idx;
-
-   logic 			mem_ss_rst_n;
-   logic 			mem_ss_rst_req;
-   logic 			mem_ss_rst_rdy;
-   logic 			mem_ss_rst_ack_n;
-   logic 			mem_ss_rst_init;
-
+   mem_ss_mem_status_if         mem_ss_cal_status[NUM_MEM_CHANNELS-1:0]();
    logic [NUM_MEM_CHANNELS-1:0] mem_ss_cal_fail;
    logic [NUM_MEM_CHANNELS-1:0] mem_ss_cal_success;
 
    logic [NUM_MEM_CHANNELS-1:0] csr_cal_fail;
    logic [NUM_MEM_CHANNELS-1:0] csr_cal_success;
-   
-   ofs_fim_axi_lite_if #(.AWADDR_WIDTH(11), .ARADDR_WIDTH(11), .WDATA_WIDTH(32), .RDATA_WIDTH(32)) ss_csr_lite_32b_if();
+
+`ifdef HAS_IFC_MEM_SS_CSR_AXI_LITE_IF
    ofs_fim_axi_lite_if #(.AWADDR_WIDTH(11), .ARADDR_WIDTH(11), .WDATA_WIDTH(64)) emif_dfh_if();
+`endif
+
+   wire [NUM_DDR4_CHANNELS-1:0] mem_pll_ref_clk;
+   wire [NUM_DDR4_CHANNELS-1:0] mem_oct_rzqin;
+   for (genvar c = 0; c < NUM_DDR4_CHANNELS; c++) begin : ref_clk_map
+      assign mem_pll_ref_clk[c] = ddr4_mem_if_ref_clk[c].clk;
+      assign mem_oct_rzqin[c] = ddr4_mem_if_ref_clk[c].oct_rzqin;
+   end
+
+
+// The mem_ss IP doesn't have a clean way for naming the HPS interface port.
+// For now, we extract the name using the OFS mem_ss_get_cfg.tcl script and
+// save the HPS port's index in the macro OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL.
+// These macros expand the channel number into the interface and port names.
+`define HPS_IFC_NAME(NUM) mem_ss_mem``NUM``_hps_emif_if
+`define HPS_PORT_NAME(NUM) mem``NUM``_hps_emif
+
+   // Macro maps to the HPS interface name in the mem_ss IP SV wrapper.
+`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL
+   `HPS_IFC_NAME(`OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL) hps_emif_if();
+`endif
+
+`ifdef INCLUDE_HPS
+   assign hps_emif_if.hps_to_emif = hps2emif;
+   assign hps_emif_if.gp_to_emif  = hps2emif_gp;
+   assign emif2hps = hps_emif_if.emif_to_hps;
+   assign emif2hps_gp = hps_emif_if.emif_to_gp;
+`elsif OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL
+   assign hps_emif_if.hps_to_emif = '0;
+   assign hps_emif_if.gp_to_emif  = '0;
+`endif
 
 fim_resync #(
    .SYNC_CHAIN_LENGTH(3),
@@ -202,11 +111,16 @@ fim_resync #(
    .INIT_VALUE(0),
    .NO_CUT(0)
 ) rst_hs_resync (
-   .clk   (ddr4_mem_if[0].ref_clk),
+   .clk   (mem_pll_ref_clk[0]),
    .reset (1'b0),
    .d     (reset),
    .q     (mem_ss_rst_init)
 );
+
+for (genvar c = 0; c < NUM_MEM_CHANNELS; c++) begin : mem_ss_cal_map
+   assign mem_ss_cal_success[c] = mem_ss_cal_status[c].success;
+   assign mem_ss_cal_fail[c] = mem_ss_cal_status[c].fail;
+end
 
 fim_resync #(
    .SYNC_CHAIN_LENGTH(3),
@@ -233,24 +147,34 @@ fim_resync #(
 );
 
 rst_hs rst_hs_inst (
-   .clk      (ddr4_mem_if[0].ref_clk),
+   .clk      (mem_pll_ref_clk[0]),
    .rst_init (mem_ss_rst_init),
-   .rst_req  (mem_ss_rst_req),
-   .rst_rdy  (mem_ss_rst_rdy),
-   .rst_n    (mem_ss_rst_n),
-   .rst_ack_n(mem_ss_rst_ack_n)
+ `ifdef SIM_MODE_NO_MSS_RST
+   .rst_req  (),
+   .rst_n    (),
+ `else
+   .rst_req  (ss_reset_if.app_ss_rst_req),
+   .rst_n    (ss_reset_if.app_ss_cold_rst_n),
+ `endif
+   .rst_rdy  (ss_reset_if.ss_app_rst_rdy),
+   .rst_ack_n(ss_reset_if.ss_app_cold_rst_ack_n)
 );
+
+`ifdef SIM_MODE_NO_MSS_RST
+   assign ss_reset_if.app_ss_rst_req    = 1'b0;
+   assign ss_reset_if.app_ss_cold_rst_n = 1'b1;
+`endif
 
 mem_ss_csr #(
    .FEAT_ID          (FEAT_ID),
    .FEAT_VER         (FEAT_VER),
    .NEXT_DFH_OFFSET  (NEXT_DFH_OFFSET),
    .END_OF_LIST      (END_OF_LIST),
-   .NUM_MEM_DEVICES  (NUM_DDR4_CHANNELS)
+   .NUM_MEM_DEVICES  (NUM_MEM_CHANNELS)
 ) mem_ss_csr_inst (
    .clk              (clk_csr),
    .rst_n            (rst_n_csr),
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_CSR
+`ifdef HAS_IFC_MEM_SS_CSR_AXI_LITE_IF
    .csr_lite_if      (emif_dfh_if),
 `else
    .csr_lite_if      (csr_lite_if),
@@ -259,44 +183,13 @@ mem_ss_csr #(
    .cal_success      (csr_cal_success)
 );
 
-// ruser and wuser are unused when the databus is a power of 2, so 
-// it gets optimized away by the SS in this case.  We need to assign 
-// these buses to 0 to prevent Xpropagation in simulation. 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_0
-   assign afu_mem_if[AXI_0].ruser = 'h0;
-`endif
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_1
-   assign afu_mem_if[AXI_1].ruser = 'h0;
-`endif
+`ifdef HAS_IFC_MEM_SS_CSR_AXI_LITE_IF
+   mem_ss_csr_axi_lite_if ss_csr_axi_lite_if();
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_2
-   assign afu_mem_if[AXI_2].ruser = 'h0;
-`endif
+   assign ss_csr_axi_lite_if.awaddr[22:11] = '0;
+   assign ss_csr_axi_lite_if.araddr[22:11] = '0;
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_3
-   assign afu_mem_if[AXI_3].ruser = 'h0;
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_4
-   assign afu_mem_if[AXI_4].ruser = 'h0;
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_5
-   assign afu_mem_if[AXI_5].ruser = 'h0;
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_6
-   assign afu_mem_if[AXI_6].ruser = 'h0;
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_7
-   assign afu_mem_if[AXI_7].ruser = 'h0;
-`endif
-
-
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_CSR
 emif_csr_ic emif_csr_interconnect (
    .clk_clk     (clk_csr),
    .reset_reset (!rst_n_csr),
@@ -344,347 +237,109 @@ emif_csr_ic emif_csr_interconnect (
    .emif_dfh_mst_rready    (emif_dfh_if.rready),
 
    // MemSS CSR interface (32b)			  
-   .mem_ss_csr_mst_awaddr  (ss_csr_lite_32b_if.awaddr),
-   .mem_ss_csr_mst_awprot  (ss_csr_lite_32b_if.awprot),
-   .mem_ss_csr_mst_awvalid (ss_csr_lite_32b_if.awvalid),
-   .mem_ss_csr_mst_awready (ss_csr_lite_32b_if.awready),
-   .mem_ss_csr_mst_wdata   (ss_csr_lite_32b_if.wdata),
-   .mem_ss_csr_mst_wstrb   (ss_csr_lite_32b_if.wstrb),
-   .mem_ss_csr_mst_wvalid  (ss_csr_lite_32b_if.wvalid),
-   .mem_ss_csr_mst_wready  (ss_csr_lite_32b_if.wready),
-   .mem_ss_csr_mst_bresp   (ss_csr_lite_32b_if.bresp),
-   .mem_ss_csr_mst_bvalid  (ss_csr_lite_32b_if.bvalid),
-   .mem_ss_csr_mst_bready  (ss_csr_lite_32b_if.bready),
-   .mem_ss_csr_mst_araddr  (ss_csr_lite_32b_if.araddr),
-   .mem_ss_csr_mst_arprot  (ss_csr_lite_32b_if.arprot),
-   .mem_ss_csr_mst_arvalid (ss_csr_lite_32b_if.arvalid),
-   .mem_ss_csr_mst_arready (ss_csr_lite_32b_if.arready),
-   .mem_ss_csr_mst_rdata   (ss_csr_lite_32b_if.rdata),
-   .mem_ss_csr_mst_rresp   (ss_csr_lite_32b_if.rresp),
-   .mem_ss_csr_mst_rvalid  (ss_csr_lite_32b_if.rvalid),
-   .mem_ss_csr_mst_rready  (ss_csr_lite_32b_if.rready)
+   .mem_ss_csr_mst_awaddr  (ss_csr_axi_lite_if.awaddr[10:0]),
+   .mem_ss_csr_mst_awprot  (ss_csr_axi_lite_if.awprot),
+   .mem_ss_csr_mst_awvalid (ss_csr_axi_lite_if.awvalid),
+   .mem_ss_csr_mst_awready (ss_csr_axi_lite_if.awready),
+   .mem_ss_csr_mst_wdata   (ss_csr_axi_lite_if.wdata),
+   .mem_ss_csr_mst_wstrb   (ss_csr_axi_lite_if.wstrb),
+   .mem_ss_csr_mst_wvalid  (ss_csr_axi_lite_if.wvalid),
+   .mem_ss_csr_mst_wready  (ss_csr_axi_lite_if.wready),
+   .mem_ss_csr_mst_bresp   (ss_csr_axi_lite_if.bresp),
+   .mem_ss_csr_mst_bvalid  (ss_csr_axi_lite_if.bvalid),
+   .mem_ss_csr_mst_bready  (ss_csr_axi_lite_if.bready),
+   .mem_ss_csr_mst_araddr  (ss_csr_axi_lite_if.araddr[10:0]),
+   .mem_ss_csr_mst_arprot  (ss_csr_axi_lite_if.arprot),
+   .mem_ss_csr_mst_arvalid (ss_csr_axi_lite_if.arvalid),
+   .mem_ss_csr_mst_arready (ss_csr_axi_lite_if.arready),
+   .mem_ss_csr_mst_rdata   (ss_csr_axi_lite_if.rdata),
+   .mem_ss_csr_mst_rresp   (ss_csr_axi_lite_if.rresp),
+   .mem_ss_csr_mst_rvalid  (ss_csr_axi_lite_if.rvalid),
+   .mem_ss_csr_mst_rready  (ss_csr_axi_lite_if.rready)
 );
-`endif   
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_ENTITY
-`OFS_FIM_IP_CFG_LOCAL_MEM_ENTITY mem_ss_inst (
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_CSR
-   // Subsystem CSR AXI4-lite interface
-   .csr_app_ss_lite_aclk     (clk_csr),
-   .csr_app_ss_lite_areset_n (rst_n_csr),
-   .csr_app_ss_lite_awvalid  (ss_csr_lite_32b_if.awvalid),
-   .csr_app_ss_lite_awaddr   ({12'b0,ss_csr_lite_32b_if.awaddr}),
-   .csr_app_ss_lite_awprot   (ss_csr_lite_32b_if.awprot),
-   .csr_ss_app_lite_awready  (ss_csr_lite_32b_if.awready),
-   .csr_app_ss_lite_arvalid  (ss_csr_lite_32b_if.arvalid),
-   .csr_app_ss_lite_araddr   ({12'b0,ss_csr_lite_32b_if.araddr}),
-   .csr_app_ss_lite_arprot   (ss_csr_lite_32b_if.arprot),
-   .csr_ss_app_lite_arready  (ss_csr_lite_32b_if.arready),
-   .csr_app_ss_lite_wvalid   (ss_csr_lite_32b_if.wvalid),
-   .csr_app_ss_lite_wdata    (ss_csr_lite_32b_if.wdata),
-   .csr_app_ss_lite_wstrb    (ss_csr_lite_32b_if.wstrb),
-   .csr_ss_app_lite_wready   (ss_csr_lite_32b_if.wready),
-   .csr_ss_app_lite_bvalid   (ss_csr_lite_32b_if.bvalid),
-   .csr_ss_app_lite_bresp    (ss_csr_lite_32b_if.bresp),
-   .csr_app_ss_lite_bready   (ss_csr_lite_32b_if.bready),
-   .csr_ss_app_lite_rvalid   (ss_csr_lite_32b_if.rvalid),
-   .csr_ss_app_lite_rdata    (ss_csr_lite_32b_if.rdata),
-   .csr_ss_app_lite_rresp    (ss_csr_lite_32b_if.rresp),
-   .csr_app_ss_lite_rready   (ss_csr_lite_32b_if.rready),
 `endif
 
+mem_ss_sv mem_ss_sv (
+ `ifdef HAS_IFC_MEM_SS_CSR_AXI_LITE_IF
+   .csr_app_ss_lite_aclk(),
+   .csr_app_ss_lite_areset_n(),
+   .csr_axi_lite(ss_csr_axi_lite_if),
+ `endif
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_0
-   // AXI-MM clk/rst from EMIF
-   .mem0_ss_app_usr_reset_n(afu_mem_if[AXI_0].rst_n),
-   .mem0_ss_app_usr_clk    (afu_mem_if[AXI_0].clk),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i0_app_ss_mm, i0_ss_app_mm, afu_mem_if[AXI_0]),
-`endif
+   .i_axi_mm(ss_axi_mm),
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_1
-   // AXI-MM clk/rst from EMIF
-   .mem1_ss_app_usr_reset_n(afu_mem_if[AXI_1].rst_n),
-   .mem1_ss_app_usr_clk    (afu_mem_if[AXI_1].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i1_app_ss_mm, i1_ss_app_mm, afu_mem_if[AXI_1]),
-`endif
-                          
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_2
-   // AXI-MM clk/rst from EMIF
-   .mem2_ss_app_usr_reset_n(afu_mem_if[AXI_2].rst_n),
-   .mem2_ss_app_usr_clk    (afu_mem_if[AXI_2].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i2_app_ss_mm, i2_ss_app_mm, afu_mem_if[AXI_2]),
-`endif
+   .mem_ss_app_usr_clk,
+   .mem_ss_app_usr_reset_n,
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_3
-   // AXI-MM clk/rst from EMIF
-   .mem3_ss_app_usr_reset_n(afu_mem_if[AXI_3].rst_n),
-   .mem3_ss_app_usr_clk    (afu_mem_if[AXI_3].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i3_app_ss_mm, i3_ss_app_mm, afu_mem_if[AXI_3]),
-`endif
+ `ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
+   .mem_ddr4(ddr4_mem_if),
+ `endif
+ `ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+   .mem_g1_ddr4(ddr4_mem_if_group_1),
+ `endif
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_4
-   // AXI-MM clk/rst from EMIF
-   .mem4_ss_app_usr_reset_n(afu_mem_if[AXI_4].rst_n),
-   .mem4_ss_app_usr_clk    (afu_mem_if[AXI_4].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i4_app_ss_mm, i4_ss_app_mm, afu_mem_if[AXI_4]),
-`endif
+   .mem_pll_ref_clk,
+   .mem_oct_rzqin,
+   .mem_status(mem_ss_cal_status),
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_5
-   // AXI-MM clk/rst from EMIF
-   .mem5_ss_app_usr_reset_n(afu_mem_if[AXI_5].rst_n),
-   .mem5_ss_app_usr_clk    (afu_mem_if[AXI_5].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i5_app_ss_mm, i5_ss_app_mm, afu_mem_if[AXI_5]),
-`endif
+ `ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL
+   .`HPS_PORT_NAME(`OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL) (hps_emif_if),
+ `endif
 
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_6
-   // AXI-MM clk/rst from EMIF
-   .mem6_ss_app_usr_reset_n(afu_mem_if[AXI_6].rst_n),
-   .mem6_ss_app_usr_clk    (afu_mem_if[AXI_6].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i6_app_ss_mm, i6_ss_app_mm, afu_mem_if[AXI_6]),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_7
-   // AXI-MM clk/rst from EMIF
-   .mem7_ss_app_usr_reset_n(afu_mem_if[AXI_7].rst_n),
-   .mem7_ss_app_usr_clk    (afu_mem_if[AXI_7].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i7_app_ss_mm, i7_ss_app_mm, afu_mem_if[AXI_7]),
-`endif
-                          
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_AXI_MM_8
-   // AXI-MM clk/rst from EMIF
-   .mem8_ss_app_usr_reset_n(afu_mem_if[AXI_8].rst_n),
-   .mem8_ss_app_usr_clk    (afu_mem_if[AXI_8].clk),
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_AXI_MM_PORT(i8_app_ss_mm, i8_ss_app_mm, afu_mem_if[AXI_8]),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_0
-   // EMIF Calibration status
-   .mem0_local_cal_success (mem_ss_cal_success[MEM_0]),
-   .mem0_local_cal_fail    (mem_ss_cal_fail[MEM_0]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_0_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem0, mem0_ddr4, ddr4_mem_if[GROUP_0_MEM_0], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_0_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem0, mem0_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_0], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_0_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_0
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_1
-   // EMIF Calibration status
-   .mem1_local_cal_success (mem_ss_cal_success[MEM_1]),
-   .mem1_local_cal_fail    (mem_ss_cal_fail[MEM_1]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_1_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem1, mem1_ddr4, ddr4_mem_if[GROUP_0_MEM_1], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_1_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem1, mem1_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_1], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_1_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_1
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_2
-   // EMIF Calibration status
-   .mem2_local_cal_success (mem_ss_cal_success[MEM_2]),
-   .mem2_local_cal_fail    (mem_ss_cal_fail[MEM_2]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_2_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem2, mem2_ddr4, ddr4_mem_if[GROUP_0_MEM_2], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_2_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem2, mem2_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_2], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_2_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_2
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_3
-   // EMIF Calibration status
-   .mem3_local_cal_success (mem_ss_cal_success[MEM_3]),
-   .mem3_local_cal_fail    (mem_ss_cal_fail[MEM_3]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_3_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem3, mem3_ddr4, ddr4_mem_if[GROUP_0_MEM_3], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_3_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem3, mem3_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_3], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_3_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_3
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_4
-   // EMIF Calibration status
-   .mem4_local_cal_success (mem_ss_cal_success[MEM_4]),
-   .mem4_local_cal_fail    (mem_ss_cal_fail[MEM_4]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_4_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem4, mem4_ddr4, ddr4_mem_if[GROUP_0_MEM_4], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_4_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem4, mem4_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_4], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_4_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_4
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_5
-   // EMIF Calibration status
-   .mem5_local_cal_success (mem_ss_cal_success[MEM_5]),
-   .mem5_local_cal_fail    (mem_ss_cal_fail[MEM_5]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_5_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem5, mem5_ddr4, ddr4_mem_if[GROUP_0_MEM_5], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_5_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem5, mem5_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_5], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_5_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_5
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_6
-   // EMIF Calibration status
-   .mem6_local_cal_success (mem_ss_cal_success[MEM_6]),
-   .mem6_local_cal_fail    (mem_ss_cal_fail[MEM_6]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_6_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem6, mem6_ddr4, ddr4_mem_if[GROUP_0_MEM_6], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_6_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem6, mem6_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_6], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_6_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_6
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_7
-   // EMIF Calibration status
-   .mem7_local_cal_success (mem_ss_cal_success[MEM_7]),
-   .mem7_local_cal_fail    (mem_ss_cal_fail[MEM_7]),
-   // Connect PD port to interface class with macro from ofs_fim_mem_plat_defines.svh
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_CH_7_PARAM_GROUP_0
-   `CONNECT_OFS_FIM_DDR4_PORT(mem7, mem7_ddr4, ddr4_mem_if[GROUP_0_MEM_7], GROUP_0),
-`elsif OFS_FIM_IP_CFG_LOCAL_MEM_CH_7_PARAM_GROUP_1
-   `CONNECT_OFS_FIM_DDR4_PORT(mem7, mem7_ddr4, ddr4_mem_if_group_1[GROUP_1_MEM_7], GROUP_1),
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_CH_7_PARAM_GROUP_X
-`endif // OFS_FIM_IP_CFG_LOCAL_MEM_EN_MEM_7
-
-`ifdef INCLUDE_HPS
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_0
-   // CH0 EMIF HPS conduit
-   .mem0_hps_to_emif     (hps2emif),
-   .mem0_emif_to_hps     (emif2hps),
-   .mem0_hps_to_emif_gp  (hps2emif_gp),
-   .mem0_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem0, mem0_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_1
-   // CH0 EMIF HPS conduit
-   .mem1_hps_to_emif     (hps2emif),
-   .mem1_emif_to_hps     (emif2hps),
-   .mem1_hps_to_emif_gp  (hps2emif_gp),
-   .mem1_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem1, mem1_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_2
-   // CH2 EMIF HPS conduit
-   .mem2_hps_to_emif     (hps2emif),
-   .mem2_emif_to_hps     (emif2hps),
-   .mem2_hps_to_emif_gp  (hps2emif_gp),
-   .mem2_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem2, mem2_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_3
-   // CH3 EMIF HPS conduit
-   .mem3_hps_to_emif     (hps2emif),
-   .mem3_emif_to_hps     (emif2hps),
-   .mem3_hps_to_emif_gp  (hps2emif_gp),
-   .mem3_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem3, mem3_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_4
-   // CH4 EMIF HPS conduit
-   .mem4_hps_to_emif     (hps2emif),
-   .mem4_emif_to_hps     (emif2hps),
-   .mem4_hps_to_emif_gp  (hps2emif_gp),
-   .mem4_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem4, mem4_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_5
-   // CH5 EMIF HPS conduit
-   .mem5_hps_to_emif     (hps2emif),
-   .mem5_emif_to_hps     (emif2hps),
-   .mem5_hps_to_emif_gp  (hps2emif_gp),
-   .mem5_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem5, mem5_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_6
-   // CH6 EMIF HPS conduit
-   .mem6_hps_to_emif     (hps2emif),
-   .mem6_emif_to_hps     (emif2hps),
-   .mem6_hps_to_emif_gp  (hps2emif_gp),
-   .mem6_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem6, mem6_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_7
-   // CH7 EMIF HPS conduit
-   .mem7_hps_to_emif     (hps2emif),
-   .mem7_emif_to_hps     (emif2hps),
-   .mem7_hps_to_emif_gp  (hps2emif_gp),
-   .mem7_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem7, mem7_ddr4, ddr4_hps_if, GROUP_0),
-`endif
-
-`ifdef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_EMIF_IS_MEM_8
-   // CH8 EMIF HPS conduit
-   .mem8_hps_to_emif     (hps2emif),
-   .mem8_emif_to_hps     (emif2hps),
-   .mem8_hps_to_emif_gp  (hps2emif_gp),
-   .mem8_emif_to_hps_gp  (emif2hps_gp),
-
-   // Macro args: input (to IP) port ID, output port ID, interface ID
-   `CONNECT_OFS_FIM_DDR4_PORT(mem8, mem8_ddr4, ddr4_hps_if),
-`endif
-
-`endif //  `ifdef INCLUDE_HPS
-			  
    // MemSS Reset request
-`ifdef SIM_MODE_NO_MSS_RST
-   .app_ss_rst_req        (1'b0),
-   .app_ss_cold_rst_n     (1'b1),
-`else
-   .app_ss_rst_req        (mem_ss_rst_req),
-   .app_ss_cold_rst_n     (mem_ss_rst_n),
-`endif
-   .ss_app_rst_rdy        (mem_ss_rst_rdy),
-   .ss_app_cold_rst_ack_n (mem_ss_rst_ack_n)
+   .subsystem_reset(ss_reset_if)
 );
-`endif //  `ifdef OFS_FIM_IP_CFG_LOCAL_MEM_ENTITY
+
+// Map the OFS AXI-MM interface to the memory subsystem interface
+for (genvar c = 0; c < NUM_MEM_CHANNELS; c++) begin : axi_mm_map
+   assign afu_mem_if[c].clk     = mem_ss_app_usr_clk[c];
+   assign afu_mem_if[c].rst_n   = mem_ss_app_usr_reset_n[c];
+
+   // Write address channel
+   assign afu_mem_if[c].awready = ss_axi_mm[c].awready;
+   assign ss_axi_mm[c].awvalid  = afu_mem_if[c].awvalid;
+   assign ss_axi_mm[c].awid     = afu_mem_if[c].awid;
+   assign ss_axi_mm[c].awaddr   = afu_mem_if[c].awaddr;
+   assign ss_axi_mm[c].awlen    = afu_mem_if[c].awlen;
+   assign ss_axi_mm[c].awsize   = afu_mem_if[c].awsize;
+   assign ss_axi_mm[c].awburst  = afu_mem_if[c].awburst;
+   assign ss_axi_mm[c].awlock   = afu_mem_if[c].awlock;
+   assign ss_axi_mm[c].awcache  = afu_mem_if[c].awcache;
+   assign ss_axi_mm[c].awprot   = afu_mem_if[c].awprot;
+   assign ss_axi_mm[c].awuser   = afu_mem_if[c].awuser;
+   // Write data channel
+   assign afu_mem_if[c].wready  = ss_axi_mm[c].wready;
+   assign ss_axi_mm[c].wvalid   = afu_mem_if[c].wvalid;
+   assign ss_axi_mm[c].wdata    = afu_mem_if[c].wdata;
+   assign ss_axi_mm[c].wstrb    = afu_mem_if[c].wstrb;
+   assign ss_axi_mm[c].wlast    = afu_mem_if[c].wlast;
+   // Write response channel
+   assign ss_axi_mm[c].bready   = afu_mem_if[c].bready;
+   assign afu_mem_if[c].bvalid  = ss_axi_mm[c].bvalid;
+   assign afu_mem_if[c].bid     = ss_axi_mm[c].bid;
+   assign afu_mem_if[c].bresp   = ss_axi_mm[c].bresp;
+   assign afu_mem_if[c].buser   = ss_axi_mm[c].buser;
+   // Read address channel
+   assign afu_mem_if[c].arready = ss_axi_mm[c].arready;
+   assign ss_axi_mm[c].arvalid  = afu_mem_if[c].arvalid;
+   assign ss_axi_mm[c].arid     = afu_mem_if[c].arid;
+   assign ss_axi_mm[c].araddr   = afu_mem_if[c].araddr;
+   assign ss_axi_mm[c].arlen    = afu_mem_if[c].arlen;
+   assign ss_axi_mm[c].arsize   = afu_mem_if[c].arsize;
+   assign ss_axi_mm[c].arburst  = afu_mem_if[c].arburst;
+   assign ss_axi_mm[c].arlock   = afu_mem_if[c].arlock;
+   assign ss_axi_mm[c].arcache  = afu_mem_if[c].arcache;
+   assign ss_axi_mm[c].arprot   = afu_mem_if[c].arprot;
+   assign ss_axi_mm[c].aruser   = afu_mem_if[c].aruser;
+   // Read response channel
+   assign ss_axi_mm[c].rready   = afu_mem_if[c].rready;
+   assign afu_mem_if[c].rvalid  = ss_axi_mm[c].rvalid;
+   assign afu_mem_if[c].rid     = ss_axi_mm[c].rid;
+   assign afu_mem_if[c].rdata   = ss_axi_mm[c].rdata;
+   assign afu_mem_if[c].rresp   = ss_axi_mm[c].rresp;
+   assign afu_mem_if[c].rlast   = ss_axi_mm[c].rlast;
+   assign afu_mem_if[c].ruser   = 'h0;
+end
 
 endmodule // mem_ss_top
 
