@@ -93,11 +93,24 @@ end
 `ifdef INCLUDE_LOCAL_MEM
 `ifdef INCLUDE_DDR4
    ofs_fim_mem_ddr4_ref_clk_if ddr4_mem_ref_clk[ofs_fim_mem_if_pkg::NUM_DDR4_CHANNELS-1:0]();
+
+ // Memory subsystem interface (Agilex 7)
  `ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
    mem_ss_mem_ddr4_if ddr4_mem[ofs_fim_mem_if_pkg::NUM_GROUP_0_DDR4_CHANNELS-1:0]();
  `endif
  `ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+   `define HAS_MEM_G1_DDR4
    mem_ss_mem_g1_ddr4_if ddr4_mem_group_1[ofs_fim_mem_if_pkg::NUM_GROUP_1_DDR4_CHANNELS-1:0]();
+ `endif
+
+  // Agilex 5 QSYS memory project. Similar interfaces to mem_ss above but with
+  // different type names.
+ `ifdef HAS_IFC_AGX5_DDR4_SS_MEM_DDR4_IF
+   agx5_ddr4_ss_mem_ddr4_if ddr4_mem[ofs_fim_mem_if_pkg::NUM_GROUP_0_DDR4_CHANNELS-1:0]();
+ `endif
+ `ifdef HAS_IFC_AGX5_DDR4_SS_MEM_G1_DDR4_IF
+   `define HAS_MEM_G1_DDR4
+   agx5_ddr4_ss_mem_g1_ddr4_if ddr4_mem_group_1[ofs_fim_mem_if_pkg::NUM_GROUP_1_DDR4_CHANNELS-1:0]();
  `endif
 `endif // INCLUDE_DDR4
 
@@ -153,10 +166,8 @@ top DUT (
 `ifdef INCLUDE_DDR4
       //Fabric DDR4
       .ddr4_mem_ref_clk(ddr4_mem_ref_clk),
- `ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
       .ddr4_mem  (ddr4_mem),
- `endif
- `ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+ `ifdef HAS_MEM_G1_DDR4
       .ddr4_mem_group_1  (ddr4_mem_group_1),
  `endif
 `endif // INCLUDE_DDR4
@@ -252,32 +263,30 @@ top DUT (
       end
    endgenerate
 
-`ifdef HAS_IFC_MEM_SS_MEM_DDR4_IF
    generate
       for(ch=0; ch < ofs_fim_mem_if_pkg::NUM_GROUP_0_DDR4_CHANNELS; ch = ch+1) begin : mem_model
           ed_sim_mem ddr_mem (
-         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem[ch], _)
+         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem[ch], _, ddr4_mem_ref_clk[ch])
           );
 
       end
    endgenerate
-`endif // HAS_IFC_MEM_SS_MEM_DDR4_IF
 
-`ifdef HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+`ifdef HAS_MEM_G1_DDR4
  // DDR4 for HPS appears as a second group on n6001 but isn't modeled
  `ifndef OFS_FIM_IP_CFG_LOCAL_MEM_HPS_CHANNEL
    generate
       for(ch=0; ch < ofs_fim_mem_if_pkg::NUM_GROUP_1_DDR4_CHANNELS; ch = ch+1) begin : mem_model_grp1
          ed_sim_mem_group1 ddr_mem_group_1 (
-         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem_group_1[ch], _G1_)
+         `CONNECT_DDR4_MODEL_TB(mem, mem, ddr4_mem_group_1[ch], _G1_, ddr4_mem_ref_clk[ch+ofs_fim_mem_if_pkg::NUM_GROUP_0_DDR4_CHANNELS])
          );
 
       end
    endgenerate
  `endif
-`endif // HAS_IFC_MEM_SS_MEM_G1_DDR4_IF
+`endif // HAS_MEM_G1_DDR4
 
-`endif //DDR
+`endif // INCLUDE_DDR4
 
 `ifdef INCLUDE_HBM
    initial uib_refclk      = '{default:'0};
