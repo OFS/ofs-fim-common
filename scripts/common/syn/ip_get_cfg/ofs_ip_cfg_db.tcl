@@ -101,11 +101,10 @@ namespace eval ::ofs_ip_cfg_db {
         file mkdir ${ip_wrapper_dir}
         set ip_sv_wrapper "${ip_wrapper_dir}/${ip_basename}_sv.sv"
 
-        set_global_assignment -name SEARCH_PATH "${ip_wrapper_dir}"
         puts $tcl_inc_fn "set_global_assignment -name SEARCH_PATH \"${ip_wrapper_dir}\""
 
-        set_global_assignment -name SYSTEMVERILOG_FILE "${ip_wrapper_dir}/${ip_basename}_param_pkg.sv"
-        set_global_assignment -name SYSTEMVERILOG_FILE "${ip_sv_wrapper}"
+        puts $tcl_inc_fn "set_global_assignment -name SYSTEMVERILOG_FILE \"${ip_wrapper_dir}/${ip_basename}_param_pkg.sv\""
+        puts $tcl_inc_fn "set_global_assignment -name SYSTEMVERILOG_FILE \"${ip_sv_wrapper}\""
 
         puts $wrapper_fn "`include \"${ip_basename}_if_info.vh\"    // In [regsub ^\[./\]* ${ip_wrapper_dir} {}]"
         puts $wrapper_fn "`include \"${ip_basename}_ip_params.vh\""
@@ -151,6 +150,7 @@ namespace eval ::ofs_ip_cfg_db {
 
             # Create an empty wrapper .vh file that will be populated later
             close [open ofs_ip_cfg_db/ofs_ip_cfg_db.vh w]
+            close [open ofs_ip_cfg_db/ip_gen_sv_wrapper_inc.tcl w]
 
             # Create README file
             set of [open ofs_ip_cfg_db/README w]
@@ -165,3 +165,7 @@ namespace eval ::ofs_ip_cfg_db {
         }
     }
 }
+
+# Initialize the IP configuration database and load the generated sources
+::ofs_ip_cfg_db::create_db
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE ofs_ip_cfg_db/ip_gen_sv_wrapper_inc.tcl
