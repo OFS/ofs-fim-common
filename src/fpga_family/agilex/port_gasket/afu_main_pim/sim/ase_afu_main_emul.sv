@@ -358,9 +358,10 @@ module ase_afu_main_emul
     //
     // ====================================================================
 
+`ifndef INCLUDE_HSSI
+    localparam NUM_ETH_CH = 0;
+`else
     localparam NUM_ETH_CH = ofs_fim_eth_plat_if_pkg::MAX_NUM_ETH_CHANNELS;
-
-`ifdef INCLUDE_HSSI
 
     ofs_fim_hssi_ss_tx_axis_if hssi_ss_st_tx[NUM_ETH_CH-1:0]();
     ofs_fim_hssi_ss_rx_axis_if hssi_ss_st_rx[NUM_ETH_CH-1:0]();

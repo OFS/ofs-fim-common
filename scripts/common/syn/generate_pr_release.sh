@@ -355,7 +355,7 @@ sed -i -n '/\/sim\//!p' "${TGT_BUILD}"/platform/sim/fim_afu_if_addenda.txt
 # removing the matching paths from the simulator configuration.
 set +x
 for ip in $(grep 'set_global_assignment.*_FILE ' "${TGT_QUARTUS_BUILD_ROOT}"/fim_base_ip.tcl | sed -e 's/.*_FILE[ ./]*//'); do
-  ip_path=${ip%.*}
+  ip_path=${ip%.*}/
   echo "Removing IP from simulation: ${ip_path}"
   sed -i "\\^${ip_path}^d" "${TGT_BUILD}"/platform/sim/fim_afu_if_addenda.txt
   sed -i "\\^${ip_path}^d" "${TGT_BUILD}"/platform/sim/fim_afu_if_includes.txt
