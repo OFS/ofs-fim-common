@@ -39,6 +39,13 @@ assign csr_if.clk   = clk;
 assign csr_if.rst_n = rst_n;
 assign csr_if.burstcount = 0;
 
+localparam PCIE_TDATA_WIDTH      = ofs_fim_cfg_pkg::PCIE_TDATA_WIDTH;
+localparam TDATA_WIDTH = (PCIE_TDATA_WIDTH >= pcie_ss_hdr_pkg::HDR_WIDTH*2) ? PCIE_TDATA_WIDTH : pcie_ss_hdr_pkg::HDR_WIDTH*2;
+pcie_ss_axis_if #(.DATA_W(TDATA_WIDTH), .USER_W(ofs_fim_cfg_pkg::PCIE_TUSER_WIDTH)) axis_rx_if_bridge (.clk(clk), .rst_n(rst_n));
+pcie_ss_axis_if #(.DATA_W(TDATA_WIDTH), .USER_W(ofs_fim_cfg_pkg::PCIE_TUSER_WIDTH)) axis_tx_if_bridge (.clk(clk), .rst_n(rst_n));
+
+ofs_fim_pcie_bus_width rx_if_width (.i_if(axis_rx_if), .o_if(axis_rx_if_bridge));
+ofs_fim_pcie_bus_width tx_if_width (.i_if(axis_tx_if_bridge), .o_if(axis_tx_if));
 
 axis_rx_mmio_bridge #(
    .AVMM_ADDR_WIDTH    (csr_if.ADDR_W), 
@@ -47,7 +54,7 @@ axis_rx_mmio_bridge #(
    .clk                            (clk),
    .rst_n                          (rst_n),
    
-   .axis_rx_if                     (axis_rx_if),
+   .axis_rx_if                     (axis_rx_if_bridge),
    
    .avmm_s2m_waitrequest           (csr_if.waitrequest),
    .avmm_s2m_writeresponsevalid    (csr_if.writeresponsevalid),
@@ -81,7 +88,7 @@ axis_tx_bridge (
    .clk                            (clk),
    .rst_n                          (rst_n),
    
-   .axis_tx_if                     (axis_tx_if),
+   .axis_tx_if                     (axis_tx_if_bridge),
    
    .avmm_s2m_readdatavalid         (csr_if.readdatavalid),
    .avmm_s2m_readdata              (csr_if.readdata),

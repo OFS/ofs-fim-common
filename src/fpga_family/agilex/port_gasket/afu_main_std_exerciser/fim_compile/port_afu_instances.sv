@@ -79,7 +79,14 @@ localparam W_REG_MODE    = SKID_BUFFER;
 localparam R_REG_MODE    = SKID_BUFFER; 
 localparam AW_REG_MODE   = SKID_BUFFER; 
 localparam B_REG_MODE    = SKID_BUFFER; 
-localparam AR_REG_MODE   = SKID_BUFFER; 
+localparam AR_REG_MODE   = SKID_BUFFER;
+`ifdef INCLUDE_LOCAL_MEM
+  localparam DATA_W = $bits(ext_mem_if[0].wdata);
+  localparam STRB_W = $bits(ext_mem_if[0].wstrb);
+`else
+  localparam DATA_W = 512;
+  localparam STRB_W = 64;  
+`endif
 
    //--------------------------------------------------------------------------------
    // Process feature control flags:
@@ -286,7 +293,9 @@ generate
             .PF_ID     (PORT_PF_VF_INFO[i].pf_num),
             .VF_ID     (PORT_PF_VF_INFO[i].vf_num),
             .VF_ACTIVE (PORT_PF_VF_INFO[i].vf_active),
-            .NUM_TG    (MEM_TG_CH)
+            .NUM_TG    (MEM_TG_CH),
+	    .DATA_W    (DATA_W),
+	    .STRB_W    (STRB_W)
          ) mem_tg_inst (
             .clk        (clk),
             .rst_n      (port_rst_n      [i]),

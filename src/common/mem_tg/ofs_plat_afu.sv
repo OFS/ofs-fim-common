@@ -27,13 +27,19 @@ pcie_ss_axis_if pcie_ss_rx_a_st(clk, rst_n);
 
 ofs_fim_emif_axi_mm_if ext_mem_if[NUM_MEM_CH-1:0]();
 
+// External memory interface parameters
+localparam DATA_W = $bits(ext_mem_if[0].wdata);
+localparam STRB_W = $bits(ext_mem_if[0].wstrb);
 
 mem_tg2_top
   #(
     .PF_ID(0),
     .VF_ID(3),
     .VF_ACTIVE(1),
-    .NUM_TG(NUM_MEM_CH))
+    .NUM_TG(NUM_MEM_CH),
+    .DATA_W(DATA_W),
+    .STRB_W(STRB_W)
+  )
 mem_tg2_inst
   (
    .clk           (clk),

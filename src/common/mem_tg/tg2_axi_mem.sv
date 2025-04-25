@@ -10,7 +10,11 @@
 //-----------------------------------------------------------------------------
 import tg2_csr_pkg::*;
 
-module tg2_axi_mem (
+module tg2_axi_mem 
+	#(
+	parameter DATA_W = 512,
+	parameter STRB_W = 64
+	)(
    input  clk,
    input  rst_n,
 
@@ -39,7 +43,10 @@ assign ext_mem_if.wuser = '0;
 assign ext_mem_if.awqos = '0;
 assign ext_mem_if.arqos = '0;
 
-mem_ss_tg tg_inst (
+mem_ss_tg #( 
+   .DATA_W(DATA_W),
+   .STRB_W(STRB_W)   
+) tg_inst (
    .emif_usr_reset_n (local_rst_n),
    .emif_usr_clk     (clk),
 

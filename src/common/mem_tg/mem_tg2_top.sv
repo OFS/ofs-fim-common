@@ -16,7 +16,9 @@ module mem_tg2_top #(
    parameter VF_ID     = 2,
    parameter VF_ACTIVE = 1,
    parameter NUM_TG    = 1,
-   parameter PL_EMIF   = 1
+   parameter PL_EMIF   = 1,
+   parameter DATA_W    = 512,
+   parameter STRB_W    = 64
 )(
    input logic              clk,
    input logic              rst_n,
@@ -187,7 +189,10 @@ logic [NUM_TG-1:0] tg2_cfg_if_read_q;
 genvar ch;
 generate
 for(ch=0; ch < NUM_TG; ch = ch+1) begin : tg_ch
-   tg2_axi_mem tg2_inst (
+   tg2_axi_mem #(
+      .DATA_W(DATA_W),
+      .STRB_W(STRB_W)
+   ) tg2_inst (
       .clk        (tg2_mem_if[ch].clk),
       .rst_n      (tg2_mem_if[ch].rst_n),
    
