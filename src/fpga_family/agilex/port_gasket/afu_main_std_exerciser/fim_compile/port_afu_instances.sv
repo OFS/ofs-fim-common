@@ -23,6 +23,7 @@
 module port_afu_instances
    import pcie_ss_axis_pkg::*;
    import he_lb_pkg::*;
+ 
 # (
    parameter PG_NUM_LINKS    = 1,
    parameter PG_NUM_PORTS    = 1,
@@ -99,34 +100,41 @@ localparam AR_REG_MODE   = SKID_BUFFER;
 
    // HE-MEM port feature configuration
  `ifdef USE_NULL_HE_MEM
-   localparam AXIS_HEM_PID = -1;
-   localparam AXIS_HLB_PID = -1;
-   localparam HE_MEM_CH = 0;
+	 localparam AXIS_HEM_PID = -1;
+	 localparam AXIS_HLB_PID = -1;
+	 localparam HE_MEM_CH = 0;
  `else
-  `ifdef PR_COMPILE
-   //--------------------------------------------------------------------------------
-   // PR_COMPILE is set during in-tree ofs-dev PR compile. This replaces HE-MEM
-   // from FIM base compile to HE-LPBK. After loading the in-tree.gbs, the
-   // LPBK GUID should reflect a successful PR
-   //--------------------------------------------------------------------------------
-   localparam AXIS_HEM_PID = -1;
-   localparam AXIS_HLB_PID = 0;
-   localparam HE_MEM_CH = 0;
-  `else
-   `ifdef INCLUDE_LOCAL_MEM
-   localparam AXIS_HEM_PID = 0;
-   localparam AXIS_HLB_PID = -1;
-    `ifdef INCLUDE_HBM
-    localparam HE_MEM_CH = 0;
-    `else
-    localparam HE_MEM_CH = 1;
-   `endif
-   `else
-   localparam AXIS_HEM_PID = -1;
-   localparam AXIS_HLB_PID = 0;
-   localparam HE_MEM_CH = 0;
-   `endif
-  `endif
+	 `ifdef PR_COMPILE
+		 //--------------------------------------------------------------------------------
+         // PR_COMPILE is set during in-tree ofs-dev PR compile. This replaces HE-MEM
+         // from FIM base compile to HE-LPBK. After loading the in-tree.gbs, the
+         // LPBK GUID should reflect a successful PR
+         //--------------------------------------------------------------------------------
+		 localparam AXIS_HEM_PID = -1;
+		 localparam AXIS_HLB_PID = 0;
+		 localparam HE_MEM_CH = 0;
+	 `else
+		 `ifdef INCLUDE_LOCAL_MEM
+			 localparam AXIS_HEM_PID = 0;
+			 `ifndef INCLUDE_HSSI
+				 //HELB is instantiated on VF1 as the design does not 
+			     //include HELB when there is only a single PF
+				 localparam AXIS_HLB_PID = (top_cfg_pkg::FIM_NUM_PF==1) ? 1 : -1; 
+			 `else
+				 localparam AXIS_HLB_PID = -1; 
+			 `endif
+
+			 `ifdef INCLUDE_HBM
+				 localparam HE_MEM_CH = 0;
+			 `else
+				 localparam HE_MEM_CH = 1;
+			 `endif
+		 `else
+			 localparam AXIS_HEM_PID = -1;
+			 localparam AXIS_HLB_PID = 0;
+			 localparam HE_MEM_CH = 0;
+		 `endif
+	 `endif
  `endif
 
    // MEM-TG port feature configuration
@@ -145,19 +153,22 @@ localparam AR_REG_MODE   = SKID_BUFFER;
  `endif
 
    // HE-HSSI port feature configuration
- `ifdef USE_NULL_HE_HSSI
-   localparam AXIS_HEH_PID = -1;
-   localparam HE_HSSI_CH   = 0;
- `else
-   `ifdef INCLUDE_HSSI
-   localparam AXIS_HEH_PID = 1;
-   localparam HE_HSSI_CH   = MAX_ETH_CH;
-   `else
-   localparam AXIS_HEH_PID = -1;
-   localparam HE_HSSI_CH   = 0;
-   `endif
+  `ifdef INCLUDE_HSSI 
+	  localparam HE_HSSI_CH   = MAX_ETH_CH;
+  `else
+	  localparam HE_HSSI_CH   = 0;
   `endif
-   
+
+ `ifdef USE_NULL_HE_HSSI
+	 localparam AXIS_HEH_PID = -1;
+ `else
+	 `ifdef INCLUDE_HSSI
+		 localparam AXIS_HEH_PID = 1;
+	 `else
+		 localparam AXIS_HEH_PID = -1;
+	 `endif
+ `endif
+ 
    // The number of connected external channels, used to tie off any excess
    localparam CON_MEM_CH = MEM_TG_CH + HE_MEM_CH;
    localparam CON_ETH_CH = HE_HSSI_CH;
@@ -329,7 +340,7 @@ generate
 	 assign afu_axi_rx_b_if[i].tready = 1'b1;
       end : heh_gen
 `endif
-      else begin : null_gen
+	   else begin : null_gen
          he_null #(
             .PF_ID     (PORT_PF_VF_INFO[i].pf_num),
             .VF_ID     (PORT_PF_VF_INFO[i].vf_num),
