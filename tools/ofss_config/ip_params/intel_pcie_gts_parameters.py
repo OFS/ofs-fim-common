@@ -8,6 +8,7 @@ import sys
 max_num_pfs = 4
 
 default_component_params = {
+    "g3_pld_clkfreq_user_hwtcl": "250MHz",
     "axi_lite_clk_freq_user_p0_hwtcl": 100,
     "core16_enable_multi_func_hwtcl": 1,
     "core16_enable_sriov_hwtcl": 0,
