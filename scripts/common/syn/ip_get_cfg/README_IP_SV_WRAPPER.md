@@ -20,6 +20,7 @@ The script does not depend on any early Quartus phases. It may be run before or 
 ```bash
 qsys-script --cmd="source <path to>/ip_gen_sv_wrapper.tcl; gen_sv_wrapper <output directory>" \
     --quartus-project="<project name>" --rev="<project revision>" \
+    --search-path="<comma separated IP search path (optional)>" \
     --system-file="<path to IP or QSYS file>"
 ```
 
@@ -30,6 +31,10 @@ Five files will be generated in the output directory. Each file name begins with
 * [mem_ss_**if_info.vh**](#systemverilog-interface-macros-_if_infovh) - Macros describing interfaces, including symbol widths.
 * [mem_ss_**ip_params.vh**](#systemverilog-interface-macros-_ip_paramsvh) - Macros derived from the IP HWTCL configuration.
 * mem_ss_**sv.log** - Log file for debugging the script.
+
+#### Search path
+
+qsys-script depends on the \-\-search\-path argument in order to refer to IP or other QSYS projects from the top-level system file. Quartus projects normally hold the IP search path in the global assignment named IP_SEARCH_PATHS. qsys-script does not load search paths automatically, even when the Quartus project is specified. The ip_gen_sv_wrapper.tcl script detects missing dependencies and raises an error.
 
 #### SystemVerilog wrapper: \*\_sv\_wrapper.sv
 

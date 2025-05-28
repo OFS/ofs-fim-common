@@ -312,20 +312,37 @@ proc merge_interface_ports {name ifc port_list} {
     set cur_merge_orig ""
     set cur_merge_base ""
     set cur_merge_pattern ""
+    set cur_merge_set [list]
     set next_id 0
+
+    # List of all port names will be used by the algorithm looking for
+    # opportunities to merge ports into vectors.
+    set all_port_names [list]
+    foreach port $port_list {
+        lappend all_port_names [lindex $port 0]
+    }
 
     foreach port $port_list {
         set port_name [lindex $port 0]
         if {$next_id != 0} {
             # Does the current port match the previous one?
 
-            # Extract the index for the candidate. It must be monotonically
-            # increasing.
-            set is_match [regexp $cur_merge_pattern $port_name dummy id]
+            # Extract the index for the candidate, testing whether the pattern matches a group.
+            set is_match [regexp $cur_merge_pattern $port_name dummy prefix id]
 
-            if {$is_match && $id == $next_id && [lindex $cur_merge_orig 1] == [lindex $port 1]} {
-                # Match. Extend the current group.
-                incr next_id
+            if {$is_match} {
+                # Pattern matches. Does the type match and is the index monotonically increasing?
+                lappend cur_merge_set $port
+                if {$id != $next_id || [lindex $cur_merge_orig 1] != [lindex $port 1]} {
+                    # Not a group. Enumerate the ports individually
+                    # and give up on the current pattern.
+                    set merged_ports [concat $merged_ports $cur_merge_set]
+                    set cur_merge_base ""
+                    set next_id 0
+                } else {
+                    # Match. Extend the current group.
+                    incr next_id
+                }
                 continue
             } else {
                 # No match. Finish the current group.
@@ -341,18 +358,13 @@ proc merge_interface_ports {name ifc port_list} {
             }
         }
 
-        set is_id0 [is_interface_id0 $port_name]
-        if {$is_id0 == 2} {
-            # Start a new group from the pattern "name0"
+        set is_id0 [is_interface_id0 $port_name $all_port_names]
+        if {$is_id0 != ""} {
+            # Start a new group from the pattern
             set cur_merge_orig $port
-            set cur_merge_base [string range $port_name 0 end-1]
-            set cur_merge_pattern "${cur_merge_base}(\[0-9\]+)$"
-            set next_id 1
-        } elseif {$is_id0} {
-            # Start a new group from the pattern "name0_*"
-            set cur_merge_orig $port
-            regsub \[0-9\]+_ $port_name _ cur_merge_base
-            regsub 0_ $port_name (\[0-9\]+)_ cur_merge_pattern
+            set cur_merge_pattern $is_id0
+            regsub $cur_merge_pattern $port_name "\\1\\3" cur_merge_base
+            set cur_merge_set [list $port]
             set next_id 1
         } else {
             # No group. Add the port as is.
@@ -424,27 +436,17 @@ proc decode_sv_interfaces {} {
 
         # Check if the interface is a candidate for coalescing by dropping
         # a numeric index.
-        set is_id0 [is_interface_id0 $pub_ifc]
-        if {$is_id0} {
-            # 0 index entry. Always drop the number, even if no "1" entry is
-            # found later. That way the interface is consistent with other
-            # configurations that have coalesced interfaces. This might happen
-            # with PCIe interfaces, for example, when multiple links are present.
-            if {$is_id0 == 2} {
-                # name<idx>
-                regsub \[0-9\]+$ $pub_ifc "" merge_ifc_name
-                regsub 0$ $pub_ifc ")(\[0-9\]+)(" merge_pattern
-            } else {
-                # name<idx>_bar
-                regsub \[0-9\]+_ $pub_ifc _ merge_ifc_name
-                regsub 0_ $pub_ifc ")(\[0-9\]+)(_" merge_pattern
-            }
+        set is_id0 [is_interface_id0 $pub_ifc [list]]
+        if {$is_id0 != ""} {
+            set merge_pattern $is_id0
+            # Drop the zero index from the name
+            regsub $merge_pattern $pub_ifc "\\1\\3" merge_ifc_name
             set ifc_name "${name}_[string trimright $merge_ifc_name _]_if"
 
             # Save the pattern used to map this id0 interface to the generic form.
             # It will be used when attempting to merge with other interfaces.
             # The pattern has three match groups: prefix, index, and suffix.
-            set ::ip_gen_sv::ifc_name_map_pattern($map_key) "^(${merge_pattern})$"
+            set ::ip_gen_sv::ifc_name_map_pattern($map_key) $merge_pattern
 
             set ::ip_gen_sv::ip_ifcs($ifc_name) $sv_ifc
             set ::ip_gen_sv::ifc_name_map($map_key) $ifc_name
@@ -695,7 +697,27 @@ proc gen_pretty_ifc_name {ifc_name} {
     return $ifc_name
 }
 
+# Confirm that all the subordinate IP and QSYS projects can be found. If
+# they aren't, QSYS will treat them as empty and will miss adding
+# top-level ports. Instead of allowing this to happen, abort.
+proc check_component_paths {} {
+    set err 0
+    foreach msg [validate_system] {
+        puts "  validate_system: $msg"
+        if {[regexp {Error:.*Component .*not found} $msg]} {
+            set err 1
+        }
+    }
+    if {$err} {
+        puts "Aborting: component not found. Fix search path."
+        puts "  The Quartus project's IP_SEARCH_PATHS must be passed as --search-path."
+        exit 1
+    }
+}
+
 proc gen_sv_wrapper {tgt_dir} {
+    check_component_paths
+
     set ::ip_gen_sv::all_instances [lsort_dict [get_instances]]
     set name [get_module_property "NAME"]
     set ip_name $name
@@ -991,20 +1013,35 @@ proc dict_compare {a b} {
 ##########################################################################
 ##########################################################################
 
-# Return 1 if the interface name is of the form: *<name>0_*.
-# Return 2 if the interface name is of the form: *0.
-# When non-zero, the interface name is likely to be repeated with increasing
-# index values. The id0 instance is used to drive coalescing.
-proc is_interface_id0 {ifc} {
-    set idx [string first 0_ $ifc]
-    if {$idx > 0} {
-        set prev_char [string index $ifc [expr $idx-1]]
-        return [expr ![string is digit $prev_char]]
-    } elseif {[regexp "\[^0-9\]0\$" $ifc]} {
-        return 2
+# Map interface names that are index 0 candidates for coalescing to a
+# regular expression. The regular expression is used to map any name
+# in the candidate group to the base name.
+proc is_interface_id0 {ifc all_ifc_names} {
+    set p ""
+    set found_id1 -1
+
+    # Number at the end of the name
+    if {[regexp {[^0-9]0+$} $ifc]} {
+        regsub 0+$ $ifc ")(\[0-9\]+)(" p
+
+        # Check whether the matching candidate exists with id 1. If yes,
+        # pattern with the index at the end will be favored.
+        set id1 [string range $ifc 0 end-1]1
+        set found_id1 [lsearch -exact $all_ifc_names $id1]
     }
 
-    return 0
+    if {$found_id1 == -1 && [regexp {[^0-9]0+_} $ifc]} {
+        # Number followed by underscore in the middle of the name. This pattern
+        # is favored unless an id0/id1 pair with the index at the end has been
+        # found already.
+        regsub 0+_ $ifc ")(\[0-9\]+)(_" p
+    }
+
+    if {$p != ""} {
+        return "^($p)$"
+    }
+
+    return ""
 }
 
 # Map a numbered interface name to a group name.
@@ -1032,6 +1069,16 @@ proc ifc_to_group {name ifc {pub_ifc ""}} {
     return "[string trimright $prefix _]${grp_num_str}${suffix}"
 }
 
+proc drop_leading_zeros {str} {
+    if {$str != ""} {
+        set str [string trimleft $str 0]
+        if {$str == ""} {
+            set str 0
+        }
+    }
+    return $str
+}
+
 # Map an interface to the group index.
 proc ifc_to_group_id {name ifc {pub_ifc ""}} {
     set map_key $::ip_gen_sv::ifc_name_map_key(${name}_${ifc})
@@ -1045,8 +1092,10 @@ proc ifc_to_group_id {name ifc {pub_ifc ""}} {
     # group's vector. Most will both be 0. Ports with matching names but
     # different interfaces are broken into groups and require index mapping.
     set start_id [lindex $::ip_gen_sv::ifc_group_num($map_key) 1]
+    set start_id [drop_leading_zeros $start_id]
 
     regexp $pattern $pub_ifc dummy prefix id suffix
+    set id [drop_leading_zeros $id]
     return [expr $id - $start_id]
 }
 
@@ -1070,6 +1119,7 @@ proc find_coalesce_groups {name} {
         # Each interface in the group
         foreach ifc $::ip_gen_sv::ifc_groups($map_key) {
             regexp $pattern $ifc dummy prefix id suffix
+            set id [drop_leading_zeros $id]
             if {$id != $expect_idx} {
                 # Not contiguous. Skip coalescing.
                 set idx_is_dense 0

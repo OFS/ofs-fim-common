@@ -119,7 +119,20 @@ namespace eval ::ofs_ip_cfg_db {
 
         # Generate a SystemVerilog wrapper around the IP
         set cmd "source $::env(BUILD_ROOT_REL)/ofs-common/scripts/common/syn/ip_get_cfg/ip_gen_sv_wrapper.tcl; gen_sv_wrapper ${ip_wrapper_dir}"
-        set args [list --quartus-project=${project} --rev=${revision} --system-file=${ip_file} --cmd=${cmd}]
+        set args [list --quartus-project=${project} --rev=${revision}]
+        if {[lsearch [get_all_assignment_names] IP_SEARCH_PATHS] != -1} {
+            # Project has IP_SEARCH_PATHS. Pass them to qsys-script.
+            set paths ""
+            foreach_in_collection p [get_all_global_assignments -name IP_SEARCH_PATHS] {
+                set paths "${paths}[lindex $p 2],"
+            }
+            if {$paths != ""} {
+                # qsys-script expects a comma-separated list of paths. Dollar at the
+                # end adds default system paths.
+                lappend args "--search-path=[regsub -all {;} $paths {,}]\$"
+            }
+        }
+        lappend args --system-file=${ip_file} --cmd=${cmd}
         post_message "Generating ${ip_sv_wrapper} with: qsys-script" -submsgs $args
         puts $args
         run_qsys_script args
