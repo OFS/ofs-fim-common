@@ -424,10 +424,13 @@ remote_stp_top#(
       .ena    (stp_jtag_if.tckena),
       .tdo    (stp_jtag_if.tdo)
    );
-
+`ifdef CONFIG_AGILEX5
+   assign stp_jtag_if.reset = cfg_mon.s10_user_rst_clkgate_0.ninit_done;
+`else
    jtag_pr_reset_release u_reset_release (
       .ninit_done(stp_jtag_if.reset)
    );
+`endif
 `else
    // Connect STP to the remote STP module
    assign remote_stp_jtag_if.tdo = stp_jtag_if.tdo;
