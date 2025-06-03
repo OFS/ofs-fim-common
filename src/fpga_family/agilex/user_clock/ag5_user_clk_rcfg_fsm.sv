@@ -53,8 +53,13 @@ module ag5_user_clk_rcfg_fsm (
    assign mgmt_error_o = 1'b0;
 
    // 'core_avl' interface FSM states
-   typedef enum logic [3:0] {
+   typedef enum logic [4:0] {
       IDLE,
+      INIT_DELAY_0,
+      INIT_DELAY_1,
+      INIT_DELAY_2,
+      INIT_DELAY_3,
+      INIT_DELAY_4,
       RD_START,
       RD_TAR_0,
       RD_TAR_1,
@@ -66,10 +71,16 @@ module ag5_user_clk_rcfg_fsm (
       RD_BYTE_1,
       RD_BYTE_2,
       RD_BYTE_3,
+      WR_NULL_0,
+      WR_NULL_1,
+      WR_NULL_2,
+      WR_NULL_3,
+      WR_NULL_4,
       WR_BYTE_0,
       WR_BYTE_1,
       WR_BYTE_2,
-      WR_BYTE_3
+      WR_BYTE_3,
+      WR_BYTE_3_repeat
    } e_state;
    e_state core_avl_next_st, core_avl_curr_st;
 
@@ -93,14 +104,20 @@ module ag5_user_clk_rcfg_fsm (
    end
 
    //--------------------------------------------------------------------------------
-   // Read and write operations to core_avl_readdata[7:0] and core_avl_writedata[7:0]
+   // 32 bit read and write operations to core_avl_readdata and core_avl_writedata
    // must be split into four separate 8-bit transfers, each spaced by intervals
    // equal processed sequentially from the least significant to the most significant
    // 8-bit segment.
    //
-   // When core_avl_read is asserted for a read cycle, the first four 8-bit segments
-   // become 0x00 and should be discarded. To ensure synchronization of the read
-   // cycle, a 0x00 word is inserted between successive 32-bit register reads.
+   // The first 6 cycles while core_avl_read is asserted are discarded. Data arrives
+   // for 4 consecutive cycles, starting in the 7th cycle that core_avl_read is
+   // asserted.
+   //
+   // The write sequence begins with 5 cycles with data set to 0 and core_avl_write
+   // asserted. The next 5 cycles write the data, with the last byte repeated in the
+   // final cycle.
+   //
+   // Sequences must be separated by at least 5 idle cycles.
    //--------------------------------------------------------------------------------
 
    // 'core_avl' read|write FSM
@@ -108,9 +125,24 @@ module ag5_user_clk_rcfg_fsm (
       unique case (core_avl_curr_st)
          IDLE:
             if (uclk_rcfg_start)
-               core_avl_next_st = RD_START;
+               core_avl_next_st = INIT_DELAY_0;
             else
                core_avl_next_st = IDLE;
+
+         // There must be 5 idle cycles after a previous read or write.
+         // It's easier to enforce that as a preamble than deal with
+         // separate read and write delays.
+         INIT_DELAY_0:
+            core_avl_next_st  = INIT_DELAY_1;
+         INIT_DELAY_1:
+            core_avl_next_st  = INIT_DELAY_2;
+         INIT_DELAY_2:
+            core_avl_next_st  = INIT_DELAY_3;
+         INIT_DELAY_3:
+            core_avl_next_st  = INIT_DELAY_4;
+         INIT_DELAY_4:
+            core_avl_next_st = RD_START;
+
          RD_START:
             core_avl_next_st  = RD_TAR_0;
          RD_TAR_0:
@@ -133,9 +165,19 @@ module ag5_user_clk_rcfg_fsm (
             core_avl_next_st  = RD_BYTE_3;
          RD_BYTE_3:
             if (mgmt_rcfg_ctrl_i.write)
-               core_avl_next_st  = WR_BYTE_0;
+               core_avl_next_st  = WR_NULL_0;
             else
                core_avl_next_st  = IDLE;
+         WR_NULL_0:
+            core_avl_next_st  = WR_NULL_1;
+         WR_NULL_1:
+            core_avl_next_st  = WR_NULL_2;
+         WR_NULL_2:
+            core_avl_next_st  = WR_NULL_3;
+         WR_NULL_3:
+            core_avl_next_st  = WR_NULL_4;
+         WR_NULL_4:
+            core_avl_next_st  = WR_BYTE_0;
          WR_BYTE_0:
             core_avl_next_st  = WR_BYTE_1;
          WR_BYTE_1:
@@ -143,6 +185,9 @@ module ag5_user_clk_rcfg_fsm (
          WR_BYTE_2:
             core_avl_next_st  = WR_BYTE_3;
          WR_BYTE_3:
+            core_avl_next_st  = WR_BYTE_3_repeat;
+         // The protocol requires byte 3 to be written twice
+         WR_BYTE_3_repeat:
             core_avl_next_st  = IDLE;
          default:
             core_avl_next_st  = IDLE;
@@ -169,6 +214,7 @@ module ag5_user_clk_rcfg_fsm (
             begin
                core_avl_read <= 1'b0;
                core_avl_write <= 1'b0;
+               core_avl_writedata <= '0;
                mgmt_rcfg_ctrl_ack_o <= 1'b0;
             end
 
@@ -207,9 +253,17 @@ module ag5_user_clk_rcfg_fsm (
                end
             end
 
-            WR_BYTE_0:
+            WR_NULL_0,
+            WR_NULL_1,
+            WR_NULL_2,
+            WR_NULL_3,
+            WR_NULL_4:
             begin
                core_avl_write <= 1'b1;
+            end
+
+            WR_BYTE_0:
+            begin
                core_avl_writedata <= (rd_data[7:0] & ~write_mask[7:0]) | (mgmt_rcfg_ctrl_i.data[7:0] & write_mask[7:0]);
             end
 
@@ -226,6 +280,10 @@ module ag5_user_clk_rcfg_fsm (
             WR_BYTE_3:
             begin
                core_avl_writedata <= (rd_data[31:24] & ~write_mask[31:24]) | (mgmt_rcfg_ctrl_i.data[31:24] & write_mask[31:24]);
+            end
+
+            WR_BYTE_3_repeat:
+            begin
                mgmt_rcfg_ctrl_ack_o <= 1'b1;
             end
 
