@@ -199,6 +199,18 @@ for q in ${SYN_TOP_PATH}/*.q[ps]f; do
 done
 
 
+# remove possible symlink before copying Design Assistant files
+# need hard copy of DAWF and INI file as Quartus will modify them (don't want to pollute source tree)
+for d in ${SYN_TOP_PATH}/da_drc.*; do
+    fn=$(basename "${d}")
+    if [ -L "${WORK_SYN_TOP_PATH}/$fn" ]; then
+        rm -f "${WORK_SYN_TOP_PATH}/$fn"
+        cp "${d}" "${WORK_SYN_TOP_PATH}"/
+        chk_exit_code "cp da_drc.*"
+    fi
+done
+
+
 #################################################
 ######   optional pre-compile script
 if [ ! -z ${ENA_PRE_COMPILE_SCRIPT} ]; then
