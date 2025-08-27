@@ -42,7 +42,7 @@ COMMON_SCRIPT_DIR=$OFS_ROOTDIR/sim/unit_test/scripts
 # Check that valid test was specified
 
 if [ -z "$OFS_ROOTDIR" ] ; then
-   echo "OFS_ROOTDIR not set, follow "Environment Set Up" instructions at https://github.com/intel-innersource/applications.fpga.ofs.reference-fims/wiki/OFS-Wiki"
+   echo "OFS_ROOTDIR not set, follow "Environment Set Up" instructions at https://github.com/altera-innersource/applications.fpga.ofs.reference-fims/wiki/OFS-Wiki"
    exit 1
 fi
 
