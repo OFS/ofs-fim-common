@@ -184,6 +184,16 @@ def gen_vcs_filelist(
     ip_list,
     file_lines
 ):
+    print("DEBUG: In gen_vcs_filelist:")
+    print("       sim_info.get_sim_extract_script() =", sim_info.get_sim_extract_script())
+    print("       sim_info.get_ip_inst()            =", sim_info.get_ip_inst())
+    print("       sim_info.get_sim_script()         =", sim_info.get_sim_script())
+    print("       Running TCL command:")
+    print("       tclsh %s/%s %s %s" % (
+        os.path.dirname(os.path.realpath(__file__)),
+        sim_info.get_sim_extract_script(),
+        sim_info.get_ip_inst(),
+        sim_info.get_sim_script()))
     '''
     Collect the simulation filelist given the IP instance name
     and the path to the IP VCS simulation script
@@ -248,11 +258,6 @@ def gen_old_ip_vcs_filelist(
     file_lines
 ):
     '''
-    print("gen_sim_filelist.py: gen_old_ip_vcs_filelist: sim_info=  %s" % sim_info)
-    print("gen_sim_filelist.py: gen_old_ip_vcs_filelist: rom_lines= %s" % rom_lines)
-    print("gen_sim_filelist.py: gen_old_ip_vcs_filelist: ip_list=   %s" % ip_list)
-    print("gen_sim_filelist.py: gen_old_ip_vcs_filelist: file_lines=%s" % file_lines)
-
     Collect the simulation filelist given the IP instance name
     and the path to the IP VCS simulation script
 
@@ -463,6 +468,7 @@ def gen_msim_script(
             full_sim_path = os.environ['OFS_ROOTDIR'] + "/" + rel_sim_path
             msim_script = full_sim_path + "/common/modelsim_files.tcl"
 
+
             sim_info = IPSimInfo(rel_sim_path, qsys, msim_script, "get_msim_files.tcl")
 
             if os.path.exists(msim_script):
@@ -476,8 +482,9 @@ def gen_msim_script(
             else:
                 print("gen_sim_filelist.py: gen_msim_script: in else Reading file list of %s "
                       "(IP generated from older version of Quartus)" % qsys)
-
                 msim_script = full_sim_path + "/mentor/msim_setup.tcl"
+
+
                 sim_info = IPSimInfo(rel_sim_path, "NULL", msim_script, None)
 
                 gen_old_ip_msim_filelist(
@@ -649,6 +656,16 @@ def gen_msim_filelist(
     ip_list,
     file_lines
 ):
+    print("DEBUG: In gen_msim_filelist:")
+    print("       sim_info.get_sim_extract_script() =", sim_info.get_sim_extract_script())
+    print("       sim_info.get_ip_inst()            =", sim_info.get_ip_inst())
+    print("       sim_info.get_sim_script()         =", sim_info.get_sim_script())
+    print("       Running TCL command:")
+    print("       tclsh %s/%s %s %s" % (
+        os.path.dirname(os.path.realpath(__file__)),
+        sim_info.get_sim_extract_script(),
+        sim_info.get_ip_inst(),
+        sim_info.get_sim_script()))
     '''
     Collect the simulation filelist given the IP instance name
     and the path to the IP Modelsim simulation script
@@ -711,6 +728,8 @@ def gen_old_ip_msim_filelist(
     ip_list,
     file_lines
 ):
+    print("DEBUG: In gen_old_ip_msim_filelist:")
+    print("       sim_info.get_sim_script() =", sim_info.get_sim_script())
     '''Collect the simulation filelist given the IP instance name
     and the path to the IP Modelsim simulation script
 
@@ -796,4 +815,3 @@ def main():
 # Main Entry
 if (__name__ == "__main__"):
     main()
-

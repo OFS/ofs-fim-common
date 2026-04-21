@@ -110,7 +110,11 @@ fi
 
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-OFS_IP_SEARCH_PATH="$OFS_ROOTDIR/ofs-common/src/common/lib/**/*,$OFS_ROOTDIR/ipss/pmci/**/*,$OFS_ROOTDIR/src/pd_qsys/common/**/*,$OFS_ROOTDIR/src/afu_top/**/*,$"
+#OFS_IP_SEARCH_PATH="$OFS_ROOTDIR/ofs-common/src/common/lib/**/*,$OFS_ROOTDIR/ipss/pmci/**/*,$OFS_ROOTDIR/src/pd_qsys/common/**/*,$OFS_ROOTDIR/src/afu_top/**/*,$"
+OFS_IP_SEARCH_PATH="${OFS_ROOTDIR}/ofs-common/src/common/lib/**/*"
+OFS_IP_SEARCH_PATH+=",${OFS_ROOTDIR}/ipss/pmci/**/*"
+OFS_IP_SEARCH_PATH+=",${OFS_ROOTDIR}/src/pd_qsys/common/**/*"
+OFS_IP_SEARCH_PATH+=",${OFS_ROOTDIR}/src/afu_top/**/*"
 
 # Parent directory where IP simulation will be configured
 SIM_SETUP_PREFIX="sim/scripts"
@@ -312,37 +316,111 @@ fi
 
 echo "**** Generating HDL for $OFS_TARGET ****"
 
-unset batch_ip_list
-while read ip
-do
-    # Shorten the IP path because all of them will be on the command line to qsys-generate
-    ip=$(realpath --relative-to "${PROJECT_PARENT}" "${ip}")
+# 1. Initialize arrays
+gen_args=()
+batch_args=()
 
-    if [ -z "$batch_ip_list" ]; then
-        batch_ip_list=r/"$ip"
-    else
-        batch_ip_list="$batch_ip_list --batch=r/$ip"
+# 2. Add extra args if they exist
+if [ ! -z "${__NB_JOBID}" -a ! -z "${ARC_JOB_STORAGE}" ]; then
+    gen_args+=("--parallel=off")
+fi
+
+if [ "$HAS_FTILE" = true ]; then
+    gen_args+=("--synthesis=VERILOG")
+fi
+
+# 3. Build the batch array from your generated flist
+while read -r ip; do
+    # Get the path without following symlinks to avoid the @commit mismatch
+    abs_ip=$(realpath --no-symlinks "$ip")
+    if [[ -n "$abs_ip" ]]; then
+        batch_args+=("--batch=$abs_ip")
     fi
 done < "${SIM_SETUP_DIR}"/generated_ip_flist.f
 
-qsys_gen_extra_args=""
-if [ ! -z "${__NB_JOBID}" -a ! -z "${ARC_JOB_STORAGE}" ]; then
-    # Reduce parallelism when running in the Intel batch farm
-    qsys_gen_extra_args="--parallel=off"
-fi
-
-if $HAS_FTILE; then
-    # Generate synthesis files for quartus elaboration during TLG
-    qsys_gen_extra_args="$qsys_gen_extra_args --synthesis=VERILOG"
-fi
 
 (cd "${PROJECT_DIR}"
- # batch_ip_list list expects "r" to link from the project directory to the root directory
- rm -rf r; ln -s "${PROJECT_PARENT}" r
- qsys-generate ${qsys_gen_extra_args} --simulation=VERILOG --simulator=VCS,VCSMX,MODELSIM --search-path="$OFS_IP_SEARCH_PATH" \
-    $batch_ip_list \
-    --quartus-project=${Q_PROJECT} --rev=${Q_REVISION}
+  echo ">>>>>> Executing qsys-generate: Serial IP Generation"
+
+  rm -f r
+  # DEBUG-QS-15008
+  #ln -s "${OFS_ROOTDIR}" r
+  ln -s "${PROJECT_PARENT}" r
+
+  # DEBUG-QS-15008
+  # Use absolute OFS_ROOTDIR-based search paths to avoid r/ symlink context mismatch
+  CLEAN_PATH="${OFS_IP_SEARCH_PATH},\$"
+
+  for ip_arg in "${batch_args[@]}"; do
+      ip_path="${ip_arg#--batch=}"
+	  # DEBUG-QS-15008
+      # Use absolute path directly - do NOT convert to r/ prefix
+      short_ip="${ip_path}"
+      
+      echo "--> Processing: $short_ip"
+
+      # Execute qsys-generate
+      qsys-generate "$short_ip" \
+          --parallel=off \
+          --simulation=VERILOG \
+          --simulator=VCS,VCSMX,MODELSIM \
+          --search-path="$CLEAN_PATH" \
+          --quartus-project="${Q_PROJECT}" \
+          --rev="${Q_REVISION}" || {
+              echo "FAILED: $short_ip. Continuing to next IP..."
+          }
+  done
+
+  rm -f r
 )
+
+#batch_ip_list=""
+
+#while read ip
+#do
+#    # 1. Resolve to absolute path BUT DO NOT follow symlinks
+#    # This keeps the "ofs-common" part of the path instead of resolving to "@commit"
+#    abs_ip=$(realpath --no-symlinks "$ip")
+#
+#    # 2. Add to the list
+#    if [ -z "$batch_ip_list" ]; then
+#        batch_ip_list="--batch=$abs_ip"
+#    else
+#        batch_ip_list="$batch_ip_list --batch=$abs_ip"
+#    fi
+#done < "${SIM_SETUP_DIR}"/generated_ip_flist.f
+#
+#echo ">>>> Debug: Final Batch List"
+#echo "$batch_ip_list"
+#
+## 1. Use an array for extra arguments
+#qsys_gen_extra_args=()
+#
+#if [ ! -z "${__NB_JOBID}" -a ! -z "${ARC_JOB_STORAGE}" ]; then
+#    qsys_gen_extra_args+=("--parallel=off")
+#fi
+#
+#if $HAS_FTILE; then
+#    qsys_gen_extra_args+=("--synthesis=VERILOG")
+#fi
+#
+#(cd "${PROJECT_DIR}"
+# # Note: You can keep the 'r' link if your paths in batch_ip_list use it, 
+# # but based on our previous fix, we are using absolute paths now.
+# 
+# echo ">>>>>> Executing qsys-generate"
+# 
+# # 2. Use the array expansion syntax "${array[@]}"
+# # This ensures that if the array is empty, NO argument is passed (not even a space)
+# qsys-generate \
+#    "${qsys_gen_extra_args[@]}" \
+#    --simulation=VERILOG \
+#    --simulator=VCS,VCSMX,MODELSIM \
+#    --search-path="$OFS_IP_SEARCH_PATH" \
+#    $batch_ip_list \
+#    --quartus-project=${Q_PROJECT} \
+#    --rev=${Q_REVISION}
+#)
 if [ $? -ne 0 ]; then
     echo "HDL generation failed. Check the errors for details."
     exit -1
