@@ -10,7 +10,7 @@
 ##
 
 # Loop over all features that can be disabled
-for tag in DDR4 HPS HSSI PMCI PR USER_CLK; do
+for tag in DDR4 HPS HSSI PMCI PR USER_CLK REMOTE_STP JTAG_PR_STP; do
     # Construct a tag variable name that can be tested in the shell
     test_tag="OFS_BUILD_TAG_NO_${tag}"
     if [ ! -z ${!test_tag} ]; then

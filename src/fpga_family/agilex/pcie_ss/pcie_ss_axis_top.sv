@@ -293,11 +293,15 @@ logic [PCIE_NUM_LINKS-1:0]               ss_app_serr;
 // The table implementation requires that all functions with MSI-X
 // enabled must have identical configurations.
 function automatic int find_msix_enabled_pf();
+`ifdef MINIMAL_BUILD
+  return -1;
+`else
     for (int f = 0; f < 8; f += 1) begin
         if (CFG_MSIX_PF_TABLE_SIZE_VEC[f] != 0) return f;
     end
 
     return -1;
+`endif
 endfunction // find_msix_enabled_pf
 
 for (genvar j=0; j<PCIE_NUM_LINKS; j++) begin : PCIE_LINK_CONN
@@ -358,7 +362,6 @@ for (genvar j=0; j<PCIE_NUM_LINKS; j++) begin : PCIE_LINK_CONN
 
         assign msix_flr_rsp_if = flr_rsp_if[j];
     end
-
 
     // Connecting the RX ST Interface
     if (CFG_HDR_SCHEME_IS_SIDE_BAND) begin : rx_sb
@@ -426,9 +429,9 @@ for (genvar j=0; j<PCIE_NUM_LINKS; j++) begin : PCIE_LINK_CONN
         // use consistent signals.
         assign ss_app_st_rx_tuser_last_segment[j] = ss_app_st_rx_tlast[j];
         always_ff @(posedge coreclkout_hip) begin
-            if (ss_app_st_rx_tvalid[j] && app_ss_st_rx_tready[j])
+        if (ss_app_st_rx_tvalid[j] && app_ss_st_rx_tready[j])
                 ss_app_st_rx_tuser_hvalid[j] <= ss_app_st_rx_tlast[j];
-            if (!reset_status_n)
+        if (!reset_status_n[j])
                 ss_app_st_rx_tuser_hvalid[j] <= 1'b1;
         end
     end
