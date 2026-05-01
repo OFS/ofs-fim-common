@@ -321,9 +321,10 @@ gen_args=()
 batch_args=()
 
 # 2. Add extra args if they exist
-if [ ! -z "${__NB_JOBID}" -a ! -z "${ARC_JOB_STORAGE}" ]; then
-    gen_args+=("--parallel=off")
-fi
+# NOTE: The parameter below is now incorporated into the qsys-generate command below.
+# if [ ! -z "${__NB_JOBID}" -a ! -z "${ARC_JOB_STORAGE}" ]; then
+#     gen_args+=("--parallel=off")
+# fi
 
 if [ "$HAS_FTILE" = true ]; then
     gen_args+=("--synthesis=VERILOG")
@@ -361,6 +362,7 @@ done < "${SIM_SETUP_DIR}"/generated_ip_flist.f
 
       # Execute qsys-generate
       qsys-generate "$short_ip" \
+         "${gen_args[@]}" \
           --parallel=off \
           --simulation=VERILOG \
           --simulator=VCS,VCSMX,MODELSIM \
