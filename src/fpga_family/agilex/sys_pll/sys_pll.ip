@@ -180,7 +180,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="clockRate" type="longint">
           <ipxact:name>clockRate</ipxact:name>
           <ipxact:displayName>Clock rate</ipxact:displayName>
-          <ipxact:value>500000000</ipxact:value>
+          <ipxact:value>250000000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="clockRateKnown" type="bit">
           <ipxact:name>clockRateKnown</ipxact:name>
@@ -294,7 +294,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="clockRate" type="longint">
           <ipxact:name>clockRate</ipxact:name>
           <ipxact:displayName>Clock rate</ipxact:displayName>
-          <ipxact:value>250000000</ipxact:value>
+          <ipxact:value>125000000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="clockRateKnown" type="bit">
           <ipxact:name>clockRateKnown</ipxact:name>
@@ -351,7 +351,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="clockRate" type="longint">
           <ipxact:name>clockRate</ipxact:name>
           <ipxact:displayName>Clock rate</ipxact:displayName>
-          <ipxact:value>750000000</ipxact:value>
+          <ipxact:value>666666667</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="clockRateKnown" type="bit">
           <ipxact:name>clockRateKnown</ipxact:name>
@@ -465,7 +465,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="clockRate" type="longint">
           <ipxact:name>clockRate</ipxact:name>
           <ipxact:displayName>Clock rate</ipxact:displayName>
-          <ipxact:value>125000000</ipxact:value>
+          <ipxact:value>62500000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="clockRateKnown" type="bit">
           <ipxact:name>clockRateKnown</ipxact:name>
@@ -829,12 +829,12 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="system_info_device_family" type="string">
           <ipxact:name>system_info_device_family</ipxact:name>
           <ipxact:displayName>Device Family</ipxact:displayName>
-          <ipxact:value>Agilex 7</ipxact:value>
+          <ipxact:value>Agilex 5</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="system_info_device_component" type="string">
           <ipxact:name>system_info_device_component</ipxact:name>
           <ipxact:displayName>Component</ipxact:displayName>
-          <ipxact:value>AGIB027R29A1E1VB</ipxact:value>
+          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="system_info_device_iobank_rev" type="string">
           <ipxact:name>system_info_device_iobank_rev</ipxact:name>
@@ -844,17 +844,17 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="system_part_trait_speed_grade" type="string">
           <ipxact:name>system_part_trait_speed_grade</ipxact:name>
           <ipxact:displayName>Speed Grade Trait</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>6</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="system_part_trait_iobank_rev" type="string">
           <ipxact:name>system_part_trait_iobank_rev</ipxact:name>
           <ipxact:displayName>IO Bank Revision Trait</ipxact:displayName>
-          <ipxact:value>IO96A_REVB2</ipxact:value>
+          <ipxact:value>IO96B</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="system_info_device_speed_grade" type="string">
           <ipxact:name>system_info_device_speed_grade</ipxact:name>
           <ipxact:displayName>Speed Grade</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>6</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_usr_device_speed_grade" type="string">
           <ipxact:name>gui_usr_device_speed_grade</ipxact:name>
@@ -1474,7 +1474,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="gui_output_clock_frequency0" type="real">
           <ipxact:name>gui_output_clock_frequency0</ipxact:name>
           <ipxact:displayName>Desired Frequency</ipxact:displayName>
-          <ipxact:value>500.0</ipxact:value>
+          <ipxact:value>250.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_output_clock_frequency1" type="real">
           <ipxact:name>gui_output_clock_frequency1</ipxact:name>
@@ -1484,7 +1484,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="gui_output_clock_frequency2" type="real">
           <ipxact:name>gui_output_clock_frequency2</ipxact:name>
           <ipxact:displayName>Desired Frequency</ipxact:displayName>
-          <ipxact:value>250.0</ipxact:value>
+          <ipxact:value>125.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_output_clock_frequency3" type="real">
           <ipxact:name>gui_output_clock_frequency3</ipxact:name>
@@ -1499,7 +1499,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="gui_output_clock_frequency5" type="real">
           <ipxact:name>gui_output_clock_frequency5</ipxact:name>
           <ipxact:displayName>Desired Frequency</ipxact:displayName>
-          <ipxact:value>125.0</ipxact:value>
+          <ipxact:value>62.5</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_output_clock_frequency6" type="real">
           <ipxact:name>gui_output_clock_frequency6</ipxact:name>
@@ -1564,7 +1564,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="gui_output_clock_frequency_ps0" type="real">
           <ipxact:name>gui_output_clock_frequency_ps0</ipxact:name>
           <ipxact:displayName>Desired Frequency</ipxact:displayName>
-          <ipxact:value>2000.0</ipxact:value>
+          <ipxact:value>4000.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_output_clock_frequency_ps1" type="real">
           <ipxact:name>gui_output_clock_frequency_ps1</ipxact:name>
@@ -1574,7 +1574,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="gui_output_clock_frequency_ps2" type="real">
           <ipxact:name>gui_output_clock_frequency_ps2</ipxact:name>
           <ipxact:displayName>Desired Frequency</ipxact:displayName>
-          <ipxact:value>4000.0</ipxact:value>
+          <ipxact:value>8000.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_output_clock_frequency_ps3" type="real">
           <ipxact:name>gui_output_clock_frequency_ps3</ipxact:name>
@@ -1589,7 +1589,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="gui_output_clock_frequency_ps5" type="real">
           <ipxact:name>gui_output_clock_frequency_ps5</ipxact:name>
           <ipxact:displayName>Desired Frequency</ipxact:displayName>
-          <ipxact:value>8000.0</ipxact:value>
+          <ipxact:value>16000.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_output_clock_frequency_ps6" type="real">
           <ipxact:name>gui_output_clock_frequency_ps6</ipxact:name>
@@ -2049,17 +2049,17 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>Device</ipxact:displayName>
-          <ipxact:value>AGIB027R29A1E1VB</ipxact:value>
+          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceFamily" type="string">
           <ipxact:name>deviceFamily</ipxact:name>
           <ipxact:displayName>Device family</ipxact:displayName>
-          <ipxact:value>Agilex 7</ipxact:value>
+          <ipxact:value>Agilex 5</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
           <ipxact:name>deviceSpeedGrade</ipxact:name>
           <ipxact:displayName>Device Speed Grade</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>6</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generationId" type="int">
           <ipxact:name>generationId</ipxact:name>
@@ -2105,7 +2105,7 @@ Altera and sold by Altera or its authorized distributors.-->
                 &lt;consumedSystemInfos&gt;
                     &lt;entry&gt;
                         &lt;key&gt;CLOCK_RATE&lt;/key&gt;
-                        &lt;value&gt;500000000&lt;/value&gt;
+                        &lt;value&gt;250000000&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/consumedSystemInfos&gt;
             &lt;/value&gt;
@@ -2131,7 +2131,7 @@ Altera and sold by Altera or its authorized distributors.-->
                 &lt;consumedSystemInfos&gt;
                     &lt;entry&gt;
                         &lt;key&gt;CLOCK_RATE&lt;/key&gt;
-                        &lt;value&gt;250000000&lt;/value&gt;
+                        &lt;value&gt;125000000&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/consumedSystemInfos&gt;
             &lt;/value&gt;
@@ -2144,7 +2144,7 @@ Altera and sold by Altera or its authorized distributors.-->
                 &lt;consumedSystemInfos&gt;
                     &lt;entry&gt;
                         &lt;key&gt;CLOCK_RATE&lt;/key&gt;
-                        &lt;value&gt;750000000&lt;/value&gt;
+                        &lt;value&gt;666666667&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/consumedSystemInfos&gt;
             &lt;/value&gt;
@@ -2170,7 +2170,7 @@ Altera and sold by Altera or its authorized distributors.-->
                 &lt;consumedSystemInfos&gt;
                     &lt;entry&gt;
                         &lt;key&gt;CLOCK_RATE&lt;/key&gt;
-                        &lt;value&gt;125000000&lt;/value&gt;
+                        &lt;value&gt;62500000&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/consumedSystemInfos&gt;
             &lt;/value&gt;

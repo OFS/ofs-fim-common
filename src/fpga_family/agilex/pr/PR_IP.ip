@@ -506,7 +506,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="DEVICE_FAMILY" type="string">
           <ipxact:name>DEVICE_FAMILY</ipxact:name>
           <ipxact:displayName>DEVICE_FAMILY</ipxact:displayName>
-          <ipxact:value>Agilex 7</ipxact:value>
+          <ipxact:value>Agilex 5</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="TARGET_INTERFACE" type="string">
           <ipxact:name>TARGET_INTERFACE</ipxact:name>
@@ -546,12 +546,12 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="AUTO_DEVICE" type="string">
           <ipxact:name>AUTO_DEVICE</ipxact:name>
           <ipxact:displayName>Auto DEVICE</ipxact:displayName>
-          <ipxact:value>AGIB027R29A1E1VB</ipxact:value>
+          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="AUTO_DEVICE_SPEEDGRADE" type="string">
           <ipxact:name>AUTO_DEVICE_SPEEDGRADE</ipxact:name>
           <ipxact:displayName>Auto DEVICE_SPEEDGRADE</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>6</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="AUTO_BOARD" type="string">
           <ipxact:name>AUTO_BOARD</ipxact:name>
@@ -570,17 +570,17 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>Device</ipxact:displayName>
-          <ipxact:value>AGIB027R29A1E1VB</ipxact:value>
+          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceFamily" type="string">
           <ipxact:name>deviceFamily</ipxact:name>
           <ipxact:displayName>Device family</ipxact:displayName>
-          <ipxact:value>Agilex 7</ipxact:value>
+          <ipxact:value>Agilex 5</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
           <ipxact:name>deviceSpeedGrade</ipxact:name>
           <ipxact:displayName>Device Speed Grade</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>6</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generationId" type="int">
           <ipxact:name>generationId</ipxact:name>
