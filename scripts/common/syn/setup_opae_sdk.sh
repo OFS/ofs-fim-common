@@ -94,7 +94,13 @@ else
     set +x
 
     echo 'Extending LD_LIBRARY_PATH so PACSign can rely on the Quartus libcrypto.so...'
+    # In Quartus 26.1+, libcrypto.so moved from quartus/linux64/ to qcore/linux64/.
+    # Add both paths so this works across Quartus versions.
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH+$LD_LIBRARY_PATH:}$QUARTUS_ROOTDIR/linux64"
+    QCORE_LIBCRYPTO="$(dirname "$QUARTUS_ROOTDIR")/qcore/linux64"
+    if [ -e "${QCORE_LIBCRYPTO}/libcrypto.so" ]; then
+        export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${QCORE_LIBCRYPTO}"
+    fi
     printf "LD_LIBRARY_PATH=%q\n" "$LD_LIBRARY_PATH"
 fi
 
