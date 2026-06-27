@@ -254,9 +254,22 @@ if command -v vlogan &> /dev/null; then
     mkdir -p "$QLIBS_DIR"/vcsmx
     (cd "$QLIBS_DIR"/vcsmx
      echo "ofs-common/scripts/common/sim/gen_sim_files.sh generated Quartus library script with:" > ../README
-     echo "  quartus_sh --simlib_comp -family \"$FAMILY\" -tool vcsmx -language verilog -cmd_file ../vcsmx_cmd_file.sh -gen_only" >> ../README
-
-     quartus_sh --simlib_comp -family "$FAMILY" -tool vcsmx -language verilog -cmd_file ../vcsmx_cmd_file.sh -gen_only &> ../vcsmx.log
+     # -mode quartus (Agilex 5 only): generates tile-specific library variants
+     # (tennm_revb_io96_ver, tennm_revb_hvio_ver) ordered correctly in synopsys_sim.setup
+     # so VCS resolves Rev B PHY modules before Rev A counterparts.
+     # Other families use the default standalone mode and require the rename of
+     # .synopsys_vss.setup -> synopsys_sim.setup after generation.
+     if [[ "$FAMILY" =~ "agilex5" ]]; then
+         echo "  quartus_sh --simlib_comp -family \"$FAMILY\" -mode quartus -tool vcsmx -language verilog -cmd_file ../vcsmx_cmd_file.sh -gen_only" >> ../README
+         quartus_sh --simlib_comp -family "$FAMILY" -mode quartus -tool vcsmx -language verilog -cmd_file ../vcsmx_cmd_file.sh -gen_only &> ../vcsmx.log
+     else
+         echo "  quartus_sh --simlib_comp -family \"$FAMILY\" -tool vcsmx -language verilog -cmd_file ../vcsmx_cmd_file.sh -gen_only" >> ../README
+         quartus_sh --simlib_comp -family "$FAMILY" -tool vcsmx -language verilog -cmd_file ../vcsmx_cmd_file.sh -gen_only &> ../vcsmx.log
+         # Rename the hidden generated setup file to a visible one that other scripts expect
+         if [ -f "$QLIBS_DIR"/vcsmx/.synopsys_vss.setup ]; then
+             mv "$QLIBS_DIR"/vcsmx/.synopsys_vss.setup "$QLIBS_DIR"/vcsmx/synopsys_sim.setup
+         fi
+     fi
 
      # PCIe PIPE mode enabled?
      is_pcie_pipe_mode=$(grep -c IS_PIPE_MODE "${PROJECT_DIR}"/ofs_ip_cfg_db/ofs_ip_cfg_pcie_ss.vh || true)
@@ -305,11 +318,6 @@ if command -v vlogan &> /dev/null; then
      # Parse the sources
      chmod a+x ../vcsmx_cmd_file.sh
      ../vcsmx_cmd_file.sh &>> ../vcsmx.log
-
-     # Rename the hidden generated setup file to a visible one that other scripts expect
-     if [ -f "$QLIBS_DIR"/vcsmx/.synopsys_vss.setup ]; then
-         mv "$QLIBS_DIR"/vcsmx/.synopsys_vss.setup "$QLIBS_DIR"/vcsmx/synopsys_sim.setup
-     fi
     ) &
 fi
 

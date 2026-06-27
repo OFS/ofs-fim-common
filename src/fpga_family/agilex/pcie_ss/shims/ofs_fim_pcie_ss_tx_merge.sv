@@ -28,8 +28,14 @@ module ofs_fim_pcie_ss_tx_merge
                                    (NUM_OF_SEG == 2) &&
                                    (NUM_OF_LINKS == 1);
 
+    // Agilex 5 GTS ("SM") tile with NUM_OF_SEG=2 also restricts SOP to segment 0
+    // when in-band headers are used. Force the simple arbitration path so that
+    // each TLP is launched from segment 0 and the HIP can locate the in-band
+    // header reliably (this is the workaround that fixes the MMIO read timeout).
+    localparam IS_SM_NSEG2 = (TILE == "SM") && (NUM_OF_SEG == 2);
+
     // Pick an implementation from the two choices below
-    if ((NUM_OF_SEG == 1) || IS_R_TILE_GEN4x16) begin : arb
+    if ((NUM_OF_SEG == 1) || IS_R_TILE_GEN4x16 || IS_SM_NSEG2) begin : arb
         // One segment -- simple arbitration
         ofs_fim_pcie_ss_tx_merge_arb merge
            (

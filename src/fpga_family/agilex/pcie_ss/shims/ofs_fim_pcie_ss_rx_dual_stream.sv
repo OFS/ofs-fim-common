@@ -23,7 +23,15 @@
 module ofs_fim_pcie_ss_rx_dual_stream
   #(
     parameter NUM_OF_SEG = 2,
-    parameter SB_HEADERS = 0
+    parameter SB_HEADERS = 0,
+    // When 1, multiple TLPs may be packed into a single beat (a new SOP may
+    // start in a later segment of the same beat where a prior TLP ends).
+    // Hard-tile PCIe SS supports this; SM-tile IB mode does not.
+    // When 0, stream_in.tlast reliably marks end-of-TLP and last_segment is
+    // not used for beat-to-beat continuation tracking.
+    // Default: enabled for multi-segment streams (NUM_OF_SEG > 1).
+    // SM-tile callers must explicitly pass MULTI_SOP=0.
+    parameter bit MULTI_SOP = (NUM_OF_SEG > 1)
     )
    (
     // Input stream with NUM_OF_SEG segments
@@ -115,7 +123,10 @@ module ofs_fim_pcie_ss_rx_dual_stream
                 cpld_seg_valid[s] = cpld_cont;
             end else begin
                 // Continuing from the previous segment in the same cycle?
-                cpld_seg_valid[s] = cpld_seg_valid[s-1] && !tuser_in[s-1].last_segment;
+                // Note: tuser_in[s-1].last_segment is unreliable on SM-tile/in-band
+                // header streams. Use tkeep[s][0] (the per-segment byte-enable) as
+                // the authoritative signal that segment s carries valid bytes.
+                cpld_seg_valid[s] = cpld_seg_valid[s-1] && tkeep_in[s][0];
             end
 
             cpld_seg_last[s] = cpld_seg_valid[s] && tuser_in[s].last_segment;
@@ -123,9 +134,15 @@ module ofs_fim_pcie_ss_rx_dual_stream
     end
 
     // Does the packet continue in the next cycle?
+    // MULTI_SOP=0 (SM-tile IB): one TLP at a time per beat; last_segment is
+    //   unreliable, but stream_in.tlast reliably marks end-of-TLP.
+    // MULTI_SOP=1 (hard tile): multiple TLPs may be packed per beat, so
+    //   stream_in.tlast can fire when an earlier TLP ends while a later segment
+    //   starts a new TLP that continues beyond this beat. Use last_segment[N-1]
+    //   which tracks the last segment's TLP independently.
     always_ff @(posedge clk) begin
         if (stream_in.tvalid && stream_in.tready) begin
-            if (NUM_OF_SEG == 1)
+            if (!MULTI_SOP)
                 cpld_cont <= cpld_seg_valid[NUM_OF_SEG-1] && !stream_in.tlast;
             else
                 cpld_cont <= cpld_seg_valid[NUM_OF_SEG-1] && !tuser_in[NUM_OF_SEG-1].last_segment;
@@ -188,7 +205,9 @@ module ofs_fim_pcie_ss_rx_dual_stream
                 req_seg_valid[s] = req_cont;
             end else begin
                 // Continuing from the previous segment in the same cycle?
-                req_seg_valid[s] = req_seg_valid[s-1] && !tuser_in[s-1].last_segment;
+                // Same SM-tile workaround as the cpld path above: rely on tkeep[s][0]
+                // rather than tuser_in[s-1].last_segment for segment continuation.
+                req_seg_valid[s] = req_seg_valid[s-1] && tkeep_in[s][0];
             end
 
             req_seg_last[s] = req_seg_valid[s] && tuser_in[s].last_segment;
@@ -196,9 +215,10 @@ module ofs_fim_pcie_ss_rx_dual_stream
     end
 
     // Does the packet continue in the next cycle?
+    // Same rationale as the cpld path: !MULTI_SOP → tlast, else → last_segment.
     always_ff @(posedge clk) begin
         if (stream_in.tvalid && stream_in.tready) begin
-            if (NUM_OF_SEG == 1)
+            if (!MULTI_SOP)
                 req_cont <= req_seg_valid[NUM_OF_SEG-1] && !stream_in.tlast;
             else
                 req_cont <= req_seg_valid[NUM_OF_SEG-1] && !tuser_in[NUM_OF_SEG-1].last_segment;

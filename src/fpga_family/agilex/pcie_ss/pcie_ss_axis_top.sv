@@ -182,8 +182,12 @@ initial begin
     if (CFG_NUM_SEG == 0)
         $fatal(1, " ** ERROR ** %m: CFG_NUM_SEG undefined!");
 
-    // If the number of segments is > 1 then expect tuser_hvalid
-    if ((CFG_NUM_SEG > 1) && !CFG_HAS_RX_TUSER_HVALID)
+    // If the number of segments is > 1 then expect tuser_hvalid.
+    // Exception: Agilex 5 GTS ("SM") tile in-band-header streams legitimately
+    // run with NUM_OF_SEG=2 but do not expose tuser_hvalid through the IP
+    // config DB. Tile-gating this check keeps elaboration honest for every
+    // other tile while letting the SM tile build cleanly.
+    if ((CFG_NUM_SEG > 1) && !CFG_HAS_RX_TUSER_HVALID && (CFG_TILE_NAME != "SM"))
         $fatal(1, " ** ERROR ** %m: CFG_NUM_SEG (%0d) > 1 but no tuser_hvalid", CFG_NUM_SEG);
 
     // RX/TX tuser_hvalid and tuser_last_segment should match. The two fields should
@@ -701,7 +705,9 @@ end
    `endif                                                              \
     .p0_pin_perst_n                 (                               ), \
    `ifdef OFS_FIM_IP_CFG_``SS_NAME``_HAS_P0_PIN_PERST_N_I              \
-    .p0_pin_perst_n_i               (1'b0                           ), \
+    .p0_pin_perst_n_i               (pin_pcie.in_perst_n            ), \
+   `endif                                                              \
+   `ifdef OFS_FIM_IP_CFG_``SS_NAME``_HAS_P0_PIN_PERST_N_1_I            \
     .p0_pin_perst_n_1_i             (pin_pcie.in_perst_n            ), \
    `endif                                                              \
    `ifdef OFS_FIM_IP_CFG_``SS_NAME``_HAS_I_GPIO_PERST0_N               \

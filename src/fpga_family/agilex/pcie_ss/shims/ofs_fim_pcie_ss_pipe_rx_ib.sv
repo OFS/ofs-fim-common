@@ -106,7 +106,10 @@ module ofs_fim_pcie_ss_pipe_rx_ib
     ofs_fim_pcie_ss_rx_dual_stream
       #(
         .NUM_OF_SEG(NUM_OF_SEG),
-        .SB_HEADERS(0)
+        .SB_HEADERS(0),
+        // SM-tile IB streams do not pack multiple TLPs per beat; tlast is
+        // the reliable end-of-packet indicator and last_segment is not set.
+        .MULTI_SOP(0)
         )
       rx_dual_stream
        (
