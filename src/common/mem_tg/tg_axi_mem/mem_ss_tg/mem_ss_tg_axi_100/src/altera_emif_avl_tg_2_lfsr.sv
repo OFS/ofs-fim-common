@@ -75,24 +75,50 @@ module altera_emif_avl_tg_2_lfsr # (
       40'b0000000000000000000000000000000000111001                 //   40:  taps:   40,   37,   36,   35
    };
 
-   // masking bits based on effective width 
-   integer j;
+   // PIPELINE (timing closure) WITHOUT changing address phase.
+   //
+   // The barrel-shift select (data << WIDTH-j, chosen by effective_width) is the
+   // confirmed critical logic cone feeding the AXI address register in the
+   // external bridge. To break that path we register the shifter output so the
+   // route to the bridge becomes a reg->reg hop. However, registering
+   // shift(data) directly makes data_out lag the LFSR state by one cycle, which
+   // desynchronizes the generated address from its arvalid/retire qualifier and
+   // hangs the TG at burst==1 (a new address every cycle). Instead we register
+   // the shift of the *next* LFSR state so that, cycle-for-cycle,
+   //    data_out(t) == shift(data(t))
+   // exactly matches the original combinational output (zero added latency),
+   // while the long shifter cone still terminates at a local register.
+
+   // Next LFSR state (advance), computed combinationally from the current state.
+   logic [WIDTH-1:0] data_next;
+   integer i;
    always_comb begin
-      data_out = {WIDTH{1'b0}};
-      for (j = 1; j < WIDTH+1; j++) begin
-         if(effective_width == j) data_out = data << WIDTH - j;
+      for (i = 0; i < WIDTH - 1; i++) begin
+         data_next[i] = (effective_width == (i + 1)) ? (~^(data[WIDTH-1:0] & taps[i + 1][WIDTH-1:0])) : (data[i+1]);
       end
+      data_next[WIDTH-1] = ~^(data[WIDTH-1:0] & taps[WIDTH][WIDTH-1:0]);
    end
 
-   integer i;
+   // Barrel-shift/mask by (WIDTH - effective_width), selected by effective_width.
+   function automatic logic [WIDTH-1:0] shift_mask(input logic [WIDTH-1:0] d);
+      integer j;
+      logic [WIDTH-1:0] r;
+      r = {WIDTH{1'b0}};
+      for (j = 1; j < WIDTH+1; j++) begin
+         if (effective_width == j) r = d << (WIDTH - j);
+      end
+      return r;
+   endfunction
+
+   // data holds the LFSR state; data_out is the registered shift of the CURRENT
+   // state: shift(seed) right after reset, then shift(data_next) on each enable.
    always_ff @(posedge clk) begin
       if (rst) begin
-         data <= seed;
+         data     <= seed;
+         data_out <= shift_mask(seed);
       end else if (enable) begin
-         for (i = 0; i < WIDTH - 1; i++) begin
-             data[i] <= (effective_width == i + 1) ? (~^(data[WIDTH-1:0] & taps[i + 1][WIDTH-1:0])) : (data[i+1]);
-         end
-         data[WIDTH-1] <= ~^(data[WIDTH-1:0] & taps[WIDTH][WIDTH-1:0]);
+         data     <= data_next;
+         data_out <= shift_mask(data_next);
       end
    end
    
