@@ -81,6 +81,14 @@ module altera_emif_avl_tg_2_rw_gen #(
    reg  [RW_IDLE_COUNT_WIDTH-1:0]   rw_idle_cntr;
    reg  [LOOP_IDLE_COUNT_WIDTH-1:0] loop_idle_cntr;
 
+   // In-phase registered comparison flags for loop_cntr. These keep the wide
+   // loop_cntr comparators off the FSM next-state critical path on the 400 MHz
+   // DDR clock. They are maintained cycle-for-cycle in lockstep with loop_cntr
+   // (see primary_fsm_loop_counter) so that at every cycle:
+   //    loop_cntr_eq1 == (loop_cntr == 1)   and   loop_cntr_gt1 == (loop_cntr > 1)
+   reg                             loop_cntr_eq1;
+   reg                             loop_cntr_gt1;
+
    // indicate wether the block settings inclue this
    //operation at all (i.e. num_reads/num_writes > 0)
    wire have_reads;
@@ -163,7 +171,7 @@ module altera_emif_avl_tg_2_rw_gen #(
                   next_state    = READ;
                end else if (have_reads) begin                    //reads pending, idle time
                   next_state    = WAIT_READ;
-               end else if (loop_cntr == 1) begin
+               end else if (loop_cntr_eq1) begin
                   next_state    = IDLE;
                end else begin
                   next_state    = WRITE;
@@ -188,7 +196,7 @@ module altera_emif_avl_tg_2_rw_gen #(
 
          READ:  begin
                if (read_cntr == 1 & read_ready & ~emergency_brake_asserted) begin//last read
-                  if (loop_cntr > 1) begin
+                  if (loop_cntr_gt1) begin
                      if (have_writes & (loop_idle_cntr == 0)) begin
                         next_state = WRITE;
                      end else begin
@@ -220,36 +228,57 @@ module altera_emif_avl_tg_2_rw_gen #(
       if (rst) begin
          state <= IDLE;
          loop_cntr <= 1'b1;
+         loop_cntr_eq1 <= 1'b1;   // loop_cntr == 1
+         loop_cntr_gt1 <= 1'b0;   // loop_cntr >  1
       end else begin
          state <= next_state;
 
+         // loop_cntr_eq1/gt1 are updated from the SAME next value assigned to
+         // loop_cntr, so they stay cycle-for-cycle identical to the direct
+         // comparisons (loop_cntr==1)/(loop_cntr>1). For the decrement case,
+         // (loop_cntr-1==1) == (loop_cntr==2) and (loop_cntr-1>1) == (loop_cntr>2),
+         // avoiding a subtractor+comparator in series.
          case(state)
             IDLE:    begin
                if (start) begin
-                  loop_cntr <= (inf_user_mode ? 12'd2:num_loops);
+                  loop_cntr     <= (inf_user_mode ? 12'd2:num_loops);
+                  loop_cntr_eq1 <= (inf_user_mode ? 1'b0 : (num_loops == 1));
+                  loop_cntr_gt1 <= (inf_user_mode ? 1'b1 : (num_loops >  1));
                end else begin
-                  loop_cntr <= loop_cntr;
+                  loop_cntr     <= loop_cntr;
+                  loop_cntr_eq1 <= loop_cntr_eq1;
+                  loop_cntr_gt1 <= loop_cntr_gt1;
                end
             end
 
             WRITE:   begin
                if ( write_cntr==1 & write_burst_cntr==1 & write_ready & ~have_reads & ~inf_user_mode) begin 
-                   loop_cntr <= loop_cntr - 1'b1;
+                   loop_cntr     <= loop_cntr - 1'b1;
+                   loop_cntr_eq1 <= (loop_cntr == 2);
+                   loop_cntr_gt1 <= (loop_cntr >  2);
                end else begin
-                   loop_cntr <= loop_cntr;
+                   loop_cntr     <= loop_cntr;
+                   loop_cntr_eq1 <= loop_cntr_eq1;
+                   loop_cntr_gt1 <= loop_cntr_gt1;
                end
             end
 
             READ:    begin
                if (read_cntr == 1 & read_ready & ~inf_user_mode) begin
-                   loop_cntr <= loop_cntr - 1'b1;
+                   loop_cntr     <= loop_cntr - 1'b1;
+                   loop_cntr_eq1 <= (loop_cntr == 2);
+                   loop_cntr_gt1 <= (loop_cntr >  2);
                end else begin
-                   loop_cntr <= loop_cntr;
+                   loop_cntr     <= loop_cntr;
+                   loop_cntr_eq1 <= loop_cntr_eq1;
+                   loop_cntr_gt1 <= loop_cntr_gt1;
                end
             end
 
             default: begin                   // for idle states
-               loop_cntr <= loop_cntr;
+               loop_cntr     <= loop_cntr;
+               loop_cntr_eq1 <= loop_cntr_eq1;
+               loop_cntr_gt1 <= loop_cntr_gt1;
             end
          endcase
 
