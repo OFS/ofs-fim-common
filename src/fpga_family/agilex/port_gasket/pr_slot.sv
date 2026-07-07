@@ -362,7 +362,9 @@ afu_main #(
    `endif 
 
    //JTAG signal connection to AFU region for remote SignalTap
-   .remote_stp_jtag_if
+   .remote_stp_jtag_if,
+   .pr_freeze_to_afu    (pr_freeze_fnmx_out)   // optional for pr_freeze usage in afu
+   
 );
 
 endmodule : pr_slot

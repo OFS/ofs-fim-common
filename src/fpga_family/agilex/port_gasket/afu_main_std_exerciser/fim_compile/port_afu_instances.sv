@@ -38,7 +38,7 @@ module port_afu_instances
    input  logic clk_div4,
    input  logic uclk_usr,
    input  logic uclk_usr_div2,
-
+   input  logic pr_freeze_to_afu,  // optional for pr_freeze usage in afu
    input  logic rst_n,
    // Both soft reset and global rst_n trigger port_rst_n
    input  logic [PG_NUM_PORTS-1:0] port_rst_n,

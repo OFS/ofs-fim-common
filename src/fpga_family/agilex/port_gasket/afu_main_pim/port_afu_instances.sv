@@ -65,7 +65,7 @@ module port_afu_instances # (
    input  logic clk_div4,
    input  logic uclk_usr,
    input  logic uclk_usr_div2,
-
+   input  logic pr_freeze_to_afu,  // optional for pr_freeze usage in afu
    input  logic rst_n,
    // Both soft reset and global rst_n trigger port_rst_n
 `ifdef OFS_PLAT_HOST_CHAN_MULTIPLEXED
@@ -154,7 +154,7 @@ ofs_plat_std_clocks_gen_port_resets clocks (
 assign plat_ifc.softReset_n = plat_ifc.clocks.pClk.reset_n;
 assign plat_ifc.pwrState = 1'b0;
 
-
+assign plat_ifc.pr_freeze_to_afu_in = pr_freeze_to_afu;
 //----------------------------------------------
 // AXI-S PCIe channels
 //----------------------------------------------

@@ -81,7 +81,8 @@ module afu_main
    `endif
 
    // JTAG interface for PR region debug
-   ofs_jtag_if.sink              remote_stp_jtag_if
+   ofs_jtag_if.sink              remote_stp_jtag_if,
+   input pr_freeze_to_afu        // optional for pr_freeze usage in afu
 );
 
 `ifdef OFS_PLAT_HOST_CHAN_MULTIPLEXED
@@ -316,29 +317,29 @@ port_afu_instances #(
    .NUM_MEM_CH      (NUM_MEM_CH),
    .MAX_ETH_CH      (MAX_ETH_CH)
 ) port_afu_instances (
-   .clk           (clk),
-   .clk_div2      (clk_div2),
-   .clk_div4      (clk_div4),
-   .uclk_usr      (uclk_usr),
-   .uclk_usr_div2 (uclk_usr_div2),
-   .rst_n         (rst_n_tree),
-   .port_rst_n    (port_rst_n_tree),
-
+   .clk           	(clk),
+   .clk_div2      	(clk_div2),
+   .clk_div4      	(clk_div4),
+   .uclk_usr      	(uclk_usr),
+   .uclk_usr_div2 	(uclk_usr_div2),
+   .rst_n         	(rst_n_tree),
+   .port_rst_n    	(port_rst_n_tree),
+   .pr_freeze_to_afu	(pr_freeze_to_afu), 
 `ifdef INCLUDE_HSSI
-   .hssi_ss_st_tx  (hssi_ss_st_tx),
-   .hssi_ss_st_rx  (hssi_ss_st_rx),
-   .hssi_fc        (hssi_fc),
-   .i_hssi_clk_pll (i_hssi_clk_pll),
+   .hssi_ss_st_tx  	(hssi_ss_st_tx),
+   .hssi_ss_st_rx  	(hssi_ss_st_rx),
+   .hssi_fc        	(hssi_fc),
+   .i_hssi_clk_pll 	(i_hssi_clk_pll),
 `endif
 
 `ifdef INCLUDE_LOCAL_MEM
-   .ext_mem_if    (ext_mem_if),
+   .ext_mem_if    	(ext_mem_if),
 `endif
 
-   .afu_axi_rx_a_if (port_rx_a_if),
-   .afu_axi_tx_a_if (port_tx_a_if),
-   .afu_axi_rx_b_if (port_rx_b_if),
-   .afu_axi_tx_b_if (port_tx_b_if)
+   .afu_axi_rx_a_if 	(port_rx_a_if),
+   .afu_axi_tx_a_if 	(port_tx_a_if),
+   .afu_axi_rx_b_if 	(port_rx_b_if),
+   .afu_axi_tx_b_if 	(port_tx_b_if)
 );
 
 
