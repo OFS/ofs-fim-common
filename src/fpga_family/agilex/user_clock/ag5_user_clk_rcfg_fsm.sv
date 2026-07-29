@@ -71,6 +71,11 @@ module ag5_user_clk_rcfg_fsm (
       RD_BYTE_1,
       RD_BYTE_2,
       RD_BYTE_3,
+      RD_WR_DELAY_0,
+      RD_WR_DELAY_1,
+      RD_WR_DELAY_2,
+      RD_WR_DELAY_3,
+      RD_WR_DELAY_4,
       WR_NULL_0,
       WR_NULL_1,
       WR_NULL_2,
@@ -129,9 +134,8 @@ module ag5_user_clk_rcfg_fsm (
             else
                core_avl_next_st = IDLE;
 
-         // There must be 5 idle cycles after a previous read or write.
-         // It's easier to enforce that as a preamble than deal with
-         // separate read and write delays.
+         // There must be at least 5 idle cycles after a previous read or
+         // write. This preamble separates independent commands.
          INIT_DELAY_0:
             core_avl_next_st  = INIT_DELAY_1;
          INIT_DELAY_1:
@@ -165,9 +169,22 @@ module ag5_user_clk_rcfg_fsm (
             core_avl_next_st  = RD_BYTE_3;
          RD_BYTE_3:
             if (mgmt_rcfg_ctrl_i.write)
-               core_avl_next_st  = WR_NULL_0;
+               core_avl_next_st  = RD_WR_DELAY_0;
             else
                core_avl_next_st  = IDLE;
+         // A masked write follows its read with a separate write transaction.
+         // The native IOPLL interface requires at least 5 idle cycles between
+         // deasserting core_avl_read and asserting core_avl_write.
+         RD_WR_DELAY_0:
+            core_avl_next_st  = RD_WR_DELAY_1;
+         RD_WR_DELAY_1:
+            core_avl_next_st  = RD_WR_DELAY_2;
+         RD_WR_DELAY_2:
+            core_avl_next_st  = RD_WR_DELAY_3;
+         RD_WR_DELAY_3:
+            core_avl_next_st  = RD_WR_DELAY_4;
+         RD_WR_DELAY_4:
+            core_avl_next_st  = WR_NULL_0;
          WR_NULL_0:
             core_avl_next_st  = WR_NULL_1;
          WR_NULL_1:
@@ -221,8 +238,9 @@ module ag5_user_clk_rcfg_fsm (
             RD_START:
             begin
                core_avl_read <= 1'b1;
-               // Align the address to 32-bit boundary
-               core_avl_address <= { mgmt_rcfg_ctrl_i.addr[7:2], 2'b0 };
+               // Software uses the documented byte addresses (for example,
+               // M=0x40 and C0=0x5c), while core_avl_address is word-indexed.
+               core_avl_address <= { 1'b0, mgmt_rcfg_ctrl_i.addr[9:2] };
             end
 
             RD_BYTE_0:
