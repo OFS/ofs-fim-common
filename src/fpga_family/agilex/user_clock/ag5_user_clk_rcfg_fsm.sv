@@ -240,7 +240,12 @@ module ag5_user_clk_rcfg_fsm (
                core_avl_read <= 1'b1;
                // Software uses the documented byte addresses (for example,
                // M=0x40 and C0=0x5c), while core_avl_address is word-indexed.
+`ifdef SIM_MODE
+               // The Agilex 5 simulation primitive expects byte addresses.
+               core_avl_address <= { 1'b0, mgmt_rcfg_ctrl_i.addr[7:2], 2'b0 };
+`else
                core_avl_address <= { 1'b0, mgmt_rcfg_ctrl_i.addr[9:2] };
+`endif
             end
 
             RD_BYTE_0:
