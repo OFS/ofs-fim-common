@@ -123,6 +123,13 @@ module ofs_fim_pcie_multi_link_afu_dfh
     logic rx_hdr_valid;
     logic rx_sop;
 
+    // PCIe SS headers are 256 bits. When the AXI-S data bus is only that wide
+    // (or narrower), a completion header and payload cannot share a beat and
+    // must be emitted over two cycles. Same rule as the PIM gasket tie-off.
+    localparam bit CPL_FITS_IN_ONE_BEAT =
+        (TDATA_WIDTH > $bits(pcie_ss_hdr_pkg::PCIe_PUCplHdr_t));
+    logic tx_cpl_emit_data;
+
     always_ff @(posedge clk)
     begin
         if (rx_st.tvalid && rx_st.tready)
@@ -154,7 +161,12 @@ module ofs_fim_pcie_multi_link_afu_dfh
     // Incoming MMIO read?
     always_ff @(posedge clk)
     begin
-        if (rx_st.tvalid && handle_rx_req && !rx_hdr_valid)
+        if (rx_hdr_valid && !CPL_FITS_IN_ONE_BEAT && !tx_cpl_emit_data)
+        begin
+            // Two-beat CPL: hold the request while the header beat is in flight
+            rx_hdr_valid <= 1'b1;
+        end
+        else if (rx_st.tvalid && handle_rx_req && !rx_hdr_valid)
         begin
             rx_hdr_valid <= 1'b1;
             rx_hdr <= rx_st_hdr_in;
@@ -163,7 +175,7 @@ module ofs_fim_pcie_multi_link_afu_dfh
         end
         else if (tx_st[0].tready)
         begin
-            // If a request was present, it was consumed
+            // Request consumed (one-beat CPL, or data beat of two-beat CPL)
             rx_hdr_valid <= 1'b0;
         end
 
@@ -293,18 +305,60 @@ module ofs_fim_pcie_multi_link_afu_dfh
         end
     end
 
-    // Forward the completion to the AFU->host TX stream
-    always_comb
-    begin
-        tx_st[0].tvalid = rx_hdr_valid &&
-                          pcie_ss_hdr_pkg::func_is_mrd_req(rx_hdr.fmt_type);
-        tx_st[0].tuser_vendor = '0;
-        // TLP payload is the completion data and the header
-        tx_st[0].tdata = { '0, cpl_data, tx_cpl_hdr };
-        // Keep matches the data: either 8 or 4 bytes of data and the header
-        tx_st[0].tkeep = { '0, {4{(rx_hdr.length > 1)}}, {4{1'b1}}, {TX_CPL_HDR_BYTES{1'b1}} };
-        tx_st[0].tlast = 1'b1;
-    end
+    // Forward the completion to the AFU->host TX stream.
+    // When the bus is only as wide as the PCIe SS header (common on AGX5
+    // 256-bit PU mode), emit header and payload on consecutive beats.
+    generate
+        if (CPL_FITS_IN_ONE_BEAT)
+        begin : gen_cpl_wide
+            assign tx_cpl_emit_data = 1'b1;
+
+            always_comb
+            begin
+                tx_st[0].tvalid = rx_hdr_valid &&
+                                  pcie_ss_hdr_pkg::func_is_mrd_req(rx_hdr.fmt_type);
+                tx_st[0].tuser_vendor = '0;
+                // TLP payload is the completion data and the header
+                tx_st[0].tdata = { '0, cpl_data, tx_cpl_hdr };
+                // Keep matches the data: either 8 or 4 bytes of data and the header
+                tx_st[0].tkeep = { '0, {4{(rx_hdr.length > 1)}}, {4{1'b1}},
+                                   {TX_CPL_HDR_BYTES{1'b1}} };
+                tx_st[0].tlast = 1'b1;
+            end
+        end
+        else
+        begin : gen_cpl_narrow
+            always_ff @(posedge clk)
+            begin
+                if (tx_st[0].tvalid && tx_st[0].tready)
+                    tx_cpl_emit_data <= ~tx_cpl_emit_data;
+
+                if (!rst_n)
+                    tx_cpl_emit_data <= 1'b0;
+            end
+
+            always_comb
+            begin
+                tx_st[0].tvalid = rx_hdr_valid &&
+                                  pcie_ss_hdr_pkg::func_is_mrd_req(rx_hdr.fmt_type);
+                tx_st[0].tuser_vendor = '0;
+                if (!tx_cpl_emit_data)
+                begin
+                    // Beat 0: completion header only
+                    tx_st[0].tdata = { '0, tx_cpl_hdr };
+                    tx_st[0].tkeep = { '0, {TX_CPL_HDR_BYTES{1'b1}} };
+                    tx_st[0].tlast = 1'b0;
+                end
+                else
+                begin
+                    // Beat 1: completion data
+                    tx_st[0].tdata = { '0, cpl_data };
+                    tx_st[0].tkeep = { '0, {4{(rx_hdr.length > 1)}}, {4{1'b1}} };
+                    tx_st[0].tlast = 1'b1;
+                end
+            end
+        end
+    endgenerate
 
     // Forward requests not handled here to AFU
     assign o_rx_if.tvalid = rx_st.tvalid && !handle_rx_req;
